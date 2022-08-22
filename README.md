@@ -13,6 +13,7 @@ and SYS instruction)
 The display is a 16 color 64x64 display using a 16-bit RGB color palette,
 organized like so:
 
+```
 +-----------------+
 |(0,0)      (64,0)|
 |                 |
@@ -22,9 +23,11 @@ organized like so:
 |                 |
 |(0,64)    (64,64)|
 +-----------------+
+```
 
 ## Memory map
 
+```
 +-----------------+ 0xFFFF (65535) End of RAM
 |                 |
 |                 |
@@ -39,6 +42,7 @@ organized like so:
 |                 |
 |                 |
 +-----------------+ 0x000 (0) Start of RAM
+```
 
 ## Registers
 
