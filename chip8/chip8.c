@@ -36,7 +36,13 @@ SDL_Rect winRect = {
 int
 check_carry(int x, int y)
 {
-	return (x + y) > UINT8_MAX;
+	return (((int) x) + y) > UINT8_MAX;
+}
+
+int
+check_borrow(int x, int y)
+{
+	return (((int) x) - y) < 0;
 }
 
 void
@@ -144,6 +150,100 @@ parse_instruction(uint16_t in)
 					V[0xF] = check_carry(V[x], V[y]);
 					V[x] += V[y];
 					break;
+				case 0x5:
+					/* SUB Vx, Vy */
+					V[0xF] = check_borrow(V[x], V[y]) == 0 ? 1 : 0;
+					V[x] -= V[y];
+					break;
+				case 0x6:
+					/* SHR Vx */
+					V[x] = V[x] >> 1;
+					V[0xF] = V[x] & 0x1;
+					V[x] /= 2;
+					break;
+				case 0x7:
+					/* SUBN Vx, Vy */
+					V[0xF] = check_borrow(V[y], V[x]) == 0 ? 1 : 0;
+					V[x] = V[y] - V[x];
+					break;
+				case 0xE:
+					/* SHL Vx */
+					V[x] = V[x] << 1;
+					V[0xF] = (V[x] & 0x40) >> 7;
+					V[x] *= 2;
+					break;
+			}
+			break;
+		case 0x9:
+			/* SNE Vx, Vy */
+			if (V[x] != V[y])
+				pc += 2;
+			break;
+		case 0xA:
+			/* LD I, addr */
+			I = mem[nnn];
+			break;
+		case 0xB:
+			/* JP V0, addr */
+			pc = nnn + V[0];
+			break;
+		case 0xC:
+			/* RND Vx, byte */
+			// TODO implement
+			break;
+		case 0xD:
+			/* DRW Vx, Vy, n */
+			// TODO implement
+			break;
+		case 0xE:
+			if (kk == 0x9E) {
+				/* SKP Vx */
+				// TODO implement
+			} else if (kk == 0xA1) {
+				/* SKNP Vx */
+				// TODO implement
+			}
+			break;
+		case 0xF:
+			switch (kk) {
+				case 0x07:
+					/* LD Vx, DT */
+					// TODO implement
+					break;
+				case 0x0A:
+					/* LD Vx, K */
+					// TODO implement
+					break;
+				case 0x15:
+					/* LD DT, Vx */
+					// TODO implement
+					break;
+				case 0x18:
+					/* LD ST, Vx */
+					// TODO implement
+					break;
+				case 0x1E:
+					/* ADD I, Vx */
+					I += V[x];
+					break;
+				case 0x29:
+					/* LD F, Vx */
+					// TODO implement
+					break;
+				case 0x33:
+					/* LD B, Vx */
+					// TODO implement
+					break;
+				case 0x55:
+					/* LD [I], Vx */
+					for (int i = 0; i < x; i++)
+						mem[I + i] = V[i];
+					break;
+				case 0x65:
+					/* LD Vx, [I] */
+					for (int i = 0; i < x; i++)
+						V[i] = mem[I + i];
+					break;
 			}
 	}
 }
@@ -154,11 +254,6 @@ main(int argc, char *argv[])
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 	window = SDL_CreateWindow("CHIP8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-
-	draw(0, 0);
-	draw(0, 3);
-	draw(1,1);
-	render();
 
 	SDL_Event e;
 
