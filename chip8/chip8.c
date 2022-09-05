@@ -1,5 +1,8 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 #include <SDL2/SDL.h>
 
 #define DISPLAY_WIDTH 64
@@ -10,13 +13,35 @@
 #define WINDOW_SCALE_X DEFAULT_WINDOW_WIDTH / DISPLAY_WIDTH
 #define WINDOW_SCALE_Y DEFAULT_WINDOW_HEIGHT / DISPLAY_HEIGHT
 
+#define FONT_START 0x0000
+
 int display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
+int key[0x10];
 int running = 0;
 
 uint8_t mem[0xFFF];
 uint8_t V[16];
 uint16_t pc = 0x200;
 uint16_t sp = 0, dt = 0, st = 0;
+
+uint16_t font[] = {
+	 0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+	 0x20, 0x60, 0x20, 0x20, 0x70, // 1
+	 0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+	 0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+	 0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+	 0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+	 0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+	 0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+	 0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+	 0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+	 0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+	 0xE0, 0x90, 0x90, 0x90, 0xE0, // B
+	 0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+	 0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+	 0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+	 0xF0, 0x80, 0xF0, 0x80, 0x80, // F
+};
 
 SDL_Window *window;
 SDL_Renderer *renderer;
@@ -189,26 +214,30 @@ parse_instruction(uint16_t in)
 			break;
 		case 0xC:
 			/* RND Vx, byte */
-			// TODO implement
+			V[x] = (rand() % 0xFF) & kk;
 			break;
 		case 0xD:
-			/* DRW Vx, Vy, n */
-			// TODO implement
+			/* DRW Vx, Vy, b */
+			for (int i = 0; i < b; i++) {
+				display[V[x]][V[y]] =
+			}
 			break;
 		case 0xE:
 			if (kk == 0x9E) {
 				/* SKP Vx */
-				// TODO implement
+				if (key[V[x]])
+					pc += 2;
 			} else if (kk == 0xA1) {
 				/* SKNP Vx */
-				// TODO implement
+				if (!key[V[x]])
+					pc += 2;
 			}
 			break;
 		case 0xF:
 			switch (kk) {
 				case 0x07:
 					/* LD Vx, DT */
-					// TODO implement
+					V[x] = dt;
 					break;
 				case 0x0A:
 					/* LD Vx, K */
@@ -216,11 +245,11 @@ parse_instruction(uint16_t in)
 					break;
 				case 0x15:
 					/* LD DT, Vx */
-					// TODO implement
+					dt = V[x];
 					break;
 				case 0x18:
 					/* LD ST, Vx */
-					// TODO implement
+					st = V[x];
 					break;
 				case 0x1E:
 					/* ADD I, Vx */
@@ -228,11 +257,13 @@ parse_instruction(uint16_t in)
 					break;
 				case 0x29:
 					/* LD F, Vx */
-					// TODO implement
+					I = V[x] * 5;
 					break;
 				case 0x33:
 					/* LD B, Vx */
-					// TODO implement
+					mem[I] = (V[x] / 100) % 10; // hundreds
+					mem[I + 1] = (V[x] / 10) % 10; // tens
+					mem[I + 2] = V[x] % 10; // ones
 					break;
 				case 0x55:
 					/* LD [I], Vx */
@@ -251,9 +282,17 @@ parse_instruction(uint16_t in)
 int
 main(int argc, char *argv[])
 {
+	srand(time(NULL));
+
+	/* SDL initialization */
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 	window = SDL_CreateWindow("CHIP8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+	/* Font initialization */
+	for (int i = 0; i < (0x10 * 5); i++) {
+		mem[i] = font[i];
+	}
 
 	SDL_Event e;
 
