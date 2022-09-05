@@ -22,7 +22,7 @@ int running = 0;
 uint8_t mem[0xFFF];
 uint8_t V[16];
 uint16_t pc = 0x200;
-uint16_t sp = 0, dt = 0, st = 0;
+uint16_t I = 0, sp = 0, dt = 0, st = 0;
 
 uint16_t font[] = {
 	 0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -73,21 +73,23 @@ check_borrow(int x, int y)
 void
 draw(int x, int y)
 {
-	display[x][y] = true;
+	display[x][y] = 1;
 }
 
 void
 render(void)
 {
 	SDL_RenderClear(renderer);
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	for (int i = 0; i < DISPLAY_WIDTH; i++) {
 		for (int j = 0; j < DISPLAY_HEIGHT; j++) {
 			if (display[i][j]) {
-				pix.x = i * WINDOW_SCALE_X;
-				pix.y = j * WINDOW_SCALE_Y;
-				SDL_RenderFillRect(renderer, &pix);
+				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+			} else {
+				SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 			}
+			pix.x = i * WINDOW_SCALE_X;
+			pix.y = j * WINDOW_SCALE_Y;
+			SDL_RenderFillRect(renderer, &pix);
 		}
 	}
 
@@ -110,7 +112,7 @@ parse_instruction(uint16_t in)
 				/* CLS */
 				for (int i = 0; i < DISPLAY_WIDTH; i++) {
 					for (int j = 0; j < DISPLAY_HEIGHT; j++) {
-						display[i][j] = false;
+						display[i][j] = 0;
 					}
 				}
 			} else if (in == 0x00EE) {
@@ -218,9 +220,22 @@ parse_instruction(uint16_t in)
 			break;
 		case 0xD:
 			/* DRW Vx, Vy, b */
+			int collision = 0;
 			for (int i = 0; i < b; i++) {
-				display[V[x]][V[y]] =
+				for (int j = 0; j < 8; j++) {
+					int before = display[V[x +j]][V[y + b]];
+					if (mem[I + b] & ((uint8_t) pow(2, j)))
+						display[V[x + j]][V[y + b]] ^= 1;
+
+					if (before != display[V[x +j]][V[y + b]])
+						collision = 1;
+				}
 			}
+
+			if (collision)
+				V[0xF] = 1;
+			else
+				V[0xF] = 0;
 			break;
 		case 0xE:
 			if (kk == 0x9E) {
@@ -280,8 +295,30 @@ parse_instruction(uint16_t in)
 }
 
 int
+load_rom(const char *addr)
+{
+	FILE *f = fopen(addr, "rb");
+
+	if (!f)
+		return 0;
+
+	/* get filesize */
+	fseek(f, 0, SEEK_END);
+	int size = ftell(f);
+	rewind(f);
+
+	if (size > (0xFFF - 0x200))
+		return 0;
+
+	fread(mem + 0x200, size, 1, f);
+	fclose(f);
+	return 1;
+}
+
+int
 main(int argc, char *argv[])
 {
+	SDL_Event e;
 	srand(time(NULL));
 
 	/* SDL initialization */
@@ -289,25 +326,42 @@ main(int argc, char *argv[])
 	window = SDL_CreateWindow("CHIP8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
+
 	/* Font initialization */
 	for (int i = 0; i < (0x10 * 5); i++) {
 		mem[i] = font[i];
 	}
 
-	SDL_Event e;
+
+	/* load rom */
+	if (argc == 2) {
+		if (!load_rom(argv[1])) {
+			fprintf(stderr, "failed to load rom file\n");
+			exit(EXIT_FAILURE);
+		}
+	} else {
+		fprintf(stderr, "no rom specified\n");
+		exit(EXIT_FAILURE);
+	}
+
 
 	running = 1;
 	while (running) {
 		while (SDL_PollEvent(&e)) {
 			switch (e.type) {
 				case SDL_QUIT:
-					running = false;	
+					running = 0;	
 					break;
 			}
 		}
+
+		parse_instruction((mem[pc] << 8) | mem[pc + 1]);
+		pc += 2;
+
+		render();
 	}
 
 	SDL_DestroyWindow(window);
 	SDL_Quit();
-	return 0;
+	return EXIT_SUCCESS;
 }
