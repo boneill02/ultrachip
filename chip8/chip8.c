@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -83,9 +84,9 @@ render(void)
 	for (int i = 0; i < DISPLAY_WIDTH; i++) {
 		for (int j = 0; j < DISPLAY_HEIGHT; j++) {
 			if (display[i][j]) {
-				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+				SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 			} else {
-				SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+				SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 			}
 			pix.x = i * WINDOW_SCALE_X;
 			pix.y = j * WINDOW_SCALE_Y;
@@ -106,6 +107,9 @@ parse_instruction(uint16_t in)
 
 	int a = (in & 0xF000) >> 12;
 	int b = in & 0x000F;
+
+	int collision = 0;
+
 	switch (a) {
 		case 0x0:
 			if (in == 0x00E0) {
@@ -220,7 +224,7 @@ parse_instruction(uint16_t in)
 			break;
 		case 0xD:
 			/* DRW Vx, Vy, b */
-			int collision = 0;
+			collision = 0;
 			for (int i = 0; i < b; i++) {
 				for (int j = 0; j < 8; j++) {
 					int before = display[V[x +j]][V[y + b]];
