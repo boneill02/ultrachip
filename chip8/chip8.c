@@ -15,8 +15,8 @@
 #define WINDOW_SCALE_Y (DEFAULT_WINDOW_HEIGHT / DISPLAY_HEIGHT)
 #define FRAMERATE_CAP 60.0
 
-#define FONT_START 0x100
-#define DEBUG 1
+#define FONT_START 0x000
+#define DEBUG 0
 
 
 int display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
@@ -235,7 +235,7 @@ parse_instruction(uint16_t in)
 			for (int i = 0; i < b; i++) {
 				for (int j = 0; j < 8; j++) {
 					int dx = V[x] + j;
-					int dy = V[y] + b;
+					int dy = V[y] + i;
 
 					while (dx >= DISPLAY_WIDTH)
 						dx -= DISPLAY_WIDTH;
@@ -243,7 +243,7 @@ parse_instruction(uint16_t in)
 						dy -= DISPLAY_WIDTH;
 
 					int before = display[dx][dy];
-					if ((mem[I + b] >> j) & 1) {
+					if ((mem[I + i] >> j) & 1) {
 						display[dx][dy] ^= 1;
 					}
 
@@ -251,6 +251,8 @@ parse_instruction(uint16_t in)
 						V[0xF] = 1;
 				}
 			}
+
+			render();
 			break;
 		case 0xE:
 			if (kk == 0x9E) {
@@ -327,17 +329,17 @@ void
 render(void)
 {
 	SDL_RenderClear(renderer);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+	SDL_RenderFillRect(renderer, &winRect);
+
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	for (int i = 0; i < DISPLAY_WIDTH; i++) {
 		for (int j = 0; j < DISPLAY_HEIGHT; j++) {
 			if (display[i][j]) {
-				SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-				printf("pix on");
-			} else {
-				SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+				pix.x = i * WINDOW_SCALE_X;
+				pix.y = j * WINDOW_SCALE_Y;
+				SDL_RenderFillRect(renderer, &pix);
 			}
-			pix.x = i * WINDOW_SCALE_X;
-			pix.y = j * WINDOW_SCALE_Y;
-			SDL_RenderFillRect(renderer, &pix);
 		}
 	}
 
@@ -350,9 +352,6 @@ int
 main(int argc, char *argv[])
 {
 	SDL_Event e;
-	int a, b;
-	double delta;
-
 	srand(time(NULL));
 
 	/* SDL initialization */
@@ -366,7 +365,6 @@ main(int argc, char *argv[])
 		mem[FONT_START + i] = font[i];
 	}
 
-
 	/* load rom */
 	if (argc == 2) {
 		if (!load_rom(argv[1])) {
@@ -379,18 +377,8 @@ main(int argc, char *argv[])
 	}
 
 
-	b = SDL_GetTicks();
-	delta = 0.0;
 	running = 1;
 	while (running) {
-		/* cap framerate */
-	//	a = SDL_GetTicks();
-	//	delta = a - b;
-	//	if (delta < 1000.0/FRAMERATE_CAP) {
-	//		SDL_Delay((1000.0/FRAMERATE_CAP) - delta);
-	//	}
-	//	b = a;
-
 		while (SDL_PollEvent(&e)) {
 			switch (e.type) {
 				case SDL_QUIT:
@@ -402,7 +390,6 @@ main(int argc, char *argv[])
 		parse_instruction((mem[pc] << 8) | mem[pc + 1]);
 		pc += 2;
 
-		render();
 	}
 
 	SDL_DestroyWindow(window);
