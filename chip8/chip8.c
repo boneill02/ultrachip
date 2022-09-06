@@ -11,19 +11,22 @@
 
 #define DEFAULT_WINDOW_WIDTH 800
 #define DEFAULT_WINDOW_HEIGHT 400
-#define WINDOW_SCALE_X DEFAULT_WINDOW_WIDTH / DISPLAY_WIDTH
-#define WINDOW_SCALE_Y DEFAULT_WINDOW_HEIGHT / DISPLAY_HEIGHT
+#define WINDOW_SCALE_X (DEFAULT_WINDOW_WIDTH / DISPLAY_WIDTH)
+#define WINDOW_SCALE_Y (DEFAULT_WINDOW_HEIGHT / DISPLAY_HEIGHT)
+#define FRAMERATE_CAP 60.0
 
-#define FONT_START 0x0000
+#define FONT_START 0x100
+#define DEBUG 1
+
 
 int display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
 int key[0x10];
 int running = 0;
 
-uint8_t mem[0xFFF];
-uint8_t V[16];
-uint16_t pc = 0x200;
-uint16_t I = 0, sp = 0, dt = 0, st = 0;
+uint8_t mem[0xFFF], V[16];
+uint8_t sp = 0, dt = 0, st = 0;
+uint16_t stack[16];
+uint16_t pc = 0x200, I = 0;
 
 uint16_t font[] = {
 	 0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -59,11 +62,12 @@ SDL_Rect winRect = {
 	.h = DEFAULT_WINDOW_HEIGHT,
 };
 
-int
-check_carry(int x, int y)
-{
-	return (((int) x) + y) > UINT8_MAX;
-}
+int check_carry(int x, int y);
+int check_borrow(int x, int y);
+int load_rom(const char *addr);
+void parse_instruction(uint16_t in);
+void print_debug(void);
+void render(void);
 
 int
 check_borrow(int x, int y)
@@ -71,30 +75,31 @@ check_borrow(int x, int y)
 	return (((int) x) - y) < 0;
 }
 
-void
-draw(int x, int y)
+int
+check_carry(int x, int y)
 {
-	display[x][y] = 1;
+	return (((int) x) + y) > UINT8_MAX;
 }
 
-void
-render(void)
+int
+load_rom(const char *addr)
 {
-	SDL_RenderClear(renderer);
-	for (int i = 0; i < DISPLAY_WIDTH; i++) {
-		for (int j = 0; j < DISPLAY_HEIGHT; j++) {
-			if (display[i][j]) {
-				SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-			} else {
-				SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-			}
-			pix.x = i * WINDOW_SCALE_X;
-			pix.y = j * WINDOW_SCALE_Y;
-			SDL_RenderFillRect(renderer, &pix);
-		}
-	}
+	FILE *f = fopen(addr, "r");
 
-	SDL_RenderPresent(renderer);
+	if (!f)
+		return 0;
+
+	/* get filesize */
+	fseek(f, 0, SEEK_END);
+	int size = ftell(f);
+	rewind(f);
+
+	if (size > (0xFFF - 0x200))
+		return 0;
+
+	fread(mem + 0x200, size, 1, f);
+	fclose(f);
+	return 1;
 }
 
 void
@@ -108,7 +113,8 @@ parse_instruction(uint16_t in)
 	int a = (in & 0xF000) >> 12;
 	int b = in & 0x000F;
 
-	int collision = 0;
+	if (DEBUG)
+		print_debug();
 
 	switch (a) {
 		case 0x0:
@@ -121,8 +127,8 @@ parse_instruction(uint16_t in)
 				}
 			} else if (in == 0x00EE) {
 				/* RET */
-				pc = mem[sp];
-				sp -= 1;
+				sp--;
+				pc = stack[sp];
 			}
 			break;
 		case 0x1:
@@ -131,8 +137,8 @@ parse_instruction(uint16_t in)
 			break;
 		case 0x2:
 			/* CALL addr */
+			stack[sp] = pc;
 			sp++;
-			mem[sp] = pc;
 			pc = nnn;
 			break;
 		case 0x3:
@@ -156,6 +162,7 @@ parse_instruction(uint16_t in)
 			break;
 		case 0x7:
 			/* ADD Vx, byte */
+			V[0xF] = check_carry(V[x], kk);
 			V[x] += kk;
 			break;
 		case 0x8:
@@ -212,7 +219,7 @@ parse_instruction(uint16_t in)
 			break;
 		case 0xA:
 			/* LD I, addr */
-			I = mem[nnn];
+			I = nnn;
 			break;
 		case 0xB:
 			/* JP V0, addr */
@@ -220,26 +227,30 @@ parse_instruction(uint16_t in)
 			break;
 		case 0xC:
 			/* RND Vx, byte */
-			V[x] = (rand() % 0xFF) & kk;
+			V[x] = (rand() % 0x100) & kk;
 			break;
 		case 0xD:
 			/* DRW Vx, Vy, b */
-			collision = 0;
+			V[0xF] = 0;
 			for (int i = 0; i < b; i++) {
 				for (int j = 0; j < 8; j++) {
-					int before = display[V[x +j]][V[y + b]];
-					if (mem[I + b] & ((uint8_t) pow(2, j)))
-						display[V[x + j]][V[y + b]] ^= 1;
+					int dx = V[x] + j;
+					int dy = V[y] + b;
 
-					if (before != display[V[x +j]][V[y + b]])
-						collision = 1;
+					while (dx >= DISPLAY_WIDTH)
+						dx -= DISPLAY_WIDTH;
+					while (dy >= DISPLAY_HEIGHT)
+						dy -= DISPLAY_WIDTH;
+
+					int before = display[dx][dy];
+					if ((mem[I + b] >> j) & 1) {
+						display[dx][dy] ^= 1;
+					}
+
+					if (before != display[dx][dy])
+						V[0xF] = 1;
 				}
 			}
-
-			if (collision)
-				V[0xF] = 1;
-			else
-				V[0xF] = 0;
 			break;
 		case 0xE:
 			if (kk == 0x9E) {
@@ -276,7 +287,7 @@ parse_instruction(uint16_t in)
 					break;
 				case 0x29:
 					/* LD F, Vx */
-					I = V[x] * 5;
+					I = FONT_START + (V[x] * 5);
 					break;
 				case 0x33:
 					/* LD B, Vx */
@@ -296,33 +307,52 @@ parse_instruction(uint16_t in)
 					break;
 			}
 	}
+
+	if (dt > 0)
+		dt--;
+	if (st > 0)
+		st--;
 }
 
-int
-load_rom(const char *addr)
+void
+print_debug(void)
 {
-	FILE *f = fopen(addr, "rb");
-
-	if (!f)
-		return 0;
-
-	/* get filesize */
-	fseek(f, 0, SEEK_END);
-	int size = ftell(f);
-	rewind(f);
-
-	if (size > (0xFFF - 0x200))
-		return 0;
-
-	fread(mem + 0x200, size, 1, f);
-	fclose(f);
-	return 1;
+	printf("OPCODE: %.4x\nPC: %.3x\nSP: %.3xI: %.4x\n",
+			(mem[pc] << 8) | mem[pc + 1], pc, sp, I);
+	for (int i = 0; i < 16; i++)
+		printf("V%d: %.2x\n", i, V[i]);
 }
+
+void
+render(void)
+{
+	SDL_RenderClear(renderer);
+	for (int i = 0; i < DISPLAY_WIDTH; i++) {
+		for (int j = 0; j < DISPLAY_HEIGHT; j++) {
+			if (display[i][j]) {
+				SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+				printf("pix on");
+			} else {
+				SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+			}
+			pix.x = i * WINDOW_SCALE_X;
+			pix.y = j * WINDOW_SCALE_Y;
+			SDL_RenderFillRect(renderer, &pix);
+		}
+	}
+
+	SDL_RenderPresent(renderer);
+}
+
+
 
 int
 main(int argc, char *argv[])
 {
 	SDL_Event e;
+	int a, b;
+	double delta;
+
 	srand(time(NULL));
 
 	/* SDL initialization */
@@ -333,7 +363,7 @@ main(int argc, char *argv[])
 
 	/* Font initialization */
 	for (int i = 0; i < (0x10 * 5); i++) {
-		mem[i] = font[i];
+		mem[FONT_START + i] = font[i];
 	}
 
 
@@ -349,8 +379,18 @@ main(int argc, char *argv[])
 	}
 
 
+	b = SDL_GetTicks();
+	delta = 0.0;
 	running = 1;
 	while (running) {
+		/* cap framerate */
+	//	a = SDL_GetTicks();
+	//	delta = a - b;
+	//	if (delta < 1000.0/FRAMERATE_CAP) {
+	//		SDL_Delay((1000.0/FRAMERATE_CAP) - delta);
+	//	}
+	//	b = a;
+
 		while (SDL_PollEvent(&e)) {
 			switch (e.type) {
 				case SDL_QUIT:
