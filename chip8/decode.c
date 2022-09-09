@@ -24,7 +24,7 @@ decode_instruction(uint16_t in)
 				sprintf(result, "RET");
 			break;
 		case 0x1:
-			sprintf(result, "JMP %03x", nnn);
+			sprintf(result, "JP %03x", nnn);
 			break;
 		case 0x2:
 			sprintf(result, "CALL %03x", nnn);
