@@ -6,6 +6,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "decode.h"
+
 #define DISPLAY_WIDTH 64
 #define DISPLAY_HEIGHT 32
 
@@ -16,14 +18,14 @@
 #define FRAMERATE_CAP 60.0
 
 #define FONT_START 0x000
-#define DEBUG 0
+#define DEBUG 1
 
 
 int display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
 int key[0x10];
 int running = 0;
 
-uint8_t mem[0xFFF], V[16];
+uint8_t mem[0x1000], V[16];
 uint8_t sp = 0, dt = 0, st = 0;
 uint16_t stack[16];
 uint16_t pc = 0x200, I = 0;
@@ -319,10 +321,8 @@ parse_instruction(uint16_t in)
 void
 print_debug(void)
 {
-	printf("OPCODE: %.4x\nPC: %.3x\nSP: %.3xI: %.4x\n",
-			(mem[pc] << 8) | mem[pc + 1], pc, sp, I);
-	for (int i = 0; i < 16; i++)
-		printf("V%d: %.2x\n", i, V[i]);
+	uint16_t in = (mem[pc] << 8) | mem[pc + 1];
+	printf("%s\n", decode_instruction(in));
 }
 
 void
@@ -387,7 +387,8 @@ main(int argc, char *argv[])
 			}
 		}
 
-		parse_instruction((mem[pc] << 8) | mem[pc + 1]);
+		uint16_t in = ((uint16_t) mem[pc]) << 8 | mem[pc + 1];
+		parse_instruction(in);
 		pc += 2;
 
 	}

@@ -1,8 +1,8 @@
 include config.mk
 
-SRC = chip8.c
+SRC = chip8.c decode.c
 OBJ = ${SRC:.c=.o}
-TARG = ${SRC:.c=}
+TARG = chip8
 
 all: ${TARG}
 
