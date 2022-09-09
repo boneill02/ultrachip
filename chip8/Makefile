@@ -14,6 +14,9 @@ ${OBJ}: config.mk
 ${TARG}: ${OBJ}
 	${CC} -o $@ ${OBJ} ${LDFLAGS}
 
+dis: decode.o dis.o
+	${CC} -o $@ decode.o dis.o ${LDFLAGS}
+
 clean:
 	rm -f ${TARG} ${OBJ}
 
