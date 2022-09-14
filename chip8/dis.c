@@ -23,7 +23,7 @@ main(int argc, char *argv[])
 	uint16_t addr = 0x200;
 	int c;
 	while ((c = fgetc(f)) != EOF) {
-		if (addr % 2) {
+		if (addr % 2 == 0) {
 			ins = ((uint16_t) c) << 8;
 		} else {
 			ins |= (uint16_t) c;

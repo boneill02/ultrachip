@@ -18,12 +18,11 @@
 #define FRAMERATE_CAP 60.0
 
 #define FONT_START 0x000
-#define DEBUG 1
-
 
 int display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
 int key[0x10];
 int running = 0;
+int debug = 0;
 
 uint8_t mem[0x1000], V[16];
 uint8_t sp = 0, dt = 0, st = 0;
@@ -115,9 +114,6 @@ parse_instruction(uint16_t in)
 	int a = (in & 0xF000) >> 12;
 	int b = in & 0x000F;
 
-	if (DEBUG)
-		print_debug();
-
 	switch (a) {
 		case 0x0:
 			if (in == 0x00E0) {
@@ -135,13 +131,13 @@ parse_instruction(uint16_t in)
 			break;
 		case 0x1:
 			/* JP addr */
-			pc = nnn;
+			pc = nnn - 2;
 			break;
 		case 0x2:
 			/* CALL addr */
 			stack[sp] = pc;
 			sp++;
-			pc = nnn;
+			pc = nnn - 2;
 			break;
 		case 0x3:
 			/* SE Vx, byte */
@@ -316,13 +312,22 @@ parse_instruction(uint16_t in)
 		dt--;
 	if (st > 0)
 		st--;
+	pc += 2;
 }
 
 void
 print_debug(void)
 {
 	uint16_t in = (mem[pc] << 8) | mem[pc + 1];
-	printf("%s\n", decode_instruction(in));
+	char *decoded = decode_instruction(in);
+	printf("INSTRUCTION: %04x\t%s\n", in, decoded);
+
+	/* registers */
+	printf("PC: %03x\nSP: %02x\nDT: %02x\nST: %02x\nI: %04x\n",
+			pc, sp, dt, st, I);
+	for (int i = 0; i < 0x10; i++) {
+		printf("V%01x: %02x\n", i, V[i]);
+	}
 }
 
 void
@@ -366,12 +371,18 @@ main(int argc, char *argv[])
 	}
 
 	/* load rom */
-	if (argc == 2) {
-		if (!load_rom(argv[1])) {
+	if (argc > 1) {
+		if (!load_rom(argv[argc - 1])) {
 			fprintf(stderr, "failed to load rom file\n");
 			exit(EXIT_FAILURE);
 		}
-	} else {
+	}
+	if (argc == 3) {
+		if (!strcmp(argv[1], "-d"))
+			debug = 1;
+	}
+
+	if (argc < 2) {
 		fprintf(stderr, "no rom specified\n");
 		exit(EXIT_FAILURE);
 	}
@@ -379,18 +390,31 @@ main(int argc, char *argv[])
 
 	running = 1;
 	while (running) {
+		uint16_t in = ((uint16_t) mem[pc]) << 8 | mem[pc + 1];
 		while (SDL_PollEvent(&e)) {
 			switch (e.type) {
 				case SDL_QUIT:
 					running = 0;	
 					break;
+				case SDL_KEYDOWN:
+					if (debug) {
+						if (e.key.keysym.sym == SDLK_s) {
+							/* step */
+							print_debug();
+							parse_instruction(in);
+						}
+						if (e.key.keysym.sym == SDLK_c) {
+							/* continue (disable debug mode) */
+							printf("debug off\n");
+							debug = 0;
+						}
+					}
+					break;
 			}
 		}
 
-		uint16_t in = ((uint16_t) mem[pc]) << 8 | mem[pc + 1];
-		parse_instruction(in);
-		pc += 2;
-
+		if (!debug)
+			parse_instruction(in);
 	}
 
 	SDL_DestroyWindow(window);

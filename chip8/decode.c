@@ -4,11 +4,13 @@
 
 #include "decode.h"
 
-char result[512];
+char result[16];
 
 char *
 decode_instruction(uint16_t in)
 {
+	for (int i = 0; i < 16; i++)
+		result[i] = '\0';
 	int x = (in & 0x0F00) >> 8;
 	int kk = in & 0x00FF;
 	int y = (in & 0x00F0) >> 4;
@@ -129,6 +131,8 @@ decode_instruction(uint16_t in)
 					break;
 			}
 			break;
+		default:
+			sprintf(result, "NOP");
 	}
 
 	return result;
