@@ -7,6 +7,7 @@
 #include <SDL2/SDL.h>
 
 #include "decode.h"
+#include "chip8.h"
 
 #define DISPLAY_WIDTH 64
 #define DISPLAY_HEIGHT 32
@@ -16,8 +17,6 @@
 #define WINDOW_SCALE_X (DEFAULT_WINDOW_WIDTH / DISPLAY_WIDTH)
 #define WINDOW_SCALE_Y (DEFAULT_WINDOW_HEIGHT / DISPLAY_HEIGHT)
 #define FRAMERATE_CAP 60.0
-
-#define FONT_START 0x000
 
 int display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
 int key[0x10];
@@ -131,13 +130,13 @@ parse_instruction(uint16_t in)
 			break;
 		case 0x1:
 			/* JP addr */
-			pc = nnn - 2;
+			pc = nnn;
 			break;
 		case 0x2:
 			/* CALL addr */
 			stack[sp] = pc;
 			sp++;
-			pc = nnn - 2;
+			pc = nnn;
 			break;
 		case 0x3:
 			/* SE Vx, byte */
@@ -221,7 +220,7 @@ parse_instruction(uint16_t in)
 			break;
 		case 0xB:
 			/* JP V0, addr */
-			pc = nnn + V[0];
+			pc = nnn + V[0] - 2;
 			break;
 		case 0xC:
 			/* RND Vx, byte */
@@ -312,7 +311,6 @@ parse_instruction(uint16_t in)
 		dt--;
 	if (st > 0)
 		st--;
-	pc += 2;
 }
 
 void
@@ -328,6 +326,14 @@ print_debug(void)
 	for (int i = 0; i < 0x10; i++) {
 		printf("V%01x: %02x\n", i, V[i]);
 	}
+
+	/* memory 
+	for (int i = 0; i < 0x1000; i++) {
+		printf("%02x ", mem[i]);
+		if (i % 256 == 0) {
+			printf("\n%03x\t", i);
+		}
+	} */
 }
 
 void
@@ -391,6 +397,7 @@ main(int argc, char *argv[])
 	running = 1;
 	while (running) {
 		uint16_t in = ((uint16_t) mem[pc]) << 8 | mem[pc + 1];
+		pc += 2;
 		while (SDL_PollEvent(&e)) {
 			switch (e.type) {
 				case SDL_QUIT:
