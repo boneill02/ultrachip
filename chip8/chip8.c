@@ -187,7 +187,7 @@ parse_instruction(uint16_t in)
 					break;
 				case 0x5:
 					/* SUB Vx, Vy */
-					V[0xF] = check_borrow(V[x], V[y]) == 0 ? 1 : 0;
+					V[0xF] = !check_borrow(V[x], V[y]);
 					V[x] -= V[y];
 					break;
 				case 0x6:
@@ -237,10 +237,10 @@ parse_instruction(uint16_t in)
 					while (dx >= DISPLAY_WIDTH)
 						dx -= DISPLAY_WIDTH;
 					while (dy >= DISPLAY_HEIGHT)
-						dy -= DISPLAY_WIDTH;
+						dy -= DISPLAY_HEIGHT;
 
 					int before = display[dx][dy];
-					if ((mem[I + i] >> j) & 1) {
+					if ((mem[I + i] >> (7 - j)) & 1) {
 						display[dx][dy] ^= 1;
 					}
 
