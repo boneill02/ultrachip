@@ -1,3 +1,3 @@
-# Zandra ULTRACHIP Chip-8 Emulator
+# Chip-8 Emulator
 
 Standard Chip-8 emulator.
