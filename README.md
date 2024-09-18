@@ -1,4 +1,4 @@
-# Zandra ULTRACHIP
+# ULTRACHIP
 
 Virtual machine based on CHIP-8, with the following improvements:
 
