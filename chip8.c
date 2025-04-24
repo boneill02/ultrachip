@@ -19,14 +19,16 @@
 #define FRAMERATE_CAP 60.0
 
 int display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
-int key[0x10];
-int running = 0;
-int debug = 0;
+bool running = false;
+bool debug = false;
 
 uint8_t mem[0x1000], V[16];
 uint8_t sp = 0, dt = 0, st = 0;
 uint16_t stack[16];
 uint16_t pc = 0x200, I = 0;
+int key[0x10];
+int keyRegister;
+bool waitingForKey = false;
 
 uint16_t font[] = {
 	 0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -47,6 +49,25 @@ uint16_t font[] = {
 	 0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 };
 
+uint16_t keyMap[16][2] = {
+	{ SDLK_1, 0 },
+	{ SDLK_2, 1 },
+	{ SDLK_3, 2 },
+	{ SDLK_4, 3 },
+	{ SDLK_q, 4 },
+	{ SDLK_w, 5 },
+	{ SDLK_e, 6 },
+	{ SDLK_r, 7 },
+	{ SDLK_a, 8 },
+	{ SDLK_s, 9 },
+	{ SDLK_d, 10 },
+	{ SDLK_f, 11 },
+	{ SDLK_z, 12 },
+	{ SDLK_x, 13 },
+	{ SDLK_c, 14 },
+	{ SDLK_v, 15 },
+};
+
 SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Rect pix = {
@@ -62,10 +83,11 @@ SDL_Rect winRect = {
 	.h = DEFAULT_WINDOW_HEIGHT,
 };
 
-int check_carry(int x, int y);
-int check_borrow(int x, int y);
-int load_rom(const char *addr);
-void parse_instruction(uint16_t in);
+int check_borrow(int, int);
+int check_carry(int, int);
+int get_key(SDL_Keycode);
+int load_rom(const char *);
+void parse_instruction(uint16_t);
 void print_debug(void);
 void render(void);
 
@@ -79,6 +101,17 @@ int
 check_carry(int x, int y)
 {
 	return (((int) x) + y) > UINT8_MAX;
+}
+
+int
+get_key(SDL_Keycode k)
+{
+	for (int i = 0; i < 16; i++) {
+		if (keyMap[i][0] == k) return keyMap[i][1];
+	}
+
+	printf("UNKNOWN KEY");
+	return -1;
 }
 
 int
@@ -270,7 +303,7 @@ parse_instruction(uint16_t in)
 					break;
 				case 0x0A:
 					/* LD Vx, K */
-					// TODO implement
+					waitingForKey = true;
 					break;
 				case 0x15:
 					/* LD DT, Vx */
@@ -318,22 +351,13 @@ print_debug(void)
 {
 	uint16_t in = (mem[pc] << 8) | mem[pc + 1];
 	char *decoded = decode_instruction(in);
-	printf("INSTRUCTION: %04x\t%s\n", in, decoded);
-
-	/* registers */
-	printf("PC: %03x\nSP: %02x\nDT: %02x\nST: %02x\nI: %04x\n",
-			pc, sp, dt, st, I);
+	printf("INSTRUCTION: %04x\t%s\nPC: %03x\nSP: %02x\nDT: %02x\nST: %02x\n"
+		   "I: %04x\n", in, decoded, pc, sp, dt, st, I);
 	for (int i = 0; i < 0x10; i++) {
 		printf("V%01x: %02x\n", i, V[i]);
 	}
 
-	/* memory 
-	for (int i = 0; i < 0x1000; i++) {
-		printf("%02x ", mem[i]);
-		if (i % 256 == 0) {
-			printf("\n%03x\t", i);
-		}
-	} */
+	/* TODO dump mem to file */
 }
 
 void
@@ -357,12 +381,27 @@ render(void)
 	SDL_RenderPresent(renderer);
 }
 
-
-
 int
 main(int argc, char *argv[])
 {
 	SDL_Event e;
+	uint16_t in;
+	int keyPressed;
+
+	/* load rom */
+	if (argc < 2) {
+		fprintf(stderr, "no rom specified\n");
+		exit(EXIT_FAILURE);
+	}
+	if (!load_rom(argv[argc - 1])) {
+		fprintf(stderr, "failed to load rom file\n");
+		exit(EXIT_FAILURE);
+	}
+	if (argc == 3) {
+		if (!strcmp(argv[1], "-d"))
+			debug = 1;
+	}
+
 	srand(time(NULL));
 
 	/* SDL initialization */
@@ -370,43 +409,27 @@ main(int argc, char *argv[])
 	window = SDL_CreateWindow("CHIP8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-
 	/* Font initialization */
 	for (int i = 0; i < (0x10 * 5); i++) {
 		mem[FONT_START + i] = font[i];
 	}
 
-	/* load rom */
-	if (argc > 1) {
-		if (!load_rom(argv[argc - 1])) {
-			fprintf(stderr, "failed to load rom file\n");
-			exit(EXIT_FAILURE);
-		}
-	}
-	if (argc == 3) {
-		if (!strcmp(argv[1], "-d"))
-			debug = 1;
-	}
-
-	if (argc < 2) {
-		fprintf(stderr, "no rom specified\n");
-		exit(EXIT_FAILURE);
-	}
-
-
 	running = 1;
 	while (running) {
-		uint16_t in = ((uint16_t) mem[pc]) << 8 | mem[pc + 1];
-		pc += 2;
+		if (!waitingForKey) {
+			in = ((uint16_t) mem[pc]) << 8 | mem[pc + 1];
+			pc += 2;
+		}
+
 		while (SDL_PollEvent(&e)) {
 			switch (e.type) {
 				case SDL_QUIT:
 					running = 0;	
 					break;
 				case SDL_KEYDOWN:
+					printf("KEY PRESSED");
 					if (debug) {
 						if (e.key.keysym.sym == SDLK_s) {
-							/* step */
 							print_debug();
 							parse_instruction(in);
 						}
@@ -416,12 +439,18 @@ main(int argc, char *argv[])
 							debug = 0;
 						}
 					}
+					if (waitingForKey && (keyPressed = get_key(e.key.keysym.sym) != -1)) {
+						V[keyRegister] = keyPressed;
+						waitingForKey = false;
+					}
 					break;
 			}
 		}
 
 		if (!debug)
 			parse_instruction(in);
+		
+		SDL_Delay(1000 / CLOCK_SPEED);
 	}
 
 	SDL_DestroyWindow(window);
