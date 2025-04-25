@@ -109,8 +109,6 @@ get_key(SDL_Keycode k)
 	for (int i = 0; i < 16; i++) {
 		if (keyMap[i][0] == k) return keyMap[i][1];
 	}
-
-	printf("UNKNOWN KEY");
 	return -1;
 }
 
@@ -414,7 +412,7 @@ main(int argc, char *argv[])
 		mem[FONT_START + i] = font[i];
 	}
 
-	running = 1;
+	running = true;
 	while (running) {
 		if (!waitingForKey) {
 			in = ((uint16_t) mem[pc]) << 8 | mem[pc + 1];
@@ -424,24 +422,32 @@ main(int argc, char *argv[])
 		while (SDL_PollEvent(&e)) {
 			switch (e.type) {
 				case SDL_QUIT:
-					running = 0;	
+					running = false;	
 					break;
 				case SDL_KEYDOWN:
-					printf("KEY PRESSED");
 					if (debug) {
-						if (e.key.keysym.sym == SDLK_s) {
+						if (e.key.keysym.sym == SDLK_p) {
+							debug = true;
 							print_debug();
 							parse_instruction(in);
 						}
-						if (e.key.keysym.sym == SDLK_c) {
-							/* continue (disable debug mode) */
+						if (e.key.keysym.sym == SDLK_m) {
+							/* disable debug mode */
 							printf("debug off\n");
-							debug = 0;
+							debug = false;
 						}
 					}
-					if (waitingForKey && (keyPressed = get_key(e.key.keysym.sym) != -1)) {
-						V[keyRegister] = keyPressed;
-						waitingForKey = false;
+					if ((keyPressed = get_key(e.key.keysym.sym)) != -1) {
+						key[keyPressed] = 1;
+						if (waitingForKey) {
+							V[keyRegister] = keyPressed;
+							waitingForKey = false;
+						}
+					}
+					break;
+				case SDL_KEYUP:
+					if ((keyPressed = get_key(e.key.keysym.sym)) != -1) {
+						key[keyPressed] = 0;
 					}
 					break;
 			}
