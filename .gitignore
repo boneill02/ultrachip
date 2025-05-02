@@ -2,3 +2,4 @@ chip8
 *.o
 *.ch8
 dis
+.vscode/

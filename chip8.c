@@ -1,5 +1,4 @@
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -9,26 +8,9 @@
 #include "decode.h"
 #include "chip8.h"
 
-#define DISPLAY_WIDTH 64
-#define DISPLAY_HEIGHT 32
-
-#define DEFAULT_WINDOW_WIDTH 800
-#define DEFAULT_WINDOW_HEIGHT 400
-#define WINDOW_SCALE_X (DEFAULT_WINDOW_WIDTH / DISPLAY_WIDTH)
-#define WINDOW_SCALE_Y (DEFAULT_WINDOW_HEIGHT / DISPLAY_HEIGHT)
-#define FRAMERATE_CAP 60.0
-
 int display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
 bool running = false;
 bool debug = false;
-
-uint8_t mem[0x1000], V[16];
-uint8_t sp = 0, dt = 0, st = 0;
-uint16_t stack[16];
-uint16_t pc = 0x200, I = 0;
-int key[0x10];
-int keyRegister;
-bool waitingForKey = false;
 
 uint16_t font[] = {
 	 0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -280,7 +262,6 @@ parse_instruction(uint16_t in)
 				}
 			}
 
-			render();
 			break;
 		case 0xE:
 			if (kk == 0x9E) {
@@ -456,6 +437,7 @@ main(int argc, char *argv[])
 		if (!debug)
 			parse_instruction(in);
 		
+		render();
 		SDL_Delay(1000 / CLOCK_SPEED);
 	}
 
