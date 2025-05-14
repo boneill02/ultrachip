@@ -387,7 +387,7 @@ void
 simulate()
 {
 	SDL_Event e;
-	uint16_t in;
+	uint16_t in = 0;
 	int keyPressed;
 
 	running = true;
