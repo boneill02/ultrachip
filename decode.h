@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-uint16_t jump(uint16_t);
 char *decode_instruction(uint16_t, uint8_t *);
+uint16_t jump(uint16_t);
 
 #endif

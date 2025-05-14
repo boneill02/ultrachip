@@ -8,8 +8,8 @@
 #include "chip8.h"
 
 int display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
-bool running = false;
-bool debug = false;
+int running = 0;
+int debug = 0;
 
 uint8_t mem[0x1000], V[16];
 uint8_t sp = 0, dt = 0, st = 0;
@@ -18,8 +18,7 @@ uint16_t pc = 0x200, I = 0;
 int key[0x10];
 int keyRegister;
 int clockSpeed = CLOCK_SPEED;
-bool waitingForKey = false;
-
+int waitingForKey = 0;
 
 uint16_t font[] = {
 	 0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -79,30 +78,22 @@ int check_carry(int, int);
 int get_key(SDL_Keycode);
 int load_rom(const char *);
 
-int
-check_borrow(int x, int y)
-{
+int check_borrow(int x, int y) {
 	return (((int) x) - y) < 0;
 }
 
-int
-check_carry(int x, int y)
-{
+int check_carry(int x, int y) {
 	return (((int) x) + y) > UINT8_MAX;
 }
 
-int
-get_key(SDL_Keycode k)
-{
+int get_key(SDL_Keycode k) {
 	for (int i = 0; i < 16; i++) {
 		if (keyMap[i][0] == k) return keyMap[i][1];
 	}
 	return -1;
 }
 
-int
-load_rom(const char *addr)
-{
+int load_rom(const char *addr) {
 	FILE *f = fopen(addr, "r");
 
 	if (!f)
@@ -121,9 +112,7 @@ load_rom(const char *addr)
 	return 1;
 }
 
-void
-parse_instruction(uint16_t in)
-{
+void parse_instruction(uint16_t in) {
 	int x = (in & 0x0F00) >> 8;
 	int kk = in & 0x00FF;
 	int y = (in & 0x00F0) >> 4;
@@ -288,7 +277,7 @@ parse_instruction(uint16_t in)
 					break;
 				case 0x0A:
 					/* LD Vx, K */
-					waitingForKey = true;
+					waitingForKey = 1;
 					break;
 				case 0x15:
 					/* LD DT, Vx */
@@ -331,9 +320,7 @@ parse_instruction(uint16_t in)
 		st--;
 }
 
-void
-print_debug(void)
-{
+void print_debug(void) {
 	uint16_t in = (mem[pc] << 8) | mem[pc + 1];
 	char *decoded = decode_instruction(in, NULL);
 	printf("INSTRUCTION: %04x\t%s\nPC: %03x\nSP: %02x\nDT: %02x\nST: %02x\n"
@@ -345,9 +332,7 @@ print_debug(void)
 	/* TODO dump mem to file */
 }
 
-void
-render(void)
-{
+void render(void) {
 	SDL_RenderClear(renderer);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 	SDL_RenderFillRect(renderer, &winRect);
@@ -366,32 +351,26 @@ render(void)
 	SDL_RenderPresent(renderer);
 }
 
-bool
-init_graphics()
-{
+int init_graphics() {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 	window = SDL_CreateWindow("CHIP8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
-	if (!window) return false;
+	if (!window) return 0;
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	return renderer != NULL;
 }
 
-void
-init_font() 
-{
+void init_font(void) {
 	for (int i = 0; i < (0x10 * 5); i++) {
 		mem[FONT_START + i] = font[i];
 	}
 }
 
-void
-simulate()
-{
+void simulate(void) {
 	SDL_Event e;
 	int keyPressed;
 	uint16_t in = 0;
 
-	running = true;
+	running = 1;
 	while (running) {
 		if (!waitingForKey) {
 			in = ((uint16_t) mem[pc]) << 8 | mem[pc + 1];
@@ -401,26 +380,25 @@ simulate()
 		while (SDL_PollEvent(&e)) {
 			switch (e.type) {
 				case SDL_QUIT:
-					running = false;	
+					running = 0;	
 					break;
 				case SDL_KEYDOWN:
 					if (debug) {
 						if (e.key.keysym.sym == SDLK_p) {
-							debug = true;
+							debug = 1;
 							print_debug();
 							parse_instruction(in);
 						}
 						if (e.key.keysym.sym == SDLK_m) {
-							/* disable debug mode */
 							printf("debug off\n");
-							debug = false;
+							debug = 0;
 						}
 					}
 					if ((keyPressed = get_key(e.key.keysym.sym)) != -1) {
 						key[keyPressed] = 1;
 						if (waitingForKey) {
 							V[keyRegister] = keyPressed;
-							waitingForKey = false;
+							waitingForKey = 0;
 						}
 					}
 					break;
@@ -439,9 +417,7 @@ simulate()
 	}
 }
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	int opt;
 	while ((opt = getopt(argc, argv, "c:d")) != -1) {
 		switch (opt) {
@@ -449,7 +425,7 @@ main(int argc, char *argv[])
 				clockSpeed = atoi(optarg);
 				break;
 			case 'd':
-				debug = true;
+				debug = 1;
 				break;
 			default:
 				  fprintf(stderr, "Usage: %s [-d] [-c clockspeed] file", argv[0]);
