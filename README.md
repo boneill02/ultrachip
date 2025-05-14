@@ -29,7 +29,7 @@ Debug mode allows stepping and printing of the current instruction. At any point
 ### Disassembler
 
 ```
-dis [-al] rom
+dis [-al] [-o outputfile] rom
 ```
 
-The disassembler will print the corresponding CHIP-8 "assembly" instructions for the ROM's bytecode. The `-a` argument toggles printing of addresses and the `-l` instruction toggles printing of labels (not yet implemented).
+The disassembler will print the corresponding CHIP-8 "assembly" instructions for the ROM's bytecode. The `-a` argument toggles printing of addresses and the `-l` instruction toggles printing of labels.
