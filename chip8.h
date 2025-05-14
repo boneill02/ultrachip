@@ -23,7 +23,6 @@
 #define DEFAULT_WINDOW_HEIGHT 400
 #define WINDOW_SCALE_X (DEFAULT_WINDOW_WIDTH / DISPLAY_WIDTH)
 #define WINDOW_SCALE_Y (DEFAULT_WINDOW_HEIGHT / DISPLAY_HEIGHT)
-#define FRAMERATE_CAP 60.0
 
 void parse_instruction(uint16_t);
 void print_debug(void);

@@ -266,7 +266,7 @@ parse_instruction(uint16_t in)
 						V[0xF] = 1;
 				}
 			}
-
+			render();
 			break;
 		case 0xE:
 			if (kk == 0x9E) {
@@ -434,9 +434,6 @@ simulate()
 		if (!debug)
 			parse_instruction(in);
 		
-		if (graphicsEnabled) {
-			render();
-		}
 		SDL_Delay(1000 / CLOCK_SPEED);
 	}
 }
