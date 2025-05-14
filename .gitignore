@@ -1,5 +1,5 @@
-chip8
+c8
 *.o
 *.ch8
-dis
+c8dis
 .vscode/
