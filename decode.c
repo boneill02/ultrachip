@@ -26,14 +26,14 @@ jump(uint16_t in)
 }
 
 char *
-decode_instruction(uint16_t in)
+decode_instruction(uint16_t in, uint8_t *label_map)
 {
 	for (int i = 0; i < 16; i++)
 		result[i] = '\0';
 	int x = (in & 0x0F00) >> 8;
 	int kk = in & 0x00FF;
-	int y = (in & 0x00F0) >> 4;
 	int nnn = in & 0x0FFF;
+	int y = (in & 0x00F0) >> 4;
 	int a = (in & 0xF000) >> 12;
 	int b = in & 0x000F;
 
@@ -45,10 +45,18 @@ decode_instruction(uint16_t in)
 				sprintf(result, "RET");
 			break;
 		case 0x1:
-			sprintf(result, "JP %03x", nnn);
+			if (label_map && label_map[nnn]) {
+				sprintf(result, "JP label%d", label_map[nnn]);
+			} else {
+				sprintf(result, "JP %03x", nnn);
+			}
 			break;
 		case 0x2:
-			sprintf(result, "CALL %03x", nnn);
+			if (label_map && label_map[nnn]) {
+				sprintf(result, "CALL label%d", label_map[nnn]);
+			} else {
+				sprintf(result, "CALL %03x", nnn);
+			}
 			break;
 		case 0x3:
 			sprintf(result, "SE V%01x, %03x", x, kk);
@@ -100,10 +108,18 @@ decode_instruction(uint16_t in)
 			sprintf(result, "SNE V%01x, V%01x", x, y);
 			break;
 		case 0xA:
-			sprintf(result, "LD I, %03x", nnn);
+			if (label_map && label_map[nnn]) {
+				sprintf(result, "LD I, label%d", label_map[nnn]);
+			} else {
+				sprintf(result, "LD I, %03x", nnn);
+			}
 			break;
 		case 0xB:
-			sprintf(result, "JP V0, %03x", nnn);
+			if (label_map && label_map[nnn]) {
+				sprintf(result, "JP V0, label%d", label_map[nnn]);
+			} else {
+				sprintf(result, "JP V0, %03x", nnn);
+			}
 			break;
 		case 0xC:
 			sprintf(result, "RND V%01x, %02x", x, kk);

@@ -4,6 +4,6 @@
 #include <stdint.h>
 
 uint16_t jump(uint16_t in);
-char *decode_instruction(uint16_t in);
+char *decode_instruction(uint16_t in, uint8_t *label_map);
 
 #endif

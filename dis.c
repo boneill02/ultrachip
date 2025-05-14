@@ -9,7 +9,7 @@
 #define ARG_PRINT_ADDRESSES 0x1
 #define ARG_DEFINE_LABELS 0x2
 
-uint8_t label_map[0x1000];
+uint8_t *label_map = NULL;
 
 void find_labels(FILE *input) {
 	uint16_t addr = PROG_START;
@@ -42,12 +42,13 @@ disassemble(FILE *input, FILE *output, int args)
 		} else {
 			ins |= (uint16_t) c;
 			if (label_map[addr]) {
-				fprintf(output, "l%d:\n", label_map[addr]);
+				fprintf(output, "label%d:\n", label_map[addr]);
 			}
 			if (args & ARG_PRINT_ADDRESSES) {
 				fprintf(output, "%03x: ", addr - 1);
 			}
-			fprintf(output, "%s\n", decode_instruction(ins));
+
+			fprintf(output, "%s\n", decode_instruction(ins, label_map));
 		}
 		addr++;
 	}
@@ -88,14 +89,19 @@ main(int argc, char *argv[])
 	}
 
 	if (args & ARG_DEFINE_LABELS) {
+		label_map = calloc(0x1000, sizeof(uint8_t));
 		find_labels(inf);
 		rewind(inf);
 	}
 
 	disassemble(inf, outf, args);
 	fclose(inf);
+
 	if (outf != stdout) {
 		fclose(outf);
+	}
+	if (label_map) {
+		free(label_map);
 	}
 	return EXIT_SUCCESS;
 }
