@@ -21,10 +21,20 @@ sudo make install
 ### CHIP-8 VM
 
 ```
-chip8 [-d] rom
+chip8 [-d] [-c clockspeed] rom
 ```
 
 Debug mode allows stepping and printing of the current instruction. At any point during execution, debug mode can be enabled or disabled with the P and M keys, respectively. P parses the current instruction and prints the next instruction.
+
+Keyboard layout is the following:
+
+```
+1 2 3 4
+q w e r
+a s d f
+z x c v
+```
+
 
 ### Disassembler
 
