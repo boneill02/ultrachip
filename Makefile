@@ -34,4 +34,4 @@ install: ${TARG} ${DIS_TARG}
 uninstall:
 	rm -f ${PREFIX}/bin/${TARG} ${PREFIX}/bin/${DIS_TARG}
 
-.PHONY: all clean run install uninstall
+.PHONY: all c8 c8dis clean run install uninstall
