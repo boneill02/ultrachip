@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <SDL2/SDL.h>
+#include <unistd.h>
 
 #include "decode.h"
 #include "chip8.h"
@@ -16,8 +17,8 @@ uint16_t stack[16];
 uint16_t pc = 0x200, I = 0;
 int key[0x10];
 int keyRegister;
+int clockSpeed = CLOCK_SPEED;
 bool waitingForKey = false;
-bool graphicsEnabled = true;
 
 
 uint16_t font[] = {
@@ -387,8 +388,8 @@ void
 simulate()
 {
 	SDL_Event e;
-	uint16_t in = 0;
 	int keyPressed;
+	uint16_t in = 0;
 
 	running = true;
 	while (running) {
@@ -441,18 +442,24 @@ simulate()
 int
 main(int argc, char *argv[])
 {
-	/* load rom */
-	if (argc < 2) {
-		fprintf(stderr, "No rom specified\n");
-		exit(EXIT_FAILURE);
+	int opt;
+	while ((opt = getopt(argc, argv, "c:d")) != -1) {
+		switch (opt) {
+			case 'c':
+				clockSpeed = atoi(optarg);
+				break;
+			case 'd':
+				debug = true;
+				break;
+			default:
+				  fprintf(stderr, "Usage: %s [-d] [-c clockspeed] file", argv[0]);
+				  exit(EXIT_FAILURE);
+		}
 	}
-	if (!load_rom(argv[argc - 1])) {
+
+	if (!load_rom(argv[optind])) {
 		fprintf(stderr, "Failed to load rom file\n");
 		exit(EXIT_FAILURE);
-	}
-	if (argc == 3) {
-		if (!strcmp(argv[1], "-d"))
-			debug = 1;
 	}
 
 	srand(time(NULL));
