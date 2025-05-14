@@ -334,7 +334,7 @@ void
 print_debug(void)
 {
 	uint16_t in = (mem[pc] << 8) | mem[pc + 1];
-	char *decoded = decode_instruction(in);
+	char *decoded = decode_instruction(in, NULL);
 	printf("INSTRUCTION: %04x\t%s\nPC: %03x\nSP: %02x\nDT: %02x\nST: %02x\n"
 		   "I: %04x\n", in, decoded, pc, sp, dt, st, I);
 	for (int i = 0; i < 0x10; i++) {
