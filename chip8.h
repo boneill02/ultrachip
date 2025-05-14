@@ -1,6 +1,7 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #ifndef FONT_START
@@ -31,5 +32,10 @@ uint16_t pc = 0x200, I = 0;
 int key[0x10];
 int keyRegister;
 bool waitingForKey = false;
+bool graphicsEnabled = true;
+
+void parse_instruction(uint16_t);
+void print_debug(void);
+void render(void);
 
 #endif

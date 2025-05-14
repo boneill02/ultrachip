@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -69,9 +68,6 @@ int check_borrow(int, int);
 int check_carry(int, int);
 int get_key(SDL_Keycode);
 int load_rom(const char *);
-void parse_instruction(uint16_t);
-void print_debug(void);
-void render(void);
 
 int
 check_borrow(int x, int y)
@@ -360,38 +356,30 @@ render(void)
 	SDL_RenderPresent(renderer);
 }
 
-int
-main(int argc, char *argv[])
+bool
+init_graphics()
+{
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+	window = SDL_CreateWindow("CHIP8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
+	if (!window) return false;
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	return renderer != NULL;
+}
+
+void
+init_font() 
+{
+	for (int i = 0; i < (0x10 * 5); i++) {
+		mem[FONT_START + i] = font[i];
+	}
+}
+
+void
+simulate()
 {
 	SDL_Event e;
 	uint16_t in;
 	int keyPressed;
-
-	/* load rom */
-	if (argc < 2) {
-		fprintf(stderr, "no rom specified\n");
-		exit(EXIT_FAILURE);
-	}
-	if (!load_rom(argv[argc - 1])) {
-		fprintf(stderr, "failed to load rom file\n");
-		exit(EXIT_FAILURE);
-	}
-	if (argc == 3) {
-		if (!strcmp(argv[1], "-d"))
-			debug = 1;
-	}
-
-	srand(time(NULL));
-
-	/* SDL initialization */
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-	window = SDL_CreateWindow("CHIP8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-
-	/* Font initialization */
-	for (int i = 0; i < (0x10 * 5); i++) {
-		mem[FONT_START + i] = font[i];
-	}
 
 	running = true;
 	while (running) {
@@ -437,9 +425,39 @@ main(int argc, char *argv[])
 		if (!debug)
 			parse_instruction(in);
 		
-		render();
+		if (graphicsEnabled) {
+			render();
+		}
 		SDL_Delay(1000 / CLOCK_SPEED);
 	}
+}
+
+int
+main(int argc, char *argv[])
+{
+	/* load rom */
+	if (argc < 2) {
+		fprintf(stderr, "No rom specified\n");
+		exit(EXIT_FAILURE);
+	}
+	if (!load_rom(argv[argc - 1])) {
+		fprintf(stderr, "Failed to load rom file\n");
+		exit(EXIT_FAILURE);
+	}
+	if (argc == 3) {
+		if (!strcmp(argv[1], "-d"))
+			debug = 1;
+	}
+
+	srand(time(NULL));
+
+	if (!init_graphics()) {
+		fprintf(stderr, "Failed to initialize graphics");
+		exit(EXIT_FAILURE);
+	}
+
+	init_font();
+	simulate();
 
 	SDL_DestroyWindow(window);
 	SDL_Quit();

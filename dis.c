@@ -10,26 +10,25 @@
 #define ARG_DEFINE_LABELS 0x2
 
 int
-disassemble(FILE *f, int args)
+disassemble(FILE *input, FILE *output, int args)
 {
-
 	uint16_t ins = 0;
 	uint16_t addr = PROG_START;
 	int c;
-	while ((c = fgetc(f)) != EOF) {
+	while ((c = fgetc(input)) != EOF) {
 		if (addr % 2 == 0) {
 			ins = ((uint16_t) c) << 8;
 		} else {
 			ins |= (uint16_t) c;
-
 			if (args & ARG_PRINT_ADDRESSES) {
-				printf("%03x: %s\n", addr - 1, decode_instruction(ins));
-			} else {
-				printf("%s\n", decode_instruction(ins));
+				fprintf(output, "%03x: ", addr - 1);
 			}
+			fprintf(output, "%s\n", decode_instruction(ins));
 		}
 		addr++;
 	}
+
+	return 1;
 }
 
 int
@@ -55,7 +54,7 @@ main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	disassemble(f, args);
+	disassemble(f, stdout, args);
 	fclose(f);
 	return EXIT_SUCCESS;
 }
