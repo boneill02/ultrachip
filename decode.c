@@ -5,6 +5,26 @@
 
 char result[16];
 
+uint16_t
+jump(uint16_t in)
+{
+	int a = (in & 0xF000) >> 12;
+	int nnn = in & 0x0FFF;
+
+	switch (a) {
+		case 0x1:
+			return nnn;
+		case 0x2:
+			return nnn;
+		case 0xa:
+			return nnn;
+		case  0xb:
+			return nnn;
+	}
+
+	return 0;
+}
+
 char *
 decode_instruction(uint16_t in)
 {
