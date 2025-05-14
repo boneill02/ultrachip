@@ -25,15 +25,6 @@
 #define WINDOW_SCALE_Y (DEFAULT_WINDOW_HEIGHT / DISPLAY_HEIGHT)
 #define FRAMERATE_CAP 60.0
 
-uint8_t mem[0x1000], V[16];
-uint8_t sp = 0, dt = 0, st = 0;
-uint16_t stack[16];
-uint16_t pc = 0x200, I = 0;
-int key[0x10];
-int keyRegister;
-bool waitingForKey = false;
-bool graphicsEnabled = true;
-
 void parse_instruction(uint16_t);
 void print_debug(void);
 void render(void);

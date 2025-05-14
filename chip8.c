@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
 #include <SDL2/SDL.h>
 
 #include "decode.h"
@@ -10,6 +9,16 @@
 int display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
 bool running = false;
 bool debug = false;
+
+uint8_t mem[0x1000], V[16];
+uint8_t sp = 0, dt = 0, st = 0;
+uint16_t stack[16];
+uint16_t pc = 0x200, I = 0;
+int key[0x10];
+int keyRegister;
+bool waitingForKey = false;
+bool graphicsEnabled = true;
+
 
 uint16_t font[] = {
 	 0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
