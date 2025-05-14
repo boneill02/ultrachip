@@ -277,6 +277,7 @@ void parse_instruction(uint16_t in) {
 					break;
 				case 0x0A:
 					/* LD Vx, K */
+					keyRegister = x;
 					waitingForKey = 1;
 					break;
 				case 0x15:
