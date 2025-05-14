@@ -41,8 +41,8 @@ disassemble(FILE *input, FILE *output, int args)
 			ins = ((uint16_t) c) << 8;
 		} else {
 			ins |= (uint16_t) c;
-			if (label_map[addr - PROG_START]) {
-				fprintf(output, "l%d:\n", label_map[addr - PROG_START]);
+			if (label_map[addr]) {
+				fprintf(output, "l%d:\n", label_map[addr]);
 			}
 			if (args & ARG_PRINT_ADDRESSES) {
 				fprintf(output, "%03x: ", addr - 1);
