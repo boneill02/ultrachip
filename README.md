@@ -1,26 +1,24 @@
 # CHIP-8 Virtual Machine and Toolkit
 
-This is a virtual machine for the CHIP-8 written in C, utilizing the SDL2
-library for graphics.
-
-## Features
-
-* Support for all vanilla CHIP-8 instructions
-* Command line debugger
-* Disassembler
+This is a virtual machine and disassembler for the CHIP-8 written in C,
+utilizing the SDL2 library for graphics.
 
 ## Installation
 
-To install the CHIP-8 VM, run the following:
+Make sure you have the following dependencies installed:
+
+* libsdl2
 
 ```
 make
 sudo make install
 ```
 
-## Usage
+## CHIP-8 VM
 
-### CHIP-8 VM
+This is a fully functional CHIP-8 virtual machine with some extra features.
+
+### Usage
 
 ```
 c8 [-dv] [-c clockspeed] rom
@@ -41,11 +39,17 @@ a s d f
 z x c v
 ```
 
+## Disassembler
 
-### Disassembler
+The disassembler converts a ROM's bytecode into human-readable "assembly"
+instructions.
+
+### Usage
 
 ```
 dis [-al] [-o outputfile] rom
 ```
 
-The disassembler will print the corresponding CHIP-8 "assembly" instructions for the ROM's bytecode. The `-a` argument toggles printing of addresses and the `-l` instruction toggles printing of labels.
+* `-a` toggles printing of addresses
+* `-l` toggles printing of auto-generated labels
+* `-o` writes the output to the specified file
