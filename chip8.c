@@ -1,13 +1,21 @@
 #include "chip8.h"
 
+#include "decode.h"
+#include "graphics.h"
+#include "util.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
 
-#include "decode.h"
-#include "graphics.h"
-#include "util.h"
+int check_borrow(int, int);
+int check_carry(int, int);
+chip8_t *init_chip8(int);
+void init_font(chip8_t *);
+int load_rom(chip8_t *, const char *);
+void parse_instruction(chip8_t *, uint16_t);
+void simulate(chip8_t *c8);
 
 int running = 0;
 int debug = 0;
@@ -31,14 +39,6 @@ uint16_t font[] = {
 	 0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
 	 0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 };
-
-int check_borrow(int, int);
-int check_carry(int, int);
-chip8_t *init_chip8(int);
-void init_font(chip8_t *);
-int load_rom(chip8_t *, const char *);
-void parse_instruction(chip8_t *, uint16_t);
-void simulate(chip8_t *c8);
 
 int check_borrow(int x, int y) {
 	return (((int) x) - y) < 0;
@@ -66,23 +66,28 @@ void init_font(chip8_t *c8) {
 }
 
 int load_rom(chip8_t *c8, const char *addr) {
-	FILE *f = fopen(addr, "r");
+	FILE *f;
 	int size;
-
-	if (!f)
-		return 0;
-
-	fseek(f, 0, SEEK_END);
-	size = ftell(f);
-
-	if (ftell(f) > (0x1000 - 0x200)) {
-		fclose(f);
+	
+	if (!(f = fopen(addr, "r"))) {
+		/* Can't open file */
 		return 0;
 	}
 
+	/* Get file size */
+	fseek(f, 0, SEEK_END);
+	size = ftell(f);
+	if (ftell(f) > (0x1000 - 0x200)) {
+		/* File is too big, failure */
+		fclose(f);
+		return 0;
+	}
 	rewind(f);
-	fread(c8->mem + 0x200, size, 1, f);
+
+	/* Read the file into memory */
+	fread(c8->mem + PROG_START, size, 1, f);
 	fclose(f);
+
 	return 1;
 }
 
@@ -114,36 +119,39 @@ void parse_instruction(chip8_t *c8, uint16_t in) {
 			}
 			break;
 		case 0x1:
-			/* JP addr */
+			/* JP nnn */
 			c8->pc = nnn;
 			break;
 		case 0x2:
-			/* CALL addr */
+			/* CALL nnn */
 			c8->stack[c8->sp] = c8->pc;
 			c8->sp++;
 			c8->pc = nnn;
 			break;
 		case 0x3:
-			/* SE Vx, byte */
-			if (c8->V[x] == kk)
+			/* SE Vx, kk */
+			if (c8->V[x] == kk) {
 				c8->pc += 2;
+			}
 			break;
 		case 0x4:
-			/* SNE Vx, byte */
-			if (c8->V[x] != kk)
+			/* SNE Vx, kk */
+			if (c8->V[x] != kk) {
 				c8->pc += 2;
+			}
 			break;
 		case 0x5:
 			/* SE Vx, Vy */
-			if (c8->V[x] == c8->V[y])
+			if (c8->V[x] == c8->V[y]) {
 				c8->pc += 2;
+			}
 			break;
 		case 0x6:
-			/* LD Vx, byte */
+			/* LD Vx, kk */
 			c8->V[x] = kk;
 			break;
 		case 0x7:
-			/* ADD Vx, byte */
+			/* ADD Vx, kk */
 			c8->V[0xF] = check_carry(c8->V[x], kk);
 			c8->V[x] += kk;
 			break;
@@ -200,15 +208,15 @@ void parse_instruction(chip8_t *c8, uint16_t in) {
 				c8->pc += 2;
 			break;
 		case 0xA:
-			/* LD I, addr */
+			/* LD I, nnn */
 			c8->I = nnn;
 			break;
 		case 0xB:
-			/* JP V0, addr */
+			/* JP V0, nnn */
 			c8->pc = nnn + c8->V[0] - 2;
 			break;
 		case 0xC:
-			/* RND Vx, byte */
+			/* RND Vx, kk */
 			c8->V[x] = rand() & kk;
 			break;
 		case 0xD:
@@ -219,18 +227,21 @@ void parse_instruction(chip8_t *c8, uint16_t in) {
 					int dx = c8->V[x] + j;
 					int dy = c8->V[y] + i;
 
-					while (dx >= DISPLAY_WIDTH)
+					while (dx >= DISPLAY_WIDTH) {
 						dx -= DISPLAY_WIDTH;
-					while (dy >= DISPLAY_HEIGHT)
+					}
+					while (dy >= DISPLAY_HEIGHT) {
 						dy -= DISPLAY_HEIGHT;
+					}
 
 					int before = *get_pixel(c8->display, dx, dy);
 					if ((c8->mem[c8->I + i] >> (7 - j)) & 1) {
 						*get_pixel(c8->display, dx, dy) ^= 1;
 					}
 
-					if (before != *get_pixel(c8->display, dx, dy))
+					if (before != *get_pixel(c8->display, dx, dy)) {
 						c8->V[0xF] = 1;
+					}
 				}
 			}
 			render(c8->display);
@@ -238,18 +249,20 @@ void parse_instruction(chip8_t *c8, uint16_t in) {
 		case 0xE:
 			if (kk == 0x9E) {
 				/* SKP Vx */
-				if (c8->key[c8->V[x]])
+				if (c8->key[c8->V[x]]) {
 					c8->pc += 2;
+				}
 			} else if (kk == 0xA1) {
 				/* SKNP Vx */
-				if (!c8->key[c8->V[x]])
+				if (!c8->key[c8->V[x]]) {
 					c8->pc += 2;
+				}
 			}
 			break;
 		case 0xF:
 			switch (kk) {
 				case 0x07:
-					/* LD Vx, DT */
+					/* LD Vx, dt */
 					c8->V[x] = c8->dt;
 					break;
 				case 0x0A:
@@ -281,40 +294,48 @@ void parse_instruction(chip8_t *c8, uint16_t in) {
 					break;
 				case 0x55:
 					/* LD [I], Vx */
-					for (int i = 0; i < x; i++)
+					for (int i = 0; i < x; i++) {
 						c8->mem[c8->I + i] = c8->V[i];
+					}
 					break;
 				case 0x65:
 					/* LD Vx, [I] */
-					for (int i = 0; i < x; i++)
+					for (int i = 0; i < x; i++) {
 						c8->V[i] = c8->mem[c8->I + i];
+					}
 					break;
 			}
 	}
 
-	if (c8->dt > 0)
+	if (c8->dt > 0) {
 		c8->dt--;
-	if (c8->st > 0)
+	}
+
+	if (c8->st > 0) {
 		c8->st--;
+	}
 }
 
 void simulate(chip8_t * c8) {
+	uint16_t in;
 	int t;
-	uint16_t in = 0;
 
 	running = 1;
 	while (running) {
 		t = tick(c8->key, c8->cs);
 		if (t == -2) {
+			/* Quit */
 			running = false;
 		}
 
 		if (t >= 0 && c8->waitingForKey) {
+			/* Waiting for key and a key was pressed */
 			c8->V[c8->VK] = t;
 			c8->waitingForKey = 0;
 		}
 
 		if (!c8->waitingForKey) {
+			/* Not waiting for key, parse next instruction */
 			in = ((uint16_t) c8->mem[c8->pc]) << 8 | c8->mem[c8->pc + 1];
 			c8->pc += 2;
 			parse_instruction(c8, in);
@@ -327,6 +348,7 @@ int main(int argc, char *argv[]) {
 	int opt;
 	chip8_t *c8;
 
+	/* Parse args */
 	while ((opt = getopt(argc, argv, "c:dv")) != -1) {
 		switch (opt) {
 			case 'c':
@@ -347,6 +369,7 @@ int main(int argc, char *argv[]) {
 	srand(time(NULL));
 
 	if (!(c8 = init_chip8(cs))) {
+		fprintf(stderr, "Error: Failed to allocate memory for CHIP-8 state.\n");
 		return EXIT_FAILURE;
 	}
 
