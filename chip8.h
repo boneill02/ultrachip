@@ -19,7 +19,20 @@
 #define DISPLAY_WIDTH 64
 #define DISPLAY_HEIGHT 32
 
-void parse_instruction(uint16_t);
-void print_debug(void);
+typedef struct chip8_s {
+	uint8_t mem[0x1000];
+	uint8_t V[16];
+	uint8_t sp;
+	uint8_t dt;
+	uint8_t st;
+	uint16_t stack[16];
+	uint16_t pc;
+	uint16_t I;
+	int key[0x10];
+	int VK;
+	int display[DISPLAY_WIDTH * DISPLAY_HEIGHT];
+	int cs;
+	int waitingForKey;
+} chip8_t;
 
 #endif
