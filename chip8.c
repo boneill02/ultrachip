@@ -351,7 +351,7 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	int *display = malloc(sizeof(int) * DISPLAY_WIDTH * DISPLAY_HEIGHT);
+	display = malloc(sizeof(int) * DISPLAY_WIDTH * DISPLAY_HEIGHT);
 	if (!display) {
 		fprintf(stderr, "Failed to allocate display memory\n");
 		exit(EXIT_FAILURE);
@@ -366,6 +366,7 @@ int main(int argc, char *argv[]) {
 	simulate();
 
 	deinit_graphics();
+	free(display);
 
 	return EXIT_SUCCESS;
 }
