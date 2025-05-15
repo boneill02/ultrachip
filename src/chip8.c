@@ -11,6 +11,7 @@
 
 int check_borrow(int, int);
 int check_carry(int, int);
+int *get_pixel(int *, int, int);
 chip8_t *init_chip8(int);
 void init_font(chip8_t *);
 int load_rom(chip8_t *, const char *);
@@ -46,6 +47,10 @@ int check_borrow(int x, int y) {
 
 int check_carry(int x, int y) {
 	return (((int) x) + y) > UINT8_MAX;
+}
+
+int *get_pixel(int *display, int x, int y) {
+    return &display[y * DISPLAY_WIDTH + x];
 }
 
 chip8_t *init_chip8(int cs) {

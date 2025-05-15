@@ -3,7 +3,7 @@ VERSION = $(shell git rev-parse --short HEAD)
 # paths
 PREFIX = /usr/local
 MANPREFIX = $(PREFIX)/share/man
-SRCPREFIX = $(PWD)
+SRCPREFIX = $(PWD)/src
 
 # flags
 LIBS = -lSDL2 -lm
