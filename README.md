@@ -1,6 +1,7 @@
 # CHIP-8 Virtual Machine and Toolkit
 
-This is a virtual machine for the CHIP-8 written in C, utilizing the SDL2 library for graphics.
+This is a virtual machine for the CHIP-8 written in C, utilizing the SDL2
+library for graphics.
 
 ## Features
 
@@ -11,6 +12,7 @@ This is a virtual machine for the CHIP-8 written in C, utilizing the SDL2 librar
 ## Installation
 
 To install the CHIP-8 VM, run the following:
+
 ```
 make
 sudo make install
@@ -21,10 +23,14 @@ sudo make install
 ### CHIP-8 VM
 
 ```
-chip8 [-d] [-c clockspeed] rom
+c8 [-dv] [-c clockspeed] rom
 ```
 
-Debug mode allows stepping and printing of the current instruction. At any point during execution, debug mode can be enabled or disabled with the P and M keys, respectively. P parses the current instruction and prints the next instruction.
+* `-d` enables debug mode. This can be used to add breakpoints, display the
+  current memory, and step through instructions individually (not yet
+  implemented).
+* `-v` enables verbose mode. This will print each instruction that is executed.
+* `-c` sets the number of instructions to be executed per second.
 
 Keyboard layout is the following:
 

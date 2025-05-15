@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -11,6 +12,7 @@
 
 int running = 0;
 int debug = 0;
+int verbose = 0;
 
 uint8_t mem[0x1000], V[16];
 uint8_t sp = 0, dt = 0, st = 0;
@@ -90,6 +92,10 @@ void parse_instruction(uint16_t in) {
 	int nnn = in & 0x0FFF;
 	int a = (in & 0xF000) >> 12;
 	int b = in & 0x000F;
+
+	if (verbose) {
+		printf("%s\n", decode_instruction(in, NULL));
+	}
 
 	switch (a) {
 		case 0x0:
@@ -291,18 +297,6 @@ void parse_instruction(uint16_t in) {
 		st--;
 }
 
-void print_debug(void) {
-	uint16_t in = (mem[pc] << 8) | mem[pc + 1];
-	char *decoded = decode_instruction(in, NULL);
-	printf("INSTRUCTION: %04x\t%s\nPC: %03x\nSP: %02x\nDT: %02x\nST: %02x\n"
-		   "I: %04x\n", in, decoded, pc, sp, dt, st, I);
-	for (int i = 0; i < 0x10; i++) {
-		printf("V%01x: %02x\n", i, V[i]);
-	}
-
-	// TODO dump mem to file
-}
-
 void simulate(void) {
 	int t;
 	uint16_t in = 0;
@@ -330,7 +324,7 @@ void simulate(void) {
 
 int main(int argc, char *argv[]) {
 	int opt;
-	while ((opt = getopt(argc, argv, "c:d")) != -1) {
+	while ((opt = getopt(argc, argv, "c:dv")) != -1) {
 		switch (opt) {
 			case 'c':
 				clockSpeed = atoi(optarg);
@@ -338,8 +332,11 @@ int main(int argc, char *argv[]) {
 			case 'd':
 				debug = 1;
 				break;
+			case 'v':
+				verbose = 1;
+				break;
 			default:
-				  fprintf(stderr, "Usage: %s [-d] [-c clockspeed] file", argv[0]);
+				  fprintf(stderr, "Usage: %s [-dv] [-c clockspeed] file", argv[0]);
 				  exit(EXIT_FAILURE);
 		}
 	}
