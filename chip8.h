@@ -19,13 +19,7 @@
 #define DISPLAY_WIDTH 64
 #define DISPLAY_HEIGHT 32
 
-#define DEFAULT_WINDOW_WIDTH 800
-#define DEFAULT_WINDOW_HEIGHT 400
-#define WINDOW_SCALE_X (DEFAULT_WINDOW_WIDTH / DISPLAY_WIDTH)
-#define WINDOW_SCALE_Y (DEFAULT_WINDOW_HEIGHT / DISPLAY_HEIGHT)
-
 void parse_instruction(uint16_t);
 void print_debug(void);
-void render(void);
 
 #endif

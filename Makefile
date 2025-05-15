@@ -1,6 +1,6 @@
 include config.mk
 
-SRC = ${SRCPREFIX}/chip8.c ${SRCPREFIX}/decode.c
+SRC = ${SRCPREFIX}/chip8.c ${SRCPREFIX}/decode.c ${SRCPREFIX}/graphics.c ${SRCPREFIX}/util.c
 OBJ = ${SRC:.c=.o}
 TARG = c8
 

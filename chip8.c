@@ -1,13 +1,14 @@
+#include "chip8.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <SDL2/SDL.h>
 #include <unistd.h>
 
 #include "decode.h"
-#include "chip8.h"
+#include "graphics.h"
+#include "util.h"
 
-int display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
 int running = 0;
 int debug = 0;
 
@@ -17,6 +18,7 @@ uint16_t stack[16];
 uint16_t pc = 0x200, I = 0;
 int key[0x10];
 int keyRegister;
+int *display;
 int clockSpeed = CLOCK_SPEED;
 int waitingForKey = 0;
 
@@ -39,44 +41,11 @@ uint16_t font[] = {
 	 0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 };
 
-uint16_t keyMap[16][2] = {
-	{ SDLK_1, 0 },
-	{ SDLK_2, 1 },
-	{ SDLK_3, 2 },
-	{ SDLK_4, 3 },
-	{ SDLK_q, 4 },
-	{ SDLK_w, 5 },
-	{ SDLK_e, 6 },
-	{ SDLK_r, 7 },
-	{ SDLK_a, 8 },
-	{ SDLK_s, 9 },
-	{ SDLK_d, 10 },
-	{ SDLK_f, 11 },
-	{ SDLK_z, 12 },
-	{ SDLK_x, 13 },
-	{ SDLK_c, 14 },
-	{ SDLK_v, 15 },
-};
-
-SDL_Window *window;
-SDL_Renderer *renderer;
-SDL_Rect pix = {
-	.x = 0,
-	.y = 0,
-	.w = WINDOW_SCALE_X,
-	.h = WINDOW_SCALE_Y,
-};
-SDL_Rect winRect = {
-	.x = 0,
-	.y = 0,
-	.w = DEFAULT_WINDOW_WIDTH,
-	.h = DEFAULT_WINDOW_HEIGHT,
-};
-
 int check_borrow(int, int);
 int check_carry(int, int);
-int get_key(SDL_Keycode);
+void init_font(void);
 int load_rom(const char *);
+void simulate(void);
 
 int check_borrow(int x, int y) {
 	return (((int) x) - y) < 0;
@@ -86,27 +55,29 @@ int check_carry(int x, int y) {
 	return (((int) x) + y) > UINT8_MAX;
 }
 
-int get_key(SDL_Keycode k) {
-	for (int i = 0; i < 16; i++) {
-		if (keyMap[i][0] == k) return keyMap[i][1];
+void init_font(void) {
+	for (int i = 0; i < (0x10 * 5); i++) {
+		mem[FONT_START + i] = font[i];
 	}
-	return -1;
 }
 
 int load_rom(const char *addr) {
 	FILE *f = fopen(addr, "r");
+	int size;
 
 	if (!f)
 		return 0;
 
 	/* get filesize */
 	fseek(f, 0, SEEK_END);
-	int size = ftell(f);
-	rewind(f);
+	size = ftell(f);
 
-	if (size > (0xFFF - 0x200))
+	if (ftell(f) > (0x1000 - 0x200)) {
+		fclose(f);
 		return 0;
+	}
 
+	rewind(f);
 	fread(mem + 0x200, size, 1, f);
 	fclose(f);
 	return 1;
@@ -117,7 +88,6 @@ void parse_instruction(uint16_t in) {
 	int kk = in & 0x00FF;
 	int y = (in & 0x00F0) >> 4;
 	int nnn = in & 0x0FFF;
-
 	int a = (in & 0xF000) >> 12;
 	int b = in & 0x000F;
 
@@ -127,7 +97,7 @@ void parse_instruction(uint16_t in) {
 				/* CLS */
 				for (int i = 0; i < DISPLAY_WIDTH; i++) {
 					for (int j = 0; j < DISPLAY_HEIGHT; j++) {
-						display[i][j] = 0;
+						*get_pixel(display, x, y) = 0;
 					}
 				}
 			} else if (in == 0x00EE) {
@@ -232,7 +202,7 @@ void parse_instruction(uint16_t in) {
 			break;
 		case 0xC:
 			/* RND Vx, byte */
-			V[x] = (rand() % 0x100) & kk;
+			V[x] = rand() & kk;
 			break;
 		case 0xD:
 			/* DRW Vx, Vy, b */
@@ -247,16 +217,16 @@ void parse_instruction(uint16_t in) {
 					while (dy >= DISPLAY_HEIGHT)
 						dy -= DISPLAY_HEIGHT;
 
-					int before = display[dx][dy];
+					int before = *get_pixel(display, dx, dy);
 					if ((mem[I + i] >> (7 - j)) & 1) {
-						display[dx][dy] ^= 1;
+						*get_pixel(display, dx, dy) ^= 1;
 					}
 
-					if (before != display[dx][dy])
+					if (before != *get_pixel(display, dx, dy))
 						V[0xF] = 1;
 				}
 			}
-			render();
+			render(display);
 			break;
 		case 0xE:
 			if (kk == 0x9E) {
@@ -330,91 +300,31 @@ void print_debug(void) {
 		printf("V%01x: %02x\n", i, V[i]);
 	}
 
-	/* TODO dump mem to file */
-}
-
-void render(void) {
-	SDL_RenderClear(renderer);
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-	SDL_RenderFillRect(renderer, &winRect);
-
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-	for (int i = 0; i < DISPLAY_WIDTH; i++) {
-		for (int j = 0; j < DISPLAY_HEIGHT; j++) {
-			if (display[i][j]) {
-				pix.x = i * WINDOW_SCALE_X;
-				pix.y = j * WINDOW_SCALE_Y;
-				SDL_RenderFillRect(renderer, &pix);
-			}
-		}
-	}
-
-	SDL_RenderPresent(renderer);
-}
-
-int init_graphics() {
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-	window = SDL_CreateWindow("CHIP8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
-	if (!window) return 0;
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	return renderer != NULL;
-}
-
-void init_font(void) {
-	for (int i = 0; i < (0x10 * 5); i++) {
-		mem[FONT_START + i] = font[i];
-	}
+	// TODO dump mem to file
 }
 
 void simulate(void) {
-	SDL_Event e;
-	int keyPressed;
+	int t;
 	uint16_t in = 0;
 
 	running = 1;
 	while (running) {
+		t = tick(key, clockSpeed);
+		if (t == -2) {
+			running = false;
+		}
+
+		if (t >= 0 && waitingForKey) {
+			V[keyRegister] = t;
+			waitingForKey = 0;
+		}
+
 		if (!waitingForKey) {
 			in = ((uint16_t) mem[pc]) << 8 | mem[pc + 1];
 			pc += 2;
 		}
 
-		while (SDL_PollEvent(&e)) {
-			switch (e.type) {
-				case SDL_QUIT:
-					running = 0;	
-					break;
-				case SDL_KEYDOWN:
-					if (debug) {
-						if (e.key.keysym.sym == SDLK_p) {
-							debug = 1;
-							print_debug();
-							parse_instruction(in);
-						}
-						if (e.key.keysym.sym == SDLK_m) {
-							printf("debug off\n");
-							debug = 0;
-						}
-					}
-					if ((keyPressed = get_key(e.key.keysym.sym)) != -1) {
-						key[keyPressed] = 1;
-						if (waitingForKey) {
-							V[keyRegister] = keyPressed;
-							waitingForKey = 0;
-						}
-					}
-					break;
-				case SDL_KEYUP:
-					if ((keyPressed = get_key(e.key.keysym.sym)) != -1) {
-						key[keyPressed] = 0;
-					}
-					break;
-			}
-		}
-
-		if (!debug)
-			parse_instruction(in);
-		
-		SDL_Delay(1000 / CLOCK_SPEED);
+		parse_instruction(in);
 	}
 }
 
@@ -434,11 +344,6 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	if (!load_rom(argv[optind])) {
-		fprintf(stderr, "Failed to load rom file\n");
-		exit(EXIT_FAILURE);
-	}
-
 	srand(time(NULL));
 
 	if (!init_graphics()) {
@@ -446,10 +351,21 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
+	int *display = malloc(sizeof(int) * DISPLAY_WIDTH * DISPLAY_HEIGHT);
+	if (!display) {
+		fprintf(stderr, "Failed to allocate display memory\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if (!load_rom(argv[optind])) {
+		fprintf(stderr, "Failed to load rom file\n");
+		exit(EXIT_FAILURE);
+	}
+
 	init_font();
 	simulate();
 
-	SDL_DestroyWindow(window);
-	SDL_Quit();
+	deinit_graphics();
+
 	return EXIT_SUCCESS;
 }
