@@ -72,18 +72,19 @@ main(int argc, char *argv[])
 			case 'l': args |= ARG_DEFINE_LABELS; break;
 			case 'o': outp = optarg; break;
 			default:
-				  fprintf(stderr, "usage: %s [-al] [-o outputfile] file", argv[0]);
+				  fprintf(stderr, "Usage: %s [-al] [-o outputfile] file\n", argv[0]);
 				  exit(1);
 		}
 	}
 
 	if (!(inf = fopen(argv[optind], "r"))) {
-		fprintf(stderr, "failed to load rom file\n");
+		fprintf(stderr, "Error: Failed to load rom file\n");
 		exit(EXIT_FAILURE);
 	}
 
 	if (outp && !(outf = fopen(outp, "w"))) {
-		fprintf(stderr, "failed to load output file\n");
+		fprintf(stderr, "Error: Failed to load output file\n");
+		fclose(inf);
 		exit(EXIT_FAILURE);
 	}
 
