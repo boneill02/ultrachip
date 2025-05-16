@@ -2,6 +2,7 @@
 
 #include "decode.h"
 #include "graphics.h"
+#include "util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,10 +46,6 @@ int check_borrow(int x, int y) {
 
 int check_carry(int x, int y) {
 	return (((int) x) + y) > UINT8_MAX;
-}
-
-int *get_pixel(int *display, int x, int y) {
-    return &display[y * DISPLAY_WIDTH + x];
 }
 
 chip8_t *init_chip8(int cs) {

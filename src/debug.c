@@ -2,15 +2,15 @@
 
 #include "chip8.h"
 #include "decode.h"
+#include "util.h"
 
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-
 enum {
-    CMD_ADD_BREAKPOINT,
+    CMD_ADD_BREAKPOINT = 0,
     CMD_RM_BREAKPOINT,
     CMD_CONTINUE,
     CMD_NEXT,
@@ -19,15 +19,18 @@ enum {
     CMD_PRINT,
     CMD_HELP,
     CMD_QUIT,
-    ARG_ADDR,
-    ARG_V,
-    ARG_SP,
+};
+
+enum {
+    ARG_SP = 0,
     ARG_DT,
     ARG_ST,
-    ARG_STACK,
     ARG_PC,
     ARG_I,
     ARG_VK,
+    ARG_STACK,
+    ARG_V,
+    ARG_ADDR,
     ARG_FILE,
     ARG_LIST,
 };
@@ -53,16 +56,25 @@ char *trim(char *);
 
 int breakpoints[MEMSIZE];
 
+const char *args[] = {
+    "SP",
+    "DT",
+    "ST",
+    "PC",
+    "I",
+    "VK",
+};
+
 const char *cmds[] = {
-    "break", // 0
-    "rmbreak", // 1
-    "continue", // 2
-    "next", // 3
-    "load", // 4, needs arg
-    "save", // 5, needs arg
-    "print", // 6
-    "help", // 7
-    "quit", // 8
+    "break",
+    "rmbreak",
+    "continue",
+    "next",
+    "load",
+    "save",
+    "print",
+    "help",
+    "quit",
 };
 
 int debug_repl(chip8_t *c8) {
@@ -123,7 +135,7 @@ int get_command(cmd_t *cmd, char *s) {
                 cmd->argid = -1;
             } else if (isspace(s[len])) {
                 /* With arg */
-                parse_arg(&cmd, trim(s + len));
+                parse_arg(cmd, trim(s + len));
             }
             return 1;
         }
@@ -138,7 +150,7 @@ int get_command(cmd_t *cmd, char *s) {
         if (s[0] == full[0] && isspace(s[1])) {
             /* Shorthand with arg */
             cmd->id = i;
-            parse_arg(&cmd, trim(s + 2));
+            parse_arg(cmd, trim(s + 2));
             return 1;
         }
     }
@@ -171,35 +183,21 @@ int parse_arg(cmd_t *cmd, char *arg) {
                 cmd->argid = ARG_V;
                 cmd->arg.intValue = strtol(arg, NULL, 16);
             }
-        // TODO use map here
-        } else if (!strcmp(arg, "SP")) {
-            cmd->argid = ARG_SP;
-        } else if (!strcmp(arg, "PC")) {
-            cmd->argid = ARG_PC;
-        } else if (!strcmp(arg, "stack")) {
-            cmd->argid = ARG_STACK;
-        } else if (!strcmp(arg, "DT")) {
-            cmd->argid = ARG_DT;
-        } else if (!strcmp(arg, "ST")) {
-            cmd->argid = ARG_ST;
-        } else if (!strcmp(arg, "PC")) {
-            cmd->argid = ARG_PC;
-        } else if (!strcmp(arg, "I")) {
-            cmd->argid = ARG_I;
+            return 1;
         } else if (arg[0] == 'x') {
             cmd->argid = ARG_ADDR;
             cmd->arg.intValue = parse_int(arg);
+            return 1;
+        } else {
+            for (int i = 0; i < (sizeof(args) / sizeof(args[0])); i++) {
+                if (!strcmp(arg, args[i])) {
+                    cmd->argid = i;
+                    return 1;
+                }
+            }
         }
     }
     return 0;
-}
-
-int parse_int(char *s) {
-    if (s[0] == 'x') {
-        return strtol(s+1, NULL, 16);
-    } else {
-        return strtol(s, NULL, 10);
-    }
 }
 
 void print_help(void) {
@@ -262,18 +260,3 @@ int save_state(chip8_t *c8, const char *addr) {
     // TODO implement
 }
 
-char *trim(char *s) {
-    char *end;
-
-    while (isspace(s)) {
-        s++;
-    }
-
-    end = s + strlen(s) - 1;
-    while (end > s && isspace(end)) {
-        end--;
-    }
-
-    *(end + 1) = '\0';
-	return s;
-}
