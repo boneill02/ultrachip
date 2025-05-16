@@ -2,8 +2,6 @@
 
 #include <SDL2/SDL.h>
 
-#include "util.h"
-
 SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Rect pix = {

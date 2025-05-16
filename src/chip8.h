@@ -28,4 +28,6 @@ typedef struct chip8_s {
 	int waitingForKey;
 } chip8_t;
 
+int *get_pixel(int *, int, int);
+
 #endif

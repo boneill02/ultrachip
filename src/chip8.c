@@ -2,7 +2,6 @@
 
 #include "decode.h"
 #include "graphics.h"
-#include "util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,7 +10,6 @@
 
 int check_borrow(int, int);
 int check_carry(int, int);
-int *get_pixel(int *, int, int);
 chip8_t *init_chip8(int);
 void init_font(chip8_t *);
 int load_rom(chip8_t *, const char *);
