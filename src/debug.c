@@ -8,11 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-int load_state(chip8_t *, const char *);
-int save_state(chip8_t *, const char *);
-void print_value(chip8_t *, const char *);
-void set_value(chip8_t *, const char *);
-char *trim(char *);
 
 enum {
     CMD_ADD_BREAKPOINT,
@@ -46,6 +41,16 @@ typedef struct cmd_s {
     } arg;
 } cmd_t;
 
+int get_command(cmd_t *, char *);
+int load_state(chip8_t *, const char *);
+int save_state(chip8_t *, const char *);
+int parse_arg(cmd_t *, char *);
+int parse_int(char *);
+void print_help(void);
+void print_value(chip8_t *, cmd_t *);
+void set_value(chip8_t *, const char *);
+char *trim(char *);
+
 int breakpoints[MEMSIZE];
 
 const char *cmds[] = {
@@ -60,14 +65,6 @@ const char *cmds[] = {
     "quit", // 8
 };
 
-void add_breakpoint(uint16_t addr) {
-    breakpoints[addr] = 1;
-}
-
-void remove_breakpoint(uint16_t addr) {
-    breakpoints[addr] = 0;
-}
-
 int debug_repl(chip8_t *c8) {
     char buf[64];
     cmd_t cmd;
@@ -77,10 +74,10 @@ int debug_repl(chip8_t *c8) {
         if (get_command(&cmd, buf)) {
             switch(cmd.id) {
                 case CMD_ADD_BREAKPOINT: // add breakpoint
-                    add_breakpoint(cmd.arg.intValue);
+                    breakpoints[cmd.arg.intValue] = 1;
                     break;
                 case CMD_RM_BREAKPOINT:
-                    remove_breakpoint(cmd.arg.intValue);
+                    breakpoints[cmd.arg.intValue] = 0;
                     break;
                 case CMD_CONTINUE:
                     return 1; // continue
@@ -112,7 +109,6 @@ int get_command(cmd_t *cmd, char *s) {
     size_t len;
     const char *full;
     size_t numCmds = sizeof(cmds) / sizeof(cmds[0]);
-    char *arg;
 
     s = trim(s);
     for (int i = 0; i < numCmds; i++) {
@@ -127,8 +123,7 @@ int get_command(cmd_t *cmd, char *s) {
                 cmd->argid = -1;
             } else if (isspace(s[len])) {
                 /* With arg */
-                cmd->arg.strValue = trim(s + len);
-                parse_arg(&cmd);
+                parse_arg(&cmd, trim(s + len));
             }
             return 1;
         }
@@ -143,8 +138,7 @@ int get_command(cmd_t *cmd, char *s) {
         if (s[0] == full[0] && isspace(s[1])) {
             /* Shorthand with arg */
             cmd->id = i;
-            arg = trim(s+2);
-            parse_arg(&cmd, arg);
+            parse_arg(&cmd, trim(s + 2));
             return 1;
         }
     }
@@ -153,7 +147,7 @@ int get_command(cmd_t *cmd, char *s) {
 }
 
 int load_state(chip8_t *c8, const char *addr) {
-
+    // TODO implement
 }
 
 int parse_arg(cmd_t *cmd, char *arg) {
@@ -162,7 +156,7 @@ int parse_arg(cmd_t *cmd, char *arg) {
         /* file */
         cmd->argid = ARG_FILE;
         cmd->arg.strValue = trim(arg);
-    } else if (cmd->id == CMD_ADD_BREAKPOINT || cmd->id == CMD_RM_BREAKPOINT || cmd->id = CMD_PRINT) {
+    } else if (cmd->id == CMD_ADD_BREAKPOINT || cmd->id == CMD_RM_BREAKPOINT || cmd->id == CMD_PRINT) {
         if (arg[0] == 'x') {
             /* address */
             cmd->argid = ARG_ADDR;
@@ -171,12 +165,13 @@ int parse_arg(cmd_t *cmd, char *arg) {
         }
     } else if (cmd->id == CMD_PRINT) {
         if (arg[0] == 'V') {
-            if (arg[1] == "K") {
+            if (arg[1] == 'K') {
                 cmd->argid = ARG_VK;
             } else {
                 cmd->argid = ARG_V;
                 cmd->arg.intValue = strtol(arg, NULL, 16);
             }
+        // TODO use map here
         } else if (!strcmp(arg, "SP")) {
             cmd->argid = ARG_SP;
         } else if (!strcmp(arg, "PC")) {
@@ -207,22 +202,29 @@ int parse_int(char *s) {
     }
 }
 
+void print_help(void) {
+    // TODO implement
+}
+
 void print_value(chip8_t *c8, cmd_t *cmd) {
-    if (cmd->argid == -1) {
-        printf("PC: %03x\t\tSP: %03x\n", c8->pc, c8->sp);
-        printf("DT: %03x\t\tST: %03x\n", c8->dt, c8->st);
-        printf("I:  %03x\t\tK:  V%01x\n", c8->I, c8->VK);
-        for (int i = 0; i < 16; i += 2) {
-            printf("V%01x: %03x\t\t", i, c8->V[i]);
-            printf("V%01x: %03x\n", i + 1, c8->V[i + 1])
-        }
-        printf("Stack:\n");
-        for (int i = 0; i < 16; i += 2) {
-            printf("0x%01x: %03x\t\t", i, c8->stack[i]);
-            printf("0x%01x: %03x\n", i + 1, c8->stack[i + 1]);
-        }
-    }
+    int addr;
     switch (cmd->argid)  {
+        case -1:
+            addr = cmd->arg.intValue;
+            printf("%03x: %03x\t%s\n", addr, c8->mem[addr], decode_instruction(c8->mem[addr], NULL));
+            printf("PC: %03x\t\tSP: %03x\n", c8->pc, c8->sp);
+            printf("DT: %03x\t\tST: %03x\n", c8->dt, c8->st);
+            printf("I:  %03x\t\tK:  V%01x\n", c8->I, c8->VK);
+            for (int i = 0; i < 16; i += 2) {
+                printf("V%01x: %03x\t\t", i, c8->V[i]);
+                printf("V%01x: %03x\n", i + 1, c8->V[i + 1]);
+            }
+            printf("Stack:\n");
+            for (int i = 0; i < 16; i += 2) {
+                printf("0x%01x: %03x\t\t", i, c8->stack[i]);
+                printf("0x%01x: %03x\n", i + 1, c8->stack[i + 1]);
+            }
+            break;
         case ARG_SP:
             printf("SP: %03x\n", c8->sp);
             break;
@@ -257,7 +259,7 @@ void print_value(chip8_t *c8, cmd_t *cmd) {
 }
 
 int save_state(chip8_t *c8, const char *addr) {
-
+    // TODO implement
 }
 
 char *trim(char *s) {
