@@ -15,7 +15,7 @@ int check_carry(int, int);
 chip8_t *init_chip8(int);
 void init_font(chip8_t *);
 int load_rom(chip8_t *, const char *);
-void parse_instruction(chip8_t *, uint16_t);
+void parse_instruction(chip8_t *);
 void simulate(chip8_t *);
 
 int running = 0;
@@ -41,14 +41,41 @@ uint16_t font[] = {
 	 0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 };
 
+/**
+ * @brief Check if `(x-y)<0`.
+ * 
+ * @param x the minuend
+ * @param y the subtrahend
+ * 
+ * @return 1 if `(x-y)<0`, else 0
+ */
 int check_borrow(int x, int y) {
 	return (((int) x) - y) < 0;
 }
 
+/**
+ * @brief Check if `(x+y)>UINT8_MAX`
+ * 
+ * @param x number to be added to y
+ * @param y number to be added to x
+ * 
+ * @return 1 if `(x+y)>UINT8_MAX`, else 0
+ */
 int check_carry(int x, int y) {
 	return (((int) x) + y) > UINT8_MAX;
 }
 
+/**
+ * @brief Initialize and return a `chip8_t` with the specified clockspeed.
+ * 
+ * This function allocates memory for a new `chip8_t` with all values set to 0,
+ * sets the clockspeed to `cs`, adds the font to memory, and returns a pointer
+ * to it.
+ * 
+ * @param cs clockspeed
+ * 
+ * @return pointer to initialized chip8_t (must be `free`'d). `NULL` if failed.
+ */
 chip8_t *init_chip8(int cs) {
 	chip8_t *c8;
 	if (!(c8 = (chip8_t *) calloc(1, sizeof(chip8_t)))) {
@@ -60,12 +87,25 @@ chip8_t *init_chip8(int cs) {
 	return c8;
 }
 
+/**
+ * @brief Add the font to `c8->mem`.
+ * 
+ * @param c8 `chip8_t` to add the font to
+ */
 void init_font(chip8_t *c8) {
 	for (int i = 0; i < (0x10 * 5); i++) {
 		c8->mem[FONT_START + i] = font[i];
 	}
 }
 
+/**
+ * @brief Load a ROM to `c8->mem` at path `addr`.
+ * 
+ * @param c8 `chip8_t` to store the ROM's contents
+ * @param addr path to the ROM
+ * 
+ * @return 0 if failed, 1 otherwise.
+ */
 int load_rom(chip8_t *c8, const char *addr) {
 	FILE *f;
 	int size;
@@ -92,7 +132,18 @@ int load_rom(chip8_t *c8, const char *addr) {
 	return 1;
 }
 
-void parse_instruction(chip8_t *c8, uint16_t in) {
+/**
+ * @brief Execute the instruction at `c8->pc`
+ * 
+ * This function parses and executes the instruction at the current program
+ * counter.
+ * 
+ * If `verbose` is true, this will print the instruction to `stdout` as well.
+ * 
+ * @param c8 the `chip8_t` to execute the instruction from
+ */
+void parse_instruction(chip8_t *c8) {
+	uint16_t in = (((uint16_t) c8->mem[c8->pc]) << 8) | c8->mem[c8->pc + 1];
 	int x = (in & 0x0F00) >> 8;
 	int kk = in & 0x00FF;
 	int y = (in & 0x00F0) >> 4;
@@ -103,7 +154,6 @@ void parse_instruction(chip8_t *c8, uint16_t in) {
 	if (verbose) {
 		printf("%s\n", decode_instruction(in, NULL));
 	}
-
 
 	switch (a) {
 		case 0x0:
@@ -318,8 +368,12 @@ void parse_instruction(chip8_t *c8, uint16_t in) {
 	}
 }
 
+/**
+ * @brief Main VM simulation loop. Exits when `running` is false.
+ * 
+ * @param c8 the `chip8_t` to simulate
+ */
 void simulate(chip8_t * c8) {
-	uint16_t in;
 	int t;
 	int debugRet;
 	bool step = false;
@@ -361,9 +415,8 @@ void simulate(chip8_t * c8) {
 
 		if (!c8->waitingForKey) {
 			/* Not waiting for key, parse next instruction */
-			in = ((uint16_t) c8->mem[c8->pc]) << 8 | c8->mem[c8->pc + 1];
 			c8->pc += 2;
-			parse_instruction(c8, in);
+			parse_instruction(c8);
 		}
 	}
 }

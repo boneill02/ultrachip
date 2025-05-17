@@ -40,11 +40,21 @@ uint16_t keyMap[16][2] = {
 
 int get_key(SDL_Keycode k);
 
+/**
+ * @brief Deinitialize the graphics library.
+ */
 void deinit_graphics(void) {
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
 
+/**
+ * @brief Convert the given SDL Keycode to a CHIP-8 keycode.
+ * 
+ * @param k the SDL_Keycode
+ * 
+ * @return the CHIP-8 keycode
+ */
 int get_key(SDL_Keycode k) {
 	for (int i = 0; i < 16; i++) {
 		if (keyMap[i][0] == k) return keyMap[i][1];
@@ -52,15 +62,25 @@ int get_key(SDL_Keycode k) {
 	return -1;
 }
 
-int init_graphics(void) {
+/**
+ * @brief Initialize the graphics library.
+ * 
+ * @return true if successful, false otherwise.
+ */
+bool init_graphics(void) {
 	SDL_Init(SDL_INIT_VIDEO);
 	window = SDL_CreateWindow("CHIP8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
-	if (!window) return 0;
+	if (!window) return false;
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	return renderer != NULL;
 }
 
-void render(int *display) {
+/**
+ * Render the given display to the SDL2 window.
+ * 
+ * @param display pointer to a bool arr of size `DISPLAY_WIDTH*DISPLAY_HEIGHT`
+ */
+void render(bool *display) {
 	SDL_RenderClear(renderer);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 	SDL_RenderFillRect(renderer, &winRect);
@@ -79,11 +99,17 @@ void render(int *display) {
 	SDL_RenderPresent(renderer);
 }
 
-/*
-    Returns -2 if quitting
-    Returns -1 if no key pressed
-    Else returns key pressed
-*/
+/**
+ * @brief Process keypresses and delay based on clockspeed.
+ * 
+ * If a relevant key is pressed or released (see `keyMap` in this file), this
+ * function will update `key` accordingly.
+ * 
+ * @param key pointer to bool arr of keys
+ * 
+ * @return -2 if quitting, -1 if no key was pressed/released, else returns value
+ * of key pressed/released.
+ */
 int tick(int *key, int clockSpeed) {
 	SDL_Delay(1000 / clockSpeed);
 	SDL_Event e;

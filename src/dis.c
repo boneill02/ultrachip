@@ -10,10 +10,18 @@
 #define ARG_DEFINE_LABELS 0x2
 
 void find_labels(FILE *);
-int disassemble(FILE *, FILE *, int);
+void disassemble(FILE *, FILE *, int);
 
 uint8_t *labelMap = NULL;
 
+/**
+ * @brief Generate labels from `input` and add labels to `labelMap`.
+ * 
+ * This function finds jump instructions in CHIP-8 ROM file `input` and adds
+ * incrementing values to `labelMap` accordingly.
+ * 
+ * @param input the ROM to get labels from
+ */
 void find_labels(FILE *input) {
 	uint16_t addr = PROG_START;
 	uint8_t count = 1;
@@ -33,7 +41,20 @@ void find_labels(FILE *input) {
 	}
 }
 
-int disassemble(FILE *input, FILE *output, int args) {
+/**
+ * @brief Convert bytecode from `input` to assembly and writes it to `output`.
+ * 
+ * `ARG_PRINT_ADDRESSES` should be AND'd to args to print addresses before each
+ * assembly instruction.
+ * 
+ * `ARG_DEFINE_LABELS` should be AND'd to args to define labels.
+ * 
+ * @param input the CHIP-8 ROM file to disassemble
+ * @param output the file to write the assembly to
+ * @param args 0 with `ARG_PRINT_ADDRESSES` and/or `ARG_DEFINE_LABELS`
+ * optionally AND'd
+ */
+void disassemble(FILE *input, FILE *output, int args) {
 	int c;
 	uint16_t addr = PROG_START;
 	uint16_t ins = 0;
@@ -55,8 +76,6 @@ int disassemble(FILE *input, FILE *output, int args) {
 		}
 		addr++;
 	}
-
-	return 1;
 }
 
 int main(int argc, char *argv[]) {
