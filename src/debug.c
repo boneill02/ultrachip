@@ -47,6 +47,9 @@ enum {
 bool breakpoints[MEMSIZE];
 
 int get_command(cmd_t *, char *);
+int load_address_arg(cmd_t *, char *);
+int load_file_arg(cmd_t *, char *);
+int load_print_arg(cmd_t *, char *);
 int load_state(chip8_t *, const char *);
 int save_state(chip8_t *, const char *);
 int parse_arg(cmd_t *, char *);
@@ -63,7 +66,6 @@ const char *args[] = {
     "ST",
     "PC",
     "I",
-    "VK",
 };
 
 const char *cmds[] = {
@@ -78,19 +80,40 @@ const char *cmds[] = {
     "quit",
 };
 
+/**
+ * Debug command line loop.
+ * 
+ * This function parses user commands from stdin and prints the result until
+ * one of the following conditions is met:
+ * 
+ * 1. continue command is evaluated (return DEBUG_CONTINUE)
+ * 2. quit command is evaluated (return DEBUG_QUIT)
+ * 3. next command is evaluated (return DEBUG_STEP)
+ * 
+ * @param chip8_t* c8 the current CHIP-8 state
+ * @return DEBUG_CONTINUE, DEBUG_STEP, or DEBUG_QUIT
+ */
 int debug_repl(chip8_t *c8) {
     char buf[64];
     cmd_t cmd;
 
     printf("debug > ");
-    while(scanf("%63[^\n]", buf)) {
+    while(scanf("%63[^\n]", buf) != EOF) {
         if (get_command(&cmd, buf)) {
             switch(cmd.id) {
                 case CMD_ADD_BREAKPOINT:
-                    breakpoints[cmd.arg.intValue] = true;
+                    if (cmd.argid == -1) {
+                        breakpoints[c8->pc] = true;
+                    } else {
+                        breakpoints[cmd.arg.intValue] = true;
+                    }
                     break;
                 case CMD_RM_BREAKPOINT:
-                    breakpoints[cmd.arg.intValue] = false;
+                    if (cmd.argid == -1) {
+                        breakpoints[c8->pc] = false;
+                    } else {
+                        breakpoints[cmd.arg.intValue] = false;
+                    }
                     break;
                 case CMD_CONTINUE:
                     return DEBUG_CONTINUE;
@@ -112,7 +135,7 @@ int debug_repl(chip8_t *c8) {
                     return DEBUG_QUIT;
              }
         } else {
-            printf("Unknown command\n");
+            printf("Invalid command\n");
         }
         printf("debug > ");
         getchar(); // Consume newline
@@ -122,9 +145,15 @@ int debug_repl(chip8_t *c8) {
 }
 
 int get_command(cmd_t *cmd, char *s) {
+
     size_t len;
     const char *full;
-    size_t numCmds = sizeof(cmds) / sizeof(cmds[0]);
+    int numCmds = (int) sizeof(cmds) / sizeof(cmds[0]);
+
+    /* reset cmd */
+    cmd->id = -1;
+    cmd->arg.intValue = -1;
+    cmd->argid = -1;
 
     s = trim(s);
     for (int i = 0; i < numCmds; i++) {
@@ -137,11 +166,12 @@ int get_command(cmd_t *cmd, char *s) {
             if (s[len] == '\0') {
                 /* No arg */
                 cmd->argid = -1;
+                return 1;
             } else if (isspace(s[len])) {
                 /* With arg */
-                parse_arg(cmd, trim(s + len));
+                return parse_arg(cmd, trim(s + len));
             }
-            return 1;
+            return 0;
         }
 
         if (strlen(s) == 1 && s[0] == full[0]) {
@@ -154,62 +184,101 @@ int get_command(cmd_t *cmd, char *s) {
         if (s[0] == full[0] && isspace(s[1])) {
             /* Shorthand with arg */
             cmd->id = i;
-            parse_arg(cmd, trim(s + 2));
-            return 1;
+            return parse_arg(cmd, trim(s + 1));
         }
     }
 
-    return 0;
+    return 0; // Unknown command
 }
 
 bool has_breakpoint(uint16_t pc) {
     return breakpoints[pc];
 }
 
+int load_address_arg(cmd_t *cmd, char *arg) {
+    cmd->argid = ARG_ADDR;
+    return (cmd->arg.intValue = parse_int(arg));
+}
+
 int load_state(chip8_t *c8, const char *addr) {
     // TODO implement
+    printf("Unimplemented\n");
+    return 1;
+}
+
+int load_file_arg(cmd_t *cmd, char *arg) {
+    cmd->argid = ARG_FILE;
+    cmd->arg.strValue = trim(arg);
+    return 1;
+}
+
+int load_print_arg(cmd_t *cmd, char *arg) {
+    arg = trim(arg);
+    if (arg[0] == 'V') { // register
+        if (strlen(arg) > 1) {
+            if (arg[1] == 'K') { // print VK
+                cmd->argid = ARG_VK;
+                return 1;
+            } else { // Print Vx
+                cmd->argid = ARG_V;
+                cmd->arg.intValue = hex_to_int(arg[1]);
+                return cmd->arg.intValue > -1; // return 0 if failed to parse int
+            }
+        } else { // print all V registers
+            cmd->argid = ARG_V;
+            cmd->arg.intValue = -1;
+            return 1;
+        }
+    } else if (arg[0] == '$') { // address
+        cmd->argid = ARG_ADDR;
+        cmd->arg.intValue = parse_int(arg);
+        return 1;
+    } else if (!strcmp(arg, "stack")) { // stack
+        cmd->argid = ARG_STACK;
+        return 1;
+    } else { // other value
+        for (int i = 0; i < (int) (sizeof(args) / sizeof(args[0])); i++) {
+            if (!strcmp(arg, args[i])) {
+                cmd->argid = i;
+                return 1;
+            }
+        }
+    }
+    return 0; // invalid argument
 }
 
 int parse_arg(cmd_t *cmd, char *arg) {
-    int id = cmd->id;
-    if (id == CMD_LOAD || id == CMD_SAVE) {
-        /* file */
-        cmd->argid = ARG_FILE;
-        cmd->arg.strValue = trim(arg);
-    } else if (id == CMD_ADD_BREAKPOINT || id == CMD_RM_BREAKPOINT || id == CMD_PRINT) {
-        if (arg[0] == 'x') {
-            /* address */
-            cmd->argid = ARG_ADDR;
-            cmd->arg.intValue = parse_int(arg);
-            return 1;
-        }
-    } else if (cmd->id == CMD_PRINT) {
-        if (arg[0] == 'V') {
-            if (arg[1] == 'K') {
-                cmd->argid = ARG_VK;
-            } else {
-                cmd->argid = ARG_V;
-                cmd->arg.intValue = strtol(arg, NULL, 16);
-            }
-            return 1;
-        } else if (arg[0] == 'x') {
-            cmd->argid = ARG_ADDR;
-            cmd->arg.intValue = parse_int(arg);
-            return 1;
-        } else {
-            for (int i = 0; i < (sizeof(args) / sizeof(args[0])); i++) {
-                if (!strcmp(arg, args[i])) {
-                    cmd->argid = i;
-                    return 1;
-                }
-            }
-        }
+    switch (cmd->id) {
+        case CMD_LOAD:
+        case CMD_SAVE:
+            return load_file_arg(cmd, arg);
+            break;
+        case CMD_ADD_BREAKPOINT:
+        case CMD_RM_BREAKPOINT:
+            return load_address_arg(cmd, arg);
+            break;
+        case CMD_PRINT:
+            return load_print_arg(cmd, arg);
     }
     return 0;
 }
 
 void print_help(void) {
-    // TODO implement
+    printf("%s\n", DEBUG_HELP_STRING);
+}
+
+void print_v_registers(chip8_t *c8) {
+    for (int i = 0; i < 8; i++) {
+        printf("V%01x: 0x%03x\t\t", i, c8->V[i]);
+        printf("V%01x: 0x%03x\n", i + 8, c8->V[i + 8]);
+    }
+}
+
+void print_stack(chip8_t *c8) {
+    for (int i = 0; i < 8; i++) {
+        printf("0x%01x: 0x%03x\t\t", i, c8->stack[i]);
+        printf("0x%01x: 0x%03x\n", i + 8, c8->stack[i + 8]);
+    }
 }
 
 void print_value(chip8_t *c8, cmd_t *cmd) {
@@ -225,50 +294,47 @@ void print_value(chip8_t *c8, cmd_t *cmd) {
             printf("PC: 0x%03x\t\tSP: 0x%03x\n", c8->pc, c8->sp);
             printf("DT: 0x%03x\t\tST: 0x%03x\n", c8->dt, c8->st);
             printf("I:  0x%03x\t\tK:  V%01x\n", c8->I, c8->VK);
-            for (int i = 0; i < 8; i++) {
-                printf("V%01x: 0x%03x\t\t", i, c8->V[i]);
-                printf("V%01x: 0x%03x\n", i + 8, c8->V[i + 8]);
-            }
+            print_v_registers(c8);
             printf("Stack:\n");
-            for (int i = 0; i < 8; i++) {
-                printf("0x%01x: 0x%03x\t\t", i, c8->stack[i]);
-                printf("0x%01x: 0x%03x\n", i + 8, c8->stack[i + 8]);
-            }
+            print_stack(c8);
             break;
         case ARG_SP:
             printf("SP: 0x%03x\n", c8->sp);
             break;
         case ARG_V:
-            printf("V%x: 0x%03x\n", cmd->arg.intValue, c8->V[cmd->arg.intValue]);
+            if (cmd->arg.intValue == -1) {
+                print_v_registers(c8);
+            } else {
+                printf("V%x: 0x%03x\n", cmd->arg.intValue, c8->V[cmd->arg.intValue]);
+            }
             break;
         case ARG_PC:
-            printf("PC: 0x%03x", c8->pc);
+            printf("PC: 0x%03x\n", c8->pc);
             break;
         case ARG_DT:
-            printf("DT: 0x%03x", c8->dt);
+            printf("DT: 0x%03x\n", c8->dt);
             break;
         case ARG_ST:
-            printf("ST: 0x%03x", c8->st);
+            printf("ST: 0x%03x\n", c8->st);
             break;
         case ARG_I:
-            printf("I:  0x%03x", c8->I);
+            printf("I:  0x%03x\n", c8->I);
             break;
         case ARG_VK:
-            printf("K: V%03x", c8->VK);
+            printf("VK: V%03x\n", c8->VK);
             break;
         case ARG_STACK:
-            for (int i = 0; i < STACK_SIZE; i++) {
-                printf("0x%02x: 0x%03x\n", i, c8->stack[i]);
-            }
+            print_stack(c8);
             break;
         case ARG_ADDR:
             addr = cmd->arg.intValue;
-            printf("0x%03x: 0x%03x\t%s\n", addr, c8->mem[addr], decode_instruction(c8->mem[addr], NULL));
+            printf("$%03x: 0x%03x\t%s\n", addr, c8->mem[addr], decode_instruction(c8->mem[addr], NULL));
             break;
     }
 }
 
 int save_state(chip8_t *c8, const char *addr) {
     // TODO implement
+    printf("Unimplemented\n");
+    return 1;
 }
-
