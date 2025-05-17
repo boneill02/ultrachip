@@ -21,12 +21,12 @@ int parse_int(char *s) {
 char *trim(char *s) {
     char *end;
 
-    while (isspace(s)) {
+    while (isspace(*s)) {
         s++;
     }
 
     end = s + strlen(s) - 1;
-    while (end > s && isspace(end)) {
+    while (end > s && isspace(*end)) {
         end--;
     }
 

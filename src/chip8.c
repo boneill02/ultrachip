@@ -1,5 +1,6 @@
 #include "chip8.h"
 
+#include "debug.h"
 #include "decode.h"
 #include "graphics.h"
 #include "util.h"
@@ -15,7 +16,7 @@ chip8_t *init_chip8(int);
 void init_font(chip8_t *);
 int load_rom(chip8_t *, const char *);
 void parse_instruction(chip8_t *, uint16_t);
-void simulate(chip8_t *c8);
+void simulate(chip8_t *);
 
 int running = 0;
 int debug = 0;
@@ -102,6 +103,7 @@ void parse_instruction(chip8_t *c8, uint16_t in) {
 	if (verbose) {
 		printf("%s\n", decode_instruction(in, NULL));
 	}
+
 
 	switch (a) {
 		case 0x0:
@@ -319,10 +321,33 @@ void parse_instruction(chip8_t *c8, uint16_t in) {
 void simulate(chip8_t * c8) {
 	uint16_t in;
 	int t;
+	int debugRet;
+	bool step = false;
 
 	running = 1;
+	c8->pc = PROG_START;
+
+	if (debug) {
+		debugRet = debug_repl(c8);
+	}
 	while (running) {
 		t = tick(c8->key, c8->cs);
+
+		if (debug) {
+			if (has_breakpoint(c8->pc) || step) {
+				debugRet = debug_repl(c8);
+			}
+
+			switch (debugRet) {
+				case DEBUG_QUIT:
+					running = 0;
+					continue;
+				case DEBUG_STEP:
+					step = true;
+					break;
+			}
+		}
+
 		if (t == -2) {
 			/* Quit */
 			running = false;

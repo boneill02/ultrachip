@@ -9,6 +9,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct cmd_s {
+    int id;
+    int argid;
+    union Arg {
+        char *strValue;
+        int intValue;
+    } arg;
+} cmd_t;
+
 enum {
     CMD_ADD_BREAKPOINT = 0,
     CMD_RM_BREAKPOINT,
@@ -35,14 +44,7 @@ enum {
     ARG_LIST,
 };
 
-typedef struct cmd_s {
-    int id;
-    int argid;
-    union Arg {
-        char *strValue;
-        int intValue;
-    } arg;
-} cmd_t;
+bool breakpoints[MEMSIZE];
 
 int get_command(cmd_t *, char *);
 int load_state(chip8_t *, const char *);
@@ -54,7 +56,6 @@ void print_value(chip8_t *, cmd_t *);
 void set_value(chip8_t *, const char *);
 char *trim(char *);
 
-int breakpoints[MEMSIZE];
 
 const char *args[] = {
     "SP",
@@ -82,19 +83,19 @@ int debug_repl(chip8_t *c8) {
     cmd_t cmd;
 
     printf("debug > ");
-    while(scanf("%63s", buf)) {
+    while(scanf("%63[^\n]", buf)) {
         if (get_command(&cmd, buf)) {
             switch(cmd.id) {
-                case CMD_ADD_BREAKPOINT: // add breakpoint
-                    breakpoints[cmd.arg.intValue] = 1;
+                case CMD_ADD_BREAKPOINT:
+                    breakpoints[cmd.arg.intValue] = true;
                     break;
                 case CMD_RM_BREAKPOINT:
-                    breakpoints[cmd.arg.intValue] = 0;
+                    breakpoints[cmd.arg.intValue] = false;
                     break;
                 case CMD_CONTINUE:
-                    return 1; // continue
+                    return DEBUG_CONTINUE;
                 case CMD_NEXT:
-                    return 2; // step
+                    return DEBUG_STEP;
                 case CMD_LOAD:
                     load_state(c8, cmd.arg.strValue);
                     break;
@@ -108,13 +109,16 @@ int debug_repl(chip8_t *c8) {
                     print_help();
                     break;
                 case CMD_QUIT:
-                    return 0;
+                    return DEBUG_QUIT;
              }
         } else {
             printf("Unknown command\n");
         }
         printf("debug > ");
+        getchar(); // Consume newline
     }
+
+    return DEBUG_QUIT; // EOF
 }
 
 int get_command(cmd_t *cmd, char *s) {
@@ -158,17 +162,21 @@ int get_command(cmd_t *cmd, char *s) {
     return 0;
 }
 
+bool has_breakpoint(uint16_t pc) {
+    return breakpoints[pc];
+}
+
 int load_state(chip8_t *c8, const char *addr) {
     // TODO implement
 }
 
 int parse_arg(cmd_t *cmd, char *arg) {
     int id = cmd->id;
-    if (cmd->id == CMD_LOAD || cmd->id == CMD_SAVE) {
+    if (id == CMD_LOAD || id == CMD_SAVE) {
         /* file */
         cmd->argid = ARG_FILE;
         cmd->arg.strValue = trim(arg);
-    } else if (cmd->id == CMD_ADD_BREAKPOINT || cmd->id == CMD_RM_BREAKPOINT || cmd->id == CMD_PRINT) {
+    } else if (id == CMD_ADD_BREAKPOINT || id == CMD_RM_BREAKPOINT || id == CMD_PRINT) {
         if (arg[0] == 'x') {
             /* address */
             cmd->argid = ARG_ADDR;
@@ -205,53 +213,57 @@ void print_help(void) {
 }
 
 void print_value(chip8_t *c8, cmd_t *cmd) {
+    uint16_t pc;
+    uint16_t ins;
     int addr;
     switch (cmd->argid)  {
         case -1:
-            addr = cmd->arg.intValue;
-            printf("%03x: %03x\t%s\n", addr, c8->mem[addr], decode_instruction(c8->mem[addr], NULL));
-            printf("PC: %03x\t\tSP: %03x\n", c8->pc, c8->sp);
-            printf("DT: %03x\t\tST: %03x\n", c8->dt, c8->st);
-            printf("I:  %03x\t\tK:  V%01x\n", c8->I, c8->VK);
-            for (int i = 0; i < 16; i += 2) {
-                printf("V%01x: %03x\t\t", i, c8->V[i]);
-                printf("V%01x: %03x\n", i + 1, c8->V[i + 1]);
+            pc = c8->pc;
+            ins = (((uint16_t) c8->mem[pc]) << 8) | c8->mem[pc + 1];
+
+            printf("0x%03x: 0x%04x\t%s\n", pc, ins, decode_instruction(ins, NULL));
+            printf("PC: 0x%03x\t\tSP: 0x%03x\n", c8->pc, c8->sp);
+            printf("DT: 0x%03x\t\tST: 0x%03x\n", c8->dt, c8->st);
+            printf("I:  0x%03x\t\tK:  V%01x\n", c8->I, c8->VK);
+            for (int i = 0; i < 8; i++) {
+                printf("V%01x: 0x%03x\t\t", i, c8->V[i]);
+                printf("V%01x: 0x%03x\n", i + 8, c8->V[i + 8]);
             }
             printf("Stack:\n");
-            for (int i = 0; i < 16; i += 2) {
-                printf("0x%01x: %03x\t\t", i, c8->stack[i]);
-                printf("0x%01x: %03x\n", i + 1, c8->stack[i + 1]);
+            for (int i = 0; i < 8; i++) {
+                printf("0x%01x: 0x%03x\t\t", i, c8->stack[i]);
+                printf("0x%01x: 0x%03x\n", i + 8, c8->stack[i + 8]);
             }
             break;
         case ARG_SP:
-            printf("SP: %03x\n", c8->sp);
+            printf("SP: 0x%03x\n", c8->sp);
             break;
         case ARG_V:
-            printf("V%x: %03x\n", cmd->arg.intValue, c8->V[cmd->arg.intValue]);
+            printf("V%x: 0x%03x\n", cmd->arg.intValue, c8->V[cmd->arg.intValue]);
             break;
         case ARG_PC:
-            printf("PC: %03x", c8->pc);
+            printf("PC: 0x%03x", c8->pc);
             break;
         case ARG_DT:
-            printf("DT: %03x", c8->dt);
+            printf("DT: 0x%03x", c8->dt);
             break;
         case ARG_ST:
-            printf("ST: %03x", c8->st);
+            printf("ST: 0x%03x", c8->st);
             break;
         case ARG_I:
-            printf("I: %03x", c8->I);
+            printf("I:  0x%03x", c8->I);
             break;
         case ARG_VK:
             printf("K: V%03x", c8->VK);
             break;
         case ARG_STACK:
             for (int i = 0; i < STACK_SIZE; i++) {
-                printf("%03x: %03x\n", i, c8->stack[i]);
+                printf("0x%02x: 0x%03x\n", i, c8->stack[i]);
             }
             break;
         case ARG_ADDR:
-            int addr = cmd->arg.intValue;
-            printf("%03x: %03x\t%s\n", addr, c8->mem[addr], decode_instruction(c8->mem[addr], NULL));
+            addr = cmd->arg.intValue;
+            printf("0x%03x: 0x%03x\t%s\n", addr, c8->mem[addr], decode_instruction(c8->mem[addr], NULL));
             break;
     }
 }
