@@ -3,7 +3,7 @@
 
 #include "decode.h"
 
-char result[16];
+char result[32];
 
 char *decode_instruction(uint16_t in, uint8_t *label_map) {
 	for (int i = 0; i < 16; i++)
