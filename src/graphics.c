@@ -53,7 +53,7 @@ int get_key(SDL_Keycode k) {
 }
 
 int init_graphics(void) {
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+	SDL_Init(SDL_INIT_VIDEO);
 	window = SDL_CreateWindow("CHIP8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
 	if (!window) return 0;
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
