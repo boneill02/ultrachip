@@ -21,6 +21,7 @@ enum Command {
     CMD_RM_BREAKPOINT,
     CMD_CONTINUE,
     CMD_NEXT,
+    CMD_SET,
     CMD_LOAD,
     CMD_SAVE,
     CMD_PRINT,
@@ -53,12 +54,21 @@ enum Argument {
  * @brief Stores an argument's value (string or int)
  * 
  * Stores an argument's value as a string or int.
- * `strValue` gets the string value.
- * `intValue` gets the integer value.
+ * `s` gets the string value.
+ * `i` gets the integer value.
  */
-union Arg {
-    char *strValue;
-    int intValue;
+union ArgValue {
+    char *s;
+    int i;
+};
+
+/**
+ * @struct arg_s
+ * @brief Represents an argument for a command with a type and value.
+ */
+struct arg_s {
+    enum Argument type;
+    union ArgValue value;
 };
 
 /**
@@ -67,15 +77,13 @@ union Arg {
  *
  * This structure defines a command that includes:
  * - the command identifier (`id`),
- * - an argument identifier (`argid`), and
- * - an argument value (`arg`) which can be a string or an integer.
- *
- * The `arg` member is a union that stores the actual argument data.
+ * - an argument (`arg`)
+ * - value to set `arg->value` to (`setValue`, for set commands)
  */
 struct cmd_s {
     enum Command id;
-    enum Argument argid;
-    union Arg arg;
+    struct arg_s arg;
+    int setValue;
 };
 
 /**
@@ -102,7 +110,7 @@ bool save_state(chip8_t *, const char *);
 bool parse_arg(cmd_t *, char *);
 void print_help(void);
 void print_value(chip8_t *, cmd_t *);
-char *trim(char *);
+bool set_value(chip8_t *, cmd_t *);
 
 const char *args[] = {
     "SP",
@@ -110,6 +118,7 @@ const char *args[] = {
     "ST",
     "PC",
     "I",
+    "stack",
 };
 
 /**
@@ -121,6 +130,7 @@ const char *cmds[] = {
     "rmbreak",
     "continue",
     "next",
+    "set",
     "load",
     "save",
     "print",
@@ -152,17 +162,17 @@ int debug_repl(chip8_t *c8) {
         if (get_command(&cmd, buf)) {
             switch(cmd.id) {
                 case CMD_ADD_BREAKPOINT:
-                    if (cmd.argid == -1) {
+                    if (cmd.arg.type == -1) {
                         breakpoints[c8->pc] = true;
                     } else {
-                        breakpoints[cmd.arg.intValue] = true;
+                        breakpoints[cmd.arg.value.i] = true;
                     }
                     break;
                 case CMD_RM_BREAKPOINT:
-                    if (cmd.argid == -1) {
+                    if (cmd.arg.value.i == -1) {
                         breakpoints[c8->pc] = false;
                     } else {
-                        breakpoints[cmd.arg.intValue] = false;
+                        breakpoints[cmd.arg.value.i] = false;
                     }
                     break;
                 case CMD_CONTINUE:
@@ -170,21 +180,24 @@ int debug_repl(chip8_t *c8) {
                 case CMD_NEXT:
                     return DEBUG_STEP;
                 case CMD_LOAD:
-                    load_state(c8, cmd.arg.strValue);
+                    load_state(c8, cmd.arg.value.s);
                     break;
                 case CMD_SAVE:
-                    save_state(c8, cmd.arg.strValue);
+                    save_state(c8, cmd.arg.value.s);
                     break;
                 case CMD_PRINT:
                     print_value(c8, &cmd);
+                    break;
+                case CMD_SET:
+                    set_value(c8, &cmd);
                     break;
                 case CMD_HELP:
                     print_help();
                     break;
                 case CMD_QUIT:
                     return DEBUG_QUIT;
-                default:
-                    // Unreachable
+                case CMD_NONE:
+                    printf("Invalid command\n");
                     break;
              }
         } else {
@@ -196,6 +209,7 @@ int debug_repl(chip8_t *c8) {
 
     return DEBUG_QUIT; // EOF
 }
+
 
 /**
  * @brief Parse command from string s and store in cmd.
@@ -210,8 +224,9 @@ bool get_command(cmd_t *cmd, char *s) {
 
     /* reset cmd */
     cmd->id = CMD_NONE;
-    cmd->arg.intValue = -1;
-    cmd->argid = ARG_NONE;
+    cmd->arg.value.i = -1;
+    cmd->arg.type = ARG_NONE;
+    cmd->setValue = -1;
 
     s = trim(s);
     for (int i = 0; i < numCmds; i++) {
@@ -223,7 +238,7 @@ bool get_command(cmd_t *cmd, char *s) {
             cmd->id = (enum Command) i;
             if (s[len] == '\0') {
                 /* No arg */
-                cmd->argid = ARG_NONE;
+                cmd->arg.type = ARG_NONE;
                 return 1;
             } else if (isspace(s[len])) {
                 /* With arg */
@@ -234,7 +249,7 @@ bool get_command(cmd_t *cmd, char *s) {
         if (strlen(s) == 1 && s[0] == full[0]) {
             /* Shorthand with no arg */
             cmd->id = (enum Command) i;
-            cmd->argid = ARG_NONE;
+            cmd->arg.type = ARG_NONE;
             return true;
         }
 
@@ -258,19 +273,6 @@ bool has_breakpoint(uint16_t pc) {
     return breakpoints[pc];
 }
 
-/**
- * @brief Load a memory address into cmd
- * 
- * @param cmd where to store the address
- * @param arg argument string
- * 
- * @return true if successful (int can be parsed), false if not
- */
-bool load_address_arg(cmd_t *cmd, char *arg) {
-    cmd->argid = ARG_ADDR;
-    return (cmd->arg.intValue = parse_int(arg));
-}
-
 bool load_state(chip8_t *c8, const char *addr) {
     // TODO implement
     printf("Unimplemented\n");
@@ -287,76 +289,75 @@ bool load_state(chip8_t *c8, const char *addr) {
  * @return true
  */
 bool load_file_arg(cmd_t *cmd, char *arg) {
-    cmd->argid = ARG_FILE;
-    cmd->arg.strValue = trim(arg);
+    cmd->arg.type = ARG_FILE;
+    cmd->arg.value.s = trim(arg);
     return true;
 }
 
 /**
- * Load a print arg into cmd.
- * 
- * @param cmd where to store the parsed arg
- * @param arg the argument to store
- * 
- * @return true if successfully parsed, false if not
- */
-bool load_print_arg(cmd_t *cmd, char *arg) {
-    arg = trim(arg);
-    if (arg[0] == 'V') { // register
-        if (strlen(arg) > 1) {
-            if (arg[1] == 'K') { // print VK
-                cmd->argid = ARG_VK;
-                return true;
-            } else { // Print Vx
-                cmd->argid = ARG_V;
-                cmd->arg.intValue = hex_to_int(arg[1]);
-                return cmd->arg.intValue > -1; // return 0 if failed to parse int
-            }
-        } else { // print all V registers
-            cmd->argid = ARG_V;
-            cmd->arg.intValue = -1;
-            return true;
-        }
-    } else if (arg[0] == '$') { // address
-        cmd->argid = ARG_ADDR;
-        cmd->arg.intValue = parse_int(arg);
-        return 1;
-    } else if (!strcmp(arg, "stack")) { // stack
-        cmd->argid = ARG_STACK;
-        return true;
-    } else { // other value
-        for (int i = 0; i < (int) (sizeof(args) / sizeof(args[0])); i++) {
-            if (!strcmp(arg, args[i])) {
-                cmd->argid = (enum Argument) i;
-                return true;
-            }
-        }
-    }
-    return false; // invalid argument
-}
-
-/**
- * Parse an arg of any type.
+ * @brief Parse arguments.
  * 
  * @param cmd where to store the argument (cmd->id must be correct)
- * @param arg the argument to store
+ * @param s arg string (user input after command)
  */
-bool parse_arg(cmd_t *cmd, char *arg) {
-    switch (cmd->id) {
-        case CMD_LOAD:
-        case CMD_SAVE:
-            return load_file_arg(cmd, arg);
-            break;
-        case CMD_ADD_BREAKPOINT:
-        case CMD_RM_BREAKPOINT:
-            return load_address_arg(cmd, arg);
-            break;
-        case CMD_PRINT:
-            return load_print_arg(cmd, arg);
-        default:
-            break;
+bool parse_arg(cmd_t *cmd, char *s) {
+    struct arg_s *arg = &cmd->arg;
+    char *value;
+    s = trim(s);
+
+    if (cmd->id == CMD_SET) {
+        /* Split attribute to set and value to set it to */
+        value = s;
+        while (!isspace(*value)) {
+            value++;
+        }
+
+        if (*value == '\0') {
+            return false; // No value given
+        }
+
+        *value = '\0';
+        value++;
+        trim(value);
+
+        cmd->setValue = parse_int(value);
     }
-    return 0;
+
+
+    if (cmd->id == CMD_LOAD || cmd->id == CMD_SAVE) {
+        return load_file_arg(cmd, s);
+    }
+
+    if (s[0] == 'V') { // register
+        if (strlen(s) > 1) {
+            if (s[1] == 'K') { // VK
+                arg->type = ARG_VK;
+                return true;
+            } else { // Vx
+                arg->type = ARG_V;
+                arg->value.i = hex_to_int(s[1]);
+                return true;
+            }
+        } else { // V
+            arg->type = ARG_V;
+            arg->value.i = ARG_NONE;
+            return true;
+        }
+    } else if (s[0] == '$') { // address
+        arg->type = ARG_ADDR;
+        arg->value.i = parse_int(s);
+        return arg->value.i > 0;
+    } else { // other value
+        for (int i = 0; i < (int) (sizeof(args) / sizeof(args[0])); i++) {
+            if (!strcmp(s, args[i])) {
+                arg->type = (enum Argument) i;
+                arg->value.i = -1;
+                return true;
+            }
+        }
+    }
+
+    return false; // Failed to load arg
 }
 
 /**
@@ -400,8 +401,8 @@ void print_value(chip8_t *c8, cmd_t *cmd) {
     uint16_t pc;
     uint16_t ins;
     int addr;
-    switch (cmd->argid)  {
-        case -1:
+    switch (cmd->arg.type)  {
+        case ARG_NONE:
             pc = c8->pc;
             ins = (((uint16_t) c8->mem[pc]) << 8) | c8->mem[pc + 1];
 
@@ -417,10 +418,10 @@ void print_value(chip8_t *c8, cmd_t *cmd) {
             printf("SP: 0x%03x\n", c8->sp);
             break;
         case ARG_V:
-            if (cmd->arg.intValue == -1) {
+            if (cmd->arg.value.i == -1) {
                 print_v_registers(c8);
             } else {
-                printf("V%x: 0x%03x\n", cmd->arg.intValue, c8->V[cmd->arg.intValue]);
+                printf("V%x: 0x%03x\n", cmd->arg.value.i, c8->V[cmd->arg.value.i]);
             }
             break;
         case ARG_PC:
@@ -442,11 +443,11 @@ void print_value(chip8_t *c8, cmd_t *cmd) {
             print_stack(c8);
             break;
         case ARG_ADDR:
-            addr = cmd->arg.intValue;
+            addr = cmd->arg.value.i;
             printf("$%03x: 0x%03x\t%s\n", addr, c8->mem[addr], decode_instruction(c8->mem[addr], NULL));
             break;
-        default:
-            break;
+        case ARG_FILE:
+            break; // Should not be reached
     }
 }
 
@@ -454,4 +455,46 @@ bool save_state(chip8_t *c8, const char *addr) {
     // TODO implement
     printf("Unimplemented\n");
     return false;
+}
+
+/**
+ * @brief Set the value at `cmd->arg.type` to `cmd->setValue
+ * 
+ * This assumes the arguments are correctly formatted (e.g. no `ARG_V` type
+ * without a value).
+ * 
+ * @param c8 the current CHIP-8 state
+ * @param cmd the command structure
+ */
+bool set_value(chip8_t *c8, cmd_t *cmd) {
+    switch (cmd->arg.type) {
+        case ARG_NONE: 
+            return false;
+        case ARG_ADDR:
+            c8->mem[cmd->arg.value.i] = cmd->setValue;
+            return true;
+        case ARG_DT:
+            c8->dt = cmd->setValue;
+            return true;
+        case ARG_I:
+            c8->I = cmd->setValue;
+            return true;
+        case ARG_PC:
+            c8->pc = cmd->setValue;
+            return true;
+        case ARG_SP:
+            c8->sp = cmd->setValue;
+            return true;
+        case ARG_ST:
+            c8->st = cmd->setValue;
+            return true;
+        case ARG_V:
+            c8->V[cmd->arg.value.i] = cmd->setValue;
+            return true;
+        case ARG_VK:
+            c8->V[c8->VK] = cmd->setValue;
+            return true;
+        default:
+            return false;
+    }
 }
