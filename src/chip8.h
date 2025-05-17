@@ -23,7 +23,7 @@ typedef struct chip8_s {
 	uint16_t I;
 	int key[0x10];
 	int VK;
-	int display[DISPLAY_WIDTH * DISPLAY_HEIGHT];
+	bool display[DISPLAY_WIDTH * DISPLAY_HEIGHT];
 	int cs;
 	int waitingForKey;
 } chip8_t;

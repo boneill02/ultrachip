@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (args & ARG_DEFINE_LABELS) {
-		labelMap = calloc(0x1000, sizeof(uint8_t));
+		labelMap = (uint8_t *) calloc(0x1000, sizeof(uint8_t));
 		find_labels(inf);
 		rewind(inf);
 	}

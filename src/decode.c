@@ -5,6 +5,25 @@
 
 char result[32];
 
+/**
+ * @brief Decode `in` and return its assembly value.
+ * 
+ * Gets the assembly value of instruction `in`, stores it in the global
+ * variable `result`, and returns `result`.
+ * 
+ * If `label_map` is not `NULL`, it should point to an aray of size `MEMSIZE`,
+ * with all "labeled" elements set to a unique, non-zero integer. All other
+ * elements should be zero.
+ * 
+ * If `label_map` is not `NULL`, `label_map[nnn]` is greater than 0, and the
+ * instruction contains a nnn argument, a label name will be generated and used
+ * in the resulting string.
+ * 
+ * @param in The instruction to decode
+ * @param label_map The label map (can be NULL for no labels)
+ * 
+ * @return `result` containing the associated assembly instruction
+ */
 char *decode_instruction(uint16_t in, uint8_t *label_map) {
 	for (int i = 0; i < 16; i++)
 		result[i] = '\0';
@@ -151,20 +170,19 @@ char *decode_instruction(uint16_t in, uint8_t *label_map) {
 	return result;
 }
 
+/**
+ * @brief Returns the value to jump to if `n` is a jump instruction, or 0.
+ * 
+ * @param in The instruction to check
+ * 
+ * @return `in`'s `nnn` value if it exists, 0 otherwise.
+ */
 uint16_t jump(uint16_t in) {
-	int a = (in & 0xF000) >> 12;
-	int nnn = in & 0x0FFF;
+	uint16_t a = (in & 0xF000) >> 12;
+	uint16_t nnn = in & 0x0FFF;
 
-	switch (a) {
-		case 0x1:
-			return nnn;
-		case 0x2:
-			return nnn;
-		case 0xa:
-			return nnn;
-		case  0xb:
-			return nnn;
+	if (a == 0x1 || a == 0x2 || a == 0xa || a == 0xb) {
+		return nnn;
 	}
-
 	return 0;
 }
