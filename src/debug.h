@@ -34,6 +34,7 @@ $[address]: Value at given address\n\
 If no argument is given to print, it will print all of the above attributes\n\
 except for address values.\n"
 
+
 int debug_repl(chip8_t *);
 bool has_breakpoint(uint16_t);
 
