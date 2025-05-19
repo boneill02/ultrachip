@@ -1,8 +1,6 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include <stdbool.h>
-
 #include "chip8.h"
 
 #define DEBUG_QUIT 1
@@ -34,6 +32,6 @@ except for address values.\n"
 
 
 int debug_repl(chip8_t *);
-bool has_breakpoint(uint16_t);
+int has_breakpoint(uint16_t);
 
 #endif

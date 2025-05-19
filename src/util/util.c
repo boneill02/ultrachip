@@ -10,13 +10,13 @@
 /**
  * @brief Get the value of (x,y) from `display`
  * 
- * @param display 1D bool arr of size `DISPLAY_WIDTH * DISPLAY_HEIGHT`
+ * @param display 1D int arr of size `DISPLAY_WIDTH * DISPLAY_HEIGHT`
  * @param x the x value
  * @param y the y value
  * 
  * @return value of (x,y) in `display`
  */
-bool *get_pixel(bool *display, int x, int y) {
+int *get_pixel(int *display, int x, int y) {
     return &display[y * DISPLAY_WIDTH + x];
 }
 

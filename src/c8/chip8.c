@@ -385,14 +385,14 @@ void parse_instruction(chip8_t *c8) {
 }
 
 /**
- * @brief Main VM simulation loop. Exits when `running` is false.
+ * @brief Main VM simulation loop. Exits when `running` is 0.
  * 
  * @param c8 the `chip8_t` to simulate
  */
 void simulate(chip8_t * c8) {
 	int t;
 	int debugRet;
-	bool step = false;
+	int step = 0;
 
 	running = 1;
 	c8->pc = PROG_START;
@@ -411,14 +411,14 @@ void simulate(chip8_t * c8) {
 					running = 0;
 					continue;
 				case DEBUG_STEP:
-					step = true;
+					step = 1;
 					break;
 			}
 		}
 
 		if (t == -2) {
 			/* Quit */
-			running = false;
+			running = 0;
 		}
 
 		if (t >= 0 && c8->waitingForKey) {

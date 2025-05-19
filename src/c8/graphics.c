@@ -65,12 +65,12 @@ int get_key(SDL_Keycode k) {
 /**
  * @brief Initialize the graphics library.
  * 
- * @return true if successful, false otherwise.
+ * @return 1 if successful, 0 otherwise.
  */
-bool init_graphics(void) {
+int init_graphics(void) {
 	SDL_Init(SDL_INIT_VIDEO);
 	window = SDL_CreateWindow("CHIP8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
-	if (!window) return false;
+	if (!window) return 0;
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	return renderer != NULL;
 }
@@ -78,9 +78,9 @@ bool init_graphics(void) {
 /**
  * Render the given display to the SDL2 window.
  * 
- * @param display pointer to a bool arr of size `DISPLAY_WIDTH*DISPLAY_HEIGHT`
+ * @param display pointer to a int arr of size `DISPLAY_WIDTH*DISPLAY_HEIGHT`
  */
-void render(bool *display) {
+void render(int *display) {
 	SDL_RenderClear(renderer);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 	SDL_RenderFillRect(renderer, &winRect);
@@ -105,7 +105,7 @@ void render(bool *display) {
  * If a relevant key is pressed or released (see `keyMap` in this file), this
  * function will update `key` accordingly.
  * 
- * @param key pointer to bool arr of keys
+ * @param key pointer to int arr of keys
  * 
  * @return -2 if quitting, -1 if no key was pressed/released, else returns value
  * of key pressed/released.

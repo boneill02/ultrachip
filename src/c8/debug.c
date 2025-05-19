@@ -99,18 +99,18 @@ struct cmd_s {
  */
 typedef struct cmd_s cmd_t;
 
-bool breakpoints[MEMSIZE];
+int breakpoints[MEMSIZE];
 
-bool get_command(cmd_t *, char *);
-bool load_address_arg(cmd_t *, char *);
-bool load_file_arg(cmd_t *, char *);
-bool load_print_arg(cmd_t *, char *);
-bool load_state(chip8_t *, const char *);
-bool save_state(chip8_t *, const char *);
-bool parse_arg(cmd_t *, char *);
+int get_command(cmd_t *, char *);
+int load_address_arg(cmd_t *, char *);
+int load_file_arg(cmd_t *, char *);
+int load_print_arg(cmd_t *, char *);
+int load_state(chip8_t *, const char *);
+int save_state(chip8_t *, const char *);
+int parse_arg(cmd_t *, char *);
 void print_help(void);
 void print_value(chip8_t *, cmd_t *);
-bool set_value(chip8_t *, cmd_t *);
+int set_value(chip8_t *, cmd_t *);
 
 const char *args[] = {
     "SP",
@@ -163,16 +163,16 @@ int debug_repl(chip8_t *c8) {
             switch(cmd.id) {
                 case CMD_ADD_BREAKPOINT:
                     if (cmd.arg.type == -1) {
-                        breakpoints[c8->pc] = true;
+                        breakpoints[c8->pc] = 1;
                     } else {
-                        breakpoints[cmd.arg.value.i] = true;
+                        breakpoints[cmd.arg.value.i] = 1;
                     }
                     break;
                 case CMD_RM_BREAKPOINT:
                     if (cmd.arg.value.i == -1) {
-                        breakpoints[c8->pc] = false;
+                        breakpoints[c8->pc] = 0;
                     } else {
-                        breakpoints[cmd.arg.value.i] = false;
+                        breakpoints[cmd.arg.value.i] = 0;
                     }
                     break;
                 case CMD_CONTINUE:
@@ -215,9 +215,9 @@ int debug_repl(chip8_t *c8) {
  * @brief Parse command from string s and store in cmd.
  * 
  * @param cmd where to store the command attributes
- * @return true if successful, false if not
+ * @return 1 if successful, 0 if not
  */
-bool get_command(cmd_t *cmd, char *s) {
+int get_command(cmd_t *cmd, char *s) {
     size_t len;
     const char *full;
     int numCmds = (int) sizeof(cmds) / sizeof(cmds[0]);
@@ -250,7 +250,7 @@ bool get_command(cmd_t *cmd, char *s) {
             /* Shorthand with no arg */
             cmd->id = (enum Command) i;
             cmd->arg.type = ARG_NONE;
-            return true;
+            return 1;
         }
 
         if (s[0] == full[0] && isspace(s[1])) {
@@ -260,23 +260,23 @@ bool get_command(cmd_t *cmd, char *s) {
         }
     }
 
-    return false; // Unknown command
+    return 0; // Unknown command
 }
 
 /**
  * @brief Check if breakpoint exists at address pc
  * 
  * @param pc address to check for breakpoint at
- * @return true if yes, false if no
+ * @return 1 if yes, 0 if no
  */
-bool has_breakpoint(uint16_t pc) {
+int has_breakpoint(uint16_t pc) {
     return breakpoints[pc];
 }
 
-bool load_state(chip8_t *c8, const char *addr) {
+int load_state(chip8_t *c8, const char *addr) {
     // TODO implement
     printf("Unimplemented\n");
-    return false;
+    return 0;
 }
 
 /**
@@ -286,12 +286,12 @@ bool load_state(chip8_t *c8, const char *addr) {
  * @param cmd where to store the path
  * @param arg the argument to store
  * 
- * @return true
+ * @return 1
  */
-bool load_file_arg(cmd_t *cmd, char *arg) {
+int load_file_arg(cmd_t *cmd, char *arg) {
     cmd->arg.type = ARG_FILE;
     cmd->arg.value.s = trim(arg);
-    return true;
+    return 1;
 }
 
 /**
@@ -300,7 +300,7 @@ bool load_file_arg(cmd_t *cmd, char *arg) {
  * @param cmd where to store the argument (cmd->id must be correct)
  * @param s arg string (user input after command)
  */
-bool parse_arg(cmd_t *cmd, char *s) {
+int parse_arg(cmd_t *cmd, char *s) {
     struct arg_s *arg = &cmd->arg;
     char *value;
     s = trim(s);
@@ -313,7 +313,7 @@ bool parse_arg(cmd_t *cmd, char *s) {
         }
 
         if (*value == '\0') {
-            return false; // No value given
+            return 0; // No value given
         }
 
         *value = '\0';
@@ -332,16 +332,16 @@ bool parse_arg(cmd_t *cmd, char *s) {
         if (strlen(s) > 1) {
             if (s[1] == 'K') { // VK
                 arg->type = ARG_VK;
-                return true;
+                return 1;
             } else { // Vx
                 arg->type = ARG_V;
                 arg->value.i = hex_to_int(s[1]);
-                return true;
+                return 1;
             }
         } else { // V
             arg->type = ARG_V;
             arg->value.i = ARG_NONE;
-            return true;
+            return 1;
         }
     } else if (s[0] == '$') { // address
         arg->type = ARG_ADDR;
@@ -352,12 +352,12 @@ bool parse_arg(cmd_t *cmd, char *s) {
             if (!strcmp(s, args[i])) {
                 arg->type = (enum Argument) i;
                 arg->value.i = -1;
-                return true;
+                return 1;
             }
         }
     }
 
-    return false; // Failed to load arg
+    return 0; // Failed to load arg
 }
 
 /**
@@ -451,10 +451,10 @@ void print_value(chip8_t *c8, cmd_t *cmd) {
     }
 }
 
-bool save_state(chip8_t *c8, const char *addr) {
+int save_state(chip8_t *c8, const char *addr) {
     // TODO implement
     printf("Unimplemented\n");
-    return false;
+    return 0;
 }
 
 /**
@@ -466,35 +466,35 @@ bool save_state(chip8_t *c8, const char *addr) {
  * @param c8 the current CHIP-8 state
  * @param cmd the command structure
  */
-bool set_value(chip8_t *c8, cmd_t *cmd) {
+int set_value(chip8_t *c8, cmd_t *cmd) {
     switch (cmd->arg.type) {
         case ARG_NONE: 
-            return false;
+            return 0;
         case ARG_ADDR:
             c8->mem[cmd->arg.value.i] = cmd->setValue;
-            return true;
+            return 1;
         case ARG_DT:
             c8->dt = cmd->setValue;
-            return true;
+            return 1;
         case ARG_I:
             c8->I = cmd->setValue;
-            return true;
+            return 1;
         case ARG_PC:
             c8->pc = cmd->setValue;
-            return true;
+            return 1;
         case ARG_SP:
             c8->sp = cmd->setValue;
-            return true;
+            return 1;
         case ARG_ST:
             c8->st = cmd->setValue;
-            return true;
+            return 1;
         case ARG_V:
             c8->V[cmd->arg.value.i] = cmd->setValue;
-            return true;
+            return 1;
         case ARG_VK:
             c8->V[c8->VK] = cmd->setValue;
-            return true;
+            return 1;
         default:
-            return false;
+            return 0;
     }
 }

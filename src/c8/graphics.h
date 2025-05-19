@@ -9,8 +9,8 @@
 #define WINDOW_SCALE_Y (DEFAULT_WINDOW_HEIGHT / DISPLAY_HEIGHT)
 
 void deinit_graphics(void);
-bool init_graphics(void);
-void render(bool *);
+int init_graphics(void);
+void render(int *);
 int tick(int *, int);
 
 #endif

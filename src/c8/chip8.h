@@ -3,7 +3,6 @@
 
 #include "defs.h"
 
-#include <stdbool.h>
 #include <stdint.h>
 
 #define FLAG_DEBUG 0x1
@@ -20,7 +19,7 @@ typedef struct chip8_s {
 	uint16_t I;
 	int key[0x10];
 	int VK;
-	bool display[DISPLAY_WIDTH * DISPLAY_HEIGHT];
+	int display[DISPLAY_WIDTH * DISPLAY_HEIGHT];
 	int cs;
 	int waitingForKey;
 	int flags;
