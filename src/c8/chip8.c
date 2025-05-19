@@ -8,11 +8,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define DEBUG(C) (C->flags & FLAG_DEBUG)
-#define VERBOSE(C) (C->flags & FLAG_VERBOSE)
+#define DEBUG(c) (c->flags & FLAG_DEBUG)
+#define VERBOSE(c) (c->flags & FLAG_VERBOSE)
+#define BORROWS(x, y) ((((int) x) - y) < 0)
+#define CARRIES(x, y) ((((int) x) + y) > UINT8_MAX)
 
-static int check_borrow(int, int);
-static int check_carry(int, int);
 static void init_font(chip8_t *);
 static int load_rom(chip8_t *, const char *);
 static void parse_instruction(chip8_t *);
@@ -35,30 +35,6 @@ uint16_t font[] = {
 	0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
 	0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 };
-
-/**
- * @brief Check if `(x-y)<0`.
- * 
- * @param x the minuend
- * @param y the subtrahend
- * 
- * @return 1 if `(x-y)<0`, else 0
- */
-static int check_borrow(int x, int y) {
-	return (((int) x) - y) < 0;
-}
-
-/**
- * @brief Check if `(x+y)>UINT8_MAX`
- * 
- * @param x number to be added to y
- * @param y number to be added to x
- * 
- * @return 1 if `(x+y)>UINT8_MAX`, else 0
- */
-static int check_carry(int x, int y) {
-	return (((int) x) + y) > UINT8_MAX;
-}
 
 void deinit_chip8(chip8_t *c8) {
 	deinit_graphics();
@@ -218,7 +194,7 @@ static void parse_instruction(chip8_t *c8) {
 			break;
 		case 0x7:
 			/* ADD Vx, kk */
-			c8->V[0xF] = check_carry(c8->V[x], kk);
+			c8->V[0xF] = CARRIES(c8->V[x], kk);
 			c8->V[x] += kk;
 			break;
 		case 0x8:
@@ -241,12 +217,12 @@ static void parse_instruction(chip8_t *c8) {
 					break;
 				case 0x4:
 					/* ADD Vx, Vy */
-					c8->V[0xF] = check_carry(c8->V[x], c8->V[y]);
+					c8->V[0xF] = CARRIES(c8->V[x], c8->V[y]);
 					c8->V[x] += c8->V[y];
 					break;
 				case 0x5:
 					/* SUB Vx, Vy */
-					c8->V[0xF] = !check_borrow(c8->V[x], c8->V[y]);
+					c8->V[0xF] = !BORROWS(c8->V[x], c8->V[y]);
 					c8->V[x] -= c8->V[y];
 					break;
 				case 0x6:
@@ -257,7 +233,7 @@ static void parse_instruction(chip8_t *c8) {
 					break;
 				case 0x7:
 					/* SUBN Vx, Vy */
-					c8->V[0xF] = check_borrow(c8->V[y], c8->V[x]) == 0 ? 1 : 0;
+					c8->V[0xF] = BORROWS(c8->V[y], c8->V[x]) == 0 ? 1 : 0;
 					c8->V[x] = c8->V[y] - c8->V[x];
 					break;
 				case 0xE:
