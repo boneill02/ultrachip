@@ -7,20 +7,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <unistd.h>
+
+#define DEBUG(C) (C->flags & FLAG_DEBUG)
+#define VERBOSE(C) (C->flags & FLAG_VERBOSE)
 
 int check_borrow(int, int);
 int check_carry(int, int);
-chip8_t *init_chip8(int);
 void init_font(chip8_t *);
 int load_rom(chip8_t *, const char *);
 void parse_instruction(chip8_t *);
-void simulate(chip8_t *);
 
 int running = 0;
-int debug = 0;
-int verbose = 0;
 
 uint16_t font[] = {
 	 0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -65,6 +62,11 @@ int check_carry(int x, int y) {
 	return (((int) x) + y) > UINT8_MAX;
 }
 
+void deinit_chip8(chip8_t *c8) {
+	deinit_graphics();
+	free(c8);
+}
+
 /**
  * @brief Initialize and return a `chip8_t` with the specified clockspeed.
  * 
@@ -76,14 +78,28 @@ int check_carry(int x, int y) {
  * 
  * @return pointer to initialized chip8_t (must be `free`'d). `NULL` if failed.
  */
-chip8_t *init_chip8(int cs) {
+chip8_t *init_chip8(int cs, int flags, const char *path) {
 	chip8_t *c8;
 	if (!(c8 = (chip8_t *) calloc(1, sizeof(chip8_t)))) {
 		return NULL;
 	}
 
+	c8->flags = flags;
 	c8->cs = cs;
 	init_font(c8);
+
+	if (!load_rom(c8, path)) {
+		fprintf(stderr, "Error: Failed to load ROM.\n");
+		free(c8);
+		return NULL;
+	}
+
+	if (!init_graphics()) {
+		fprintf(stderr, "Error: Failed to initialize graphics.\n");
+		free(c8);
+		return NULL;
+	}
+
 	return c8;
 }
 
@@ -138,7 +154,7 @@ int load_rom(chip8_t *c8, const char *addr) {
  * This function parses and executes the instruction at the current program
  * counter.
  * 
- * If `verbose` is true, this will print the instruction to `stdout` as well.
+ * If verbose flag is set, this will print the instruction to `stdout` as well.
  * 
  * @param c8 the `chip8_t` to execute the instruction from
  */
@@ -151,7 +167,7 @@ void parse_instruction(chip8_t *c8) {
 	int a = (in & 0xF000) >> 12;
 	int b = in & 0x000F;
 
-	if (verbose) {
+	if (VERBOSE(c8)) {
 		printf("%s\n", decode_instruction(in, NULL));
 	}
 
@@ -381,13 +397,13 @@ void simulate(chip8_t * c8) {
 	running = 1;
 	c8->pc = PROG_START;
 
-	if (debug) {
+	if (DEBUG(c8)) {
 		debugRet = debug_repl(c8);
 	}
 	while (running) {
 		t = tick(c8->key, c8->cs);
 
-		if (debug && (has_breakpoint(c8->pc) || step)) {
+		if (DEBUG(c8) && (has_breakpoint(c8->pc) || step)) {
 			debugRet = debug_repl(c8);
 
 			switch (debugRet) {
@@ -417,53 +433,4 @@ void simulate(chip8_t * c8) {
 			parse_instruction(c8);
 		}
 	}
-}
-
-int main(int argc, char *argv[]) {
-	int cs = CLOCK_SPEED;
-	int opt;
-	chip8_t *c8;
-
-	/* Parse args */
-	while ((opt = getopt(argc, argv, "c:dv")) != -1) {
-		switch (opt) {
-			case 'c':
-				cs = atoi(optarg);
-				break;
-			case 'd':
-				debug = 1;
-				break;
-			case 'v':
-				verbose = 1;
-				break;
-			default:
-			  fprintf(stderr, "Usage: %s [-dv] [-c clockspeed] file\n", argv[0]);
-			  exit(EXIT_FAILURE);
-		}
-	}
-
-	srand(time(NULL));
-
-	if (!(c8 = init_chip8(cs))) {
-		fprintf(stderr, "Error: Failed to allocate memory for CHIP-8 state.\n");
-		return EXIT_FAILURE;
-	}
-
-	if (!load_rom(c8, argv[optind])) {
-		fprintf(stderr, "Error: Failed to load ROM.\n");
-		free(c8);
-		return EXIT_FAILURE;
-	}
-
-	if (!init_graphics()) {
-		fprintf(stderr, "Error: Failed to initialize graphics.\n");
-		free(c8);
-		return EXIT_FAILURE;
-	}
-
-	simulate(c8);
-
-	deinit_graphics();
-	free(c8);
-	return EXIT_SUCCESS;
 }

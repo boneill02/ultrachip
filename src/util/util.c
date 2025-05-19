@@ -3,6 +3,7 @@
 #include "defs.h"
 
 #include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -55,6 +56,10 @@ int parse_int(char *s) {
     } else {
         return strtol(s, NULL, 10);
     }
+}
+
+void print_version(const char *argv0) {
+    printf("%s %s\n", argv0, VERSION);
 }
 
 /**
