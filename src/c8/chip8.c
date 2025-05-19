@@ -387,10 +387,8 @@ void simulate(chip8_t * c8) {
 	while (running) {
 		t = tick(c8->key, c8->cs);
 
-		if (debug) {
-			if (has_breakpoint(c8->pc) || step) {
-				debugRet = debug_repl(c8);
-			}
+		if (debug && (has_breakpoint(c8->pc) || step)) {
+			debugRet = debug_repl(c8);
 
 			switch (debugRet) {
 				case DEBUG_QUIT:
