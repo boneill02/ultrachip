@@ -1,7 +1,9 @@
+#include "decode.h"
+
+#include "defs.h"
+
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "decode.h"
 
 char result[32];
 
@@ -27,12 +29,12 @@ char result[32];
 char *decode_instruction(uint16_t in, uint8_t *label_map) {
 	for (int i = 0; i < 16; i++)
 		result[i] = '\0';
-	int x = (in & 0x0F00) >> 8;
-	int kk = in & 0x00FF;
-	int nnn = in & 0x0FFF;
-	int y = (in & 0x00F0) >> 4;
-	int a = (in & 0xF000) >> 12;
-	int b = in & 0x000F;
+	int x = X(in);
+	int kk = KK(in);
+	int nnn = NNN(in);
+	int y = Y(in);
+	int a = A(in);
+	int b = B(in);
 
 	switch (a) {
 		case 0x0:

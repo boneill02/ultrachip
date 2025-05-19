@@ -1,6 +1,13 @@
 #ifndef CHIP8_DEFS_H
 #define CHIP8_DEFS_H
 
+#define X(i) ((i & 0x0F00) >> 8)
+#define Y(i) ((i & 0x00F0) >> 4)
+#define NNN(i) (i & 0x0FFF)
+#define A(i) ((i & 0xF000) >> 12)
+#define B(i) (i & 0x000F)
+#define KK(i) (i & 0x00FF)
+
 #define FONT_START 0x000
 #define PROG_START 0x200
 #define MEMSIZE 0x1000
