@@ -1,6 +1,6 @@
 #include "util.h"
 
-#include "chip8.h"
+#include "defs.h"
 
 #include <ctype.h>
 #include <stdlib.h>

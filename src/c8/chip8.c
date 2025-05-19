@@ -364,7 +364,7 @@ void parse_instruction(chip8_t *c8) {
 	}
 
 	if (c8->st > 0) {
-		c8->st--;
+		c8->st--; // TODO sound
 	}
 }
 

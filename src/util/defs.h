@@ -1,0 +1,12 @@
+#ifndef CHIP8_DEFS_H
+#define CHIP8_DEFS_H
+
+#define FONT_START 0x000
+#define PROG_START 0x200
+#define MEMSIZE 0x1000
+#define CLOCK_SPEED 500
+#define DISPLAY_WIDTH 64
+#define DISPLAY_HEIGHT 32
+#define STACK_SIZE 16
+
+#endif

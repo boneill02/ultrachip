@@ -1,10 +1,10 @@
 include config.mk
 
-C8_SRC = ${SRCPREFIX}/chip8.c ${SRCPREFIX}/debug.c ${SRCPREFIX}/decode.c ${SRCPREFIX}/graphics.c ${SRCPREFIX}/util.c
+C8_SRC = ${C8_SRCPREFIX}/chip8.c ${C8_SRCPREFIX}/debug.c ${C8_SRCPREFIX}/graphics.c ${UTILPREFIX}/decode.c ${UTILPREFIX}/util.c
 C8_OBJ = $(patsubst %.c, %.o, ${C8_SRC})
 C8_TARG = c8
 
-DIS_SRC = ${SRCPREFIX}/dis.c ${SRCPREFIX}/decode.c
+DIS_SRC = ${C8DIS_SRCPREFIX}/dis.c ${UTILPREFIX}/decode.c
 DIS_OBJ = $(patsubst %.c, %.o, ${DIS_SRC})
 DIS_TARG = c8dis
 
