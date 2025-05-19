@@ -11,13 +11,11 @@
 #define DEBUG(C) (C->flags & FLAG_DEBUG)
 #define VERBOSE(C) (C->flags & FLAG_VERBOSE)
 
-int check_borrow(int, int);
-int check_carry(int, int);
-void init_font(chip8_t *);
-int load_rom(chip8_t *, const char *);
-void parse_instruction(chip8_t *);
-
-int running = 0;
+static int check_borrow(int, int);
+static int check_carry(int, int);
+static void init_font(chip8_t *);
+static int load_rom(chip8_t *, const char *);
+static void parse_instruction(chip8_t *);
 
 uint16_t font[] = {
 	0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -46,7 +44,7 @@ uint16_t font[] = {
  * 
  * @return 1 if `(x-y)<0`, else 0
  */
-int check_borrow(int x, int y) {
+static int check_borrow(int x, int y) {
 	return (((int) x) - y) < 0;
 }
 
@@ -58,7 +56,7 @@ int check_borrow(int x, int y) {
  * 
  * @return 1 if `(x+y)>UINT8_MAX`, else 0
  */
-int check_carry(int x, int y) {
+static int check_carry(int x, int y) {
 	return (((int) x) + y) > UINT8_MAX;
 }
 
@@ -108,7 +106,7 @@ chip8_t *init_chip8(int cs, int flags, const char *path) {
  * 
  * @param c8 `chip8_t` to add the font to
  */
-void init_font(chip8_t *c8) {
+static void init_font(chip8_t *c8) {
 	for (int i = 0; i < (0x10 * 5); i++) {
 		c8->mem[FONT_START + i] = font[i];
 	}
@@ -122,7 +120,7 @@ void init_font(chip8_t *c8) {
  * 
  * @return 0 if failed, 1 otherwise.
  */
-int load_rom(chip8_t *c8, const char *addr) {
+static int load_rom(chip8_t *c8, const char *addr) {
 	FILE *f;
 	int size;
 	
@@ -158,7 +156,7 @@ int load_rom(chip8_t *c8, const char *addr) {
  * 
  * @param c8 the `chip8_t` to execute the instruction from
  */
-void parse_instruction(chip8_t *c8) {
+static void parse_instruction(chip8_t *c8) {
 	uint16_t in = (((uint16_t) c8->mem[c8->pc]) << 8) | c8->mem[c8->pc + 1];
 	int x = X(in);
 	int kk = KK(in);
@@ -392,9 +390,9 @@ void parse_instruction(chip8_t *c8) {
 void simulate(chip8_t * c8) {
 	int t;
 	int debugRet;
+	int running = 1;
 	int step = 0;
 
-	running = 1;
 	c8->pc = PROG_START;
 
 	if (DEBUG(c8)) {

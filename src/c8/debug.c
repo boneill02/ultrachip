@@ -101,16 +101,14 @@ typedef struct cmd_s cmd_t;
 
 int breakpoints[MEMSIZE];
 
-int get_command(cmd_t *, char *);
-int load_address_arg(cmd_t *, char *);
-int load_file_arg(cmd_t *, char *);
-int load_print_arg(cmd_t *, char *);
-int load_state(chip8_t *, const char *);
-int save_state(chip8_t *, const char *);
-int parse_arg(cmd_t *, char *);
-void print_help(void);
-void print_value(chip8_t *, cmd_t *);
-int set_value(chip8_t *, cmd_t *);
+static int get_command(cmd_t *, char *);
+static int load_file_arg(cmd_t *, char *);
+static int load_state(chip8_t *, const char *);
+static int save_state(chip8_t *, const char *);
+static int parse_arg(cmd_t *, char *);
+static void print_help(void);
+static void print_value(chip8_t *, cmd_t *);
+static int set_value(chip8_t *, cmd_t *);
 
 const char *args[] = {
     "SP",
@@ -217,7 +215,7 @@ int debug_repl(chip8_t *c8) {
  * @param cmd where to store the command attributes
  * @return 1 if successful, 0 if not
  */
-int get_command(cmd_t *cmd, char *s) {
+static int get_command(cmd_t *cmd, char *s) {
     size_t len;
     const char *full;
     int numCmds = (int) sizeof(cmds) / sizeof(cmds[0]);
@@ -273,7 +271,7 @@ int has_breakpoint(uint16_t pc) {
     return breakpoints[pc];
 }
 
-int load_state(chip8_t *c8, const char *addr) {
+static int load_state(chip8_t *c8, const char *addr) {
     // TODO implement
     printf("Unimplemented\n");
     return 0;
@@ -288,7 +286,7 @@ int load_state(chip8_t *c8, const char *addr) {
  * 
  * @return 1
  */
-int load_file_arg(cmd_t *cmd, char *arg) {
+static int load_file_arg(cmd_t *cmd, char *arg) {
     cmd->arg.type = ARG_FILE;
     cmd->arg.value.s = trim(arg);
     return 1;
@@ -300,7 +298,7 @@ int load_file_arg(cmd_t *cmd, char *arg) {
  * @param cmd where to store the argument (cmd->id must be correct)
  * @param s arg string (user input after command)
  */
-int parse_arg(cmd_t *cmd, char *s) {
+static int parse_arg(cmd_t *cmd, char *s) {
     struct arg_s *arg = &cmd->arg;
     char *value;
     s = trim(s);
@@ -363,7 +361,7 @@ int parse_arg(cmd_t *cmd, char *s) {
 /**
  * @brief Print the help string.
  */
-void print_help(void) {
+static void print_help(void) {
     printf("%s\n", DEBUG_HELP_STRING);
 }
 
@@ -372,7 +370,7 @@ void print_help(void) {
  * 
  * @param c8 the current CHIP-8 state
  */
-void print_v_registers(chip8_t *c8) {
+static void print_v_registers(chip8_t *c8) {
     for (int i = 0; i < 8; i++) {
         printf("V%01x: 0x%03x\t\t", i, c8->V[i]);
         printf("V%01x: 0x%03x\n", i + 8, c8->V[i + 8]);
@@ -384,7 +382,7 @@ void print_v_registers(chip8_t *c8) {
  * 
  * @param c8 the current CHIP-8 state
  */
-void print_stack(chip8_t *c8) {
+static void print_stack(chip8_t *c8) {
     for (int i = 0; i < 8; i++) {
         printf("0x%01x: 0x%03x\t\t", i, c8->stack[i]);
         printf("0x%01x: 0x%03x\n", i + 8, c8->stack[i + 8]);
@@ -397,7 +395,7 @@ void print_stack(chip8_t *c8) {
  * @param c8 the current CHIP-8 state
  * @param cmd the command structure to get the arg from
  */
-void print_value(chip8_t *c8, cmd_t *cmd) {
+static void print_value(chip8_t *c8, cmd_t *cmd) {
     uint16_t pc;
     uint16_t ins;
     int addr;
@@ -451,7 +449,7 @@ void print_value(chip8_t *c8, cmd_t *cmd) {
     }
 }
 
-int save_state(chip8_t *c8, const char *addr) {
+static int save_state(chip8_t *c8, const char *addr) {
     // TODO implement
     printf("Unimplemented\n");
     return 0;
@@ -466,7 +464,7 @@ int save_state(chip8_t *c8, const char *addr) {
  * @param c8 the current CHIP-8 state
  * @param cmd the command structure
  */
-int set_value(chip8_t *c8, cmd_t *cmd) {
+static int set_value(chip8_t *c8, cmd_t *cmd) {
     switch (cmd->arg.type) {
         case ARG_NONE: 
             return 0;

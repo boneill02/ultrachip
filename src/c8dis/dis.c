@@ -11,7 +11,7 @@
 #define DEFINE_LABELS (args & ARG_DEFINE_LABELS)
 #define PRINT_ADDRESSES (args & ARG_PRINT_ADDRESSES)
 
-void find_labels(FILE *, uint8_t *);
+static void find_labels(FILE *, uint8_t *);
 
 /**
  * @brief Generate labels from `input` and add labels to `labelMap`.
@@ -22,7 +22,7 @@ void find_labels(FILE *, uint8_t *);
  * @param input the ROM to get labels from
  * @param labelMap where to store the labels
  */
-void find_labels(FILE *input, uint8_t *labelMap) {
+static void find_labels(FILE *input, uint8_t *labelMap) {
 	uint16_t addr = PROG_START;
 	uint8_t count = 1;
 	uint16_t ins = 0;

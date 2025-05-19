@@ -38,7 +38,7 @@ uint16_t keyMap[16][2] = {
 	{ SDLK_v, 15 },
 };
 
-int get_key(SDL_Keycode k);
+static int get_key(SDL_Keycode k);
 
 /**
  * @brief Deinitialize the graphics library.
@@ -55,7 +55,7 @@ void deinit_graphics(void) {
  * 
  * @return the CHIP-8 keycode
  */
-int get_key(SDL_Keycode k) {
+static int get_key(SDL_Keycode k) {
 	for (int i = 0; i < 16; i++) {
 		if (keyMap[i][0] == k) return keyMap[i][1];
 	}
