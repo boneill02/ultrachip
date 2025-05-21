@@ -11,7 +11,7 @@ UTILPREFIX = $(PWD)/src/util
 # flags
 LIBS = -lSDL2
 CPPFLAGS = -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L -DVERSION=\"$(VERSION)\"
-CFLAGS   = -std=gnu99 -pedantic -Wall -O2 -I${UTILPREFIX} $(CPPFLAGS)
+CFLAGS   = -std=gnu99 -pedantic -Wall -O2 -I$(UTILPREFIX) $(CPPFLAGS)
 LDFLAGS  = $(LIBS)
 
 CC = gcc
