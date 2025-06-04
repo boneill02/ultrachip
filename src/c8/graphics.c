@@ -1,6 +1,6 @@
 #include "graphics.h"
 
-#include "util.h"
+#include "util/util.h"
 
 #include <SDL2/SDL.h>
 

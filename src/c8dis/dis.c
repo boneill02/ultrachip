@@ -1,7 +1,7 @@
 #include "dis.h"
 
-#include "defs.h"
-#include "decode.h"
+#include "util/defs.h"
+#include "util/decode.h"
 
 #include <stdint.h>
 #include <stdio.h>

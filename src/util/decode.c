@@ -1,6 +1,6 @@
-#include "decode.h"
+#include "util/decode.h"
 
-#include "defs.h"
+#include "util/defs.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,6 +1,6 @@
-#include "util.h"
+#include "util/util.h"
 
-#include "defs.h"
+#include "util/defs.h"
 
 #include <ctype.h>
 #include <stdio.h>

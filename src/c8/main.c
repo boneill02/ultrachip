@@ -1,5 +1,5 @@
 #include "chip8.h"
-#include "util.h"
+#include "util/util.h"
 
 #include <stdio.h>
 #include <stdlib.h>

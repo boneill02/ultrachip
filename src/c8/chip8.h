@@ -1,7 +1,7 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
-#include "defs.h"
+#include "util/defs.h"
 
 #include <stdint.h>
 
@@ -22,6 +22,8 @@ typedef struct chip8_s {
 	int display[DISPLAY_WIDTH * DISPLAY_HEIGHT];
 	int cs;
 	int waitingForKey;
+	int running;
+	int displayMode;
 	int flags;
 } chip8_t;
 

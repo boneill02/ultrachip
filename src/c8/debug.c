@@ -1,8 +1,8 @@
 #include "debug.h"
 
 #include "chip8.h"
-#include "decode.h"
-#include "util.h"
+#include "util/decode.h"
+#include "util/util.h"
 
 #include <ctype.h>
 #include <stdio.h>

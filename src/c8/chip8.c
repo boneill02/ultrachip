@@ -1,9 +1,9 @@
 #include "chip8.h"
 
 #include "debug.h"
-#include "decode.h"
 #include "graphics.h"
-#include "util.h"
+#include "util/decode.h"
+#include "util/util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -147,17 +147,43 @@ static void parse_instruction(chip8_t *c8) {
 
 	switch (a) {
 		case 0x0:
-			if (in == 0x00E0) {
-				/* CLS */
-				for (int i = 0; i < DISPLAY_WIDTH; i++) {
-					for (int j = 0; j < DISPLAY_HEIGHT; j++) {
-						*get_pixel(c8->display, x, y) = 0;
+			if (y == 0xC) {
+				/* SCD n */
+				// TODO implement
+			}
+			switch (kk) {
+				case 0xE0:
+					/* CLS */
+					for (int i = 0; i < DISPLAY_WIDTH; i++) {
+						for (int j = 0; j < DISPLAY_HEIGHT; j++) {
+							*get_pixel(c8->display, x, y) = 0;
+						}
 					}
-				}
-			} else if (in == 0x00EE) {
-				/* RET */
-				c8->sp--;
-				c8->pc = c8->stack[c8->sp];
+					break;
+				case 0xEE:
+					/* RET */
+					c8->sp--;
+					c8->pc = c8->stack[c8->sp];
+					break;
+				case 0xFB:
+					/* SCR */
+					// TODO implement
+					break;
+				case 0xFC:
+					// TODO implement
+					break;
+				case 0xFD:
+					/* EXIT */
+					c8->running = 0;
+					break;
+				case 0xFE:
+					/* LOW */
+					// TODO implement
+					break;
+				case 0xFF:
+					/* HIGH */
+					// TODO implement
+					break;
 			}
 			break;
 		case 0x1:
@@ -366,15 +392,15 @@ static void parse_instruction(chip8_t *c8) {
 void simulate(chip8_t * c8) {
 	int t;
 	int debugRet;
-	int running = 1;
 	int step = 0;
 
 	c8->pc = PROG_START;
+	c8->running = 1;
 
 	if (DEBUG(c8)) {
 		debugRet = debug_repl(c8);
 	}
-	while (running) {
+	while (c8->running) {
 		t = tick(c8->key, c8->cs);
 
 		if (DEBUG(c8) && (has_breakpoint(c8->pc) || step)) {
@@ -382,7 +408,7 @@ void simulate(chip8_t * c8) {
 
 			switch (debugRet) {
 				case DEBUG_QUIT:
-					running = 0;
+					c8->running = 0;
 					continue;
 				case DEBUG_STEP:
 					step = 1;
@@ -392,7 +418,7 @@ void simulate(chip8_t * c8) {
 
 		if (t == -2) {
 			/* Quit */
-			running = 0;
+			c8->running = 0;
 		}
 
 		if (t >= 0 && c8->waitingForKey) {
