@@ -9,6 +9,8 @@
 #include <string.h>
 
 #define MAX_LINE_LENGTH 100
+#define MAX_WORDS 100
+#define MAX_LINES 100
 #define INSTRUCTION_COUNT 64
 #define SYMBOL_COUNT 64
 #define LABEL_COUNT 64
@@ -67,6 +69,7 @@ typedef enum {
     I_DRW,
     I_SKP,
     I_SKNP,
+    I_XOR,
 } Instruction;
 
 /**
@@ -105,28 +108,6 @@ typedef struct {
 symbol_t *symbols;
 
 /**
- * @enum Parameter
- * @brief Represents encoded parameter types
- * 
- * After the first pass, instruction_ts are generated for each instruction.
- * 
- * This enumeration represents all possible parameters that can be directly
- * encoded into the instruction. In the second pass, instruction_ts are generated
- * from the symbols, converting labels into their respective immediate values, etc.
- */
-typedef enum {
-    P_IMM,
-    P_I,
-    P_IP,
-    P_V,
-    P_DT,
-    P_ST,
-    P_K,
-    P_B,
-    P_F
-} Parameter;
-
-/**
  * @struct instruction_format_t
  * @brief Represents a valid instruction format
  * 
@@ -134,10 +115,10 @@ typedef enum {
  * that they will produce valid instructions.
  */
 typedef struct instruction_format_s {
-    const char *s;
+    Instruction cmd;
     uint16_t base;
     int pcount;
-    Parameter ptype[3];
+    Symbol ptype[3];
     uint16_t pmask[3];
 } instruction_format_t;
 
@@ -149,69 +130,72 @@ typedef struct instruction_format_s {
  * validity and generate the bytecode.
  */
 typedef struct instruction_s {
-    char *s;
     int line;
     Instruction cmd;
     int pcount;
-    Parameter ptype[3];
+    Symbol ptype[3];
     int p[3];
     instruction_format_t *format;
 } instruction_t;
 
-static uint16_t encode_instruction(instruction_t *);
+typedef struct {
+    char identifier[20];
+    int byte;
+} label_t;
+
+static int build_instruction(int idx);
+static uint16_t encode_instruction(void);
 static void error(char *, int);
-static int find_label(char *);
-static int get_line(char *, char *, int);
-static int index_of(char *, int, char);
-static int is_arithmetic(char);
 static int is_comment(char *, int);
 static int is_instruction(char *);
 static int is_label_definition(char *, int);
 static int is_register(char *);
 static int is_reserved_identifier(char *s);
 static symbol_t *next_symbol(void);
-static char *next_word(char *, int);
 static void parse_line(char *, int);
-static void reallocate_instructions(void);
 static void reallocate_symbols(void);
+static void resolve_labels(void);
+static uint16_t set_instruction_format(void);
 static int shift(uint16_t);
-static char *trim_comment(char *, int);
+static int tokenize(char **, char *, const char *, int);
+static void trim_comment(char *, int);
+static void write(FILE *);
 
 instruction_format_t formats[] = {
-    { S_CLS,  0x00E0, 0, {},                 {} },
-    { S_RET,  0x00EE, 0, {},                 {} },
-    { S_CALL, 0x2000, 1,  {P_IMM},           {0x0FFF} },
-    { S_SE,   0x3000, 2,  {P_V, P_IMM},      {0x0F00, 0x00FF} },
-    { S_SNE,  0x4000, 2,  {P_V, P_IMM},      {0x0F00, 0x00FF} },
-    { S_SE,   0x5000, 2,  {P_V, P_V},        {0x0F00, 0x00F0} },
-    { S_LD,   0x6000, 2,  {P_V, P_V},        {0x0F00, 0x00F0} },
-    { S_ADD,  0x7000, 2,  {P_V, P_IMM},      {0x0F00, 0x00FF} },
-    { S_LD,   0x8000, 2,  {P_V, P_V},        {0x0F00, 0x00F0} },
-    { S_OR,   0x8001, 2,  {P_V, P_V},        {0x0F00, 0x00F0} },
-    { S_AND,  0x8002, 2,  {P_V, P_V},        {0x0F00, 0x00F0} },
-    { S_XOR,  0x8003, 2,  {P_V, P_V},        {0x0F00, 0x00F0} },
-    { S_ADD,  0x8004, 2,  {P_V, P_V},        {0x0F00, 0x00F0} },
-    { S_SUB,  0x8005, 2,  {P_V, P_V},        {0x0F00, 0x00F0} },
-    { S_SHR,  0x8006, 1,  {P_V},             {0x0F00} },
-    { S_SUBN, 0x8007, 2,  {P_V, P_V},        {0x0F00, 0x00F0} },
-    { S_SHL,  0x800E,  1, {P_V},             {0x0F00} },
-    { S_SNE,  0x9000,  2, {P_V, P_V},        {0x0F00} },
-    { S_LD,   0xA000,  2, {P_I, P_IMM},      {0x0000, 0x0FFF} },
-    { S_JP,   0xB000,  2, {P_V, P_IMM},      {0x0000, 0x0FFF} },
-    { S_RND,  0xC000,  2, {P_V, P_IMM},      {0x0F00, 0x00FF} },
-    { S_DRW,  0xD000,  3, {P_V, P_V, P_IMM}, {0x0F00, 0x00FF} },
-    { S_SKP,  0xE09E,  1, {P_V},             {0x0F00} },
-    { S_SKNP, 0xE0A1, 1,  {P_V},             {0x0F00} },
-    { S_LD,   0xF007, 2,  {P_V, P_DT},       {0x0F00, 0x0000} },
-    { S_LD,   0xF00A, 2,  {P_V, P_K},        {0x0F00, 0x0000} },
-    { S_LD,   0xF015, 2,  {P_DT, P_V},       {0x0000, 0x0F00} },
-    { S_LD,   0xF018, 2,  {P_ST, P_V},       {0x0000, 0x0F00} },
-    { S_ADD,  0xF01E, 2,  {P_I, P_V},        {0x0000, 0x0F00} },
-    { S_LD,  0xF029, 2,   {P_F, P_V},        {0x0000, 0x0F00} },
-    { S_LD,  0xF033, 2,   {P_B, P_V},        {0x0000, 0x0F00} },
-    { S_LD,  0xF055, 2,   {P_IP, P_V},       {0x0000, 0x0F00} },
-    { S_LD,  0xF065, 2,   {P_V, P_IP},       {0x0F00, 0x0000} },
-    { NULL,  0,      0,   {},                {} },
+    { I_CLS,  0x00E0, 0, {0},                     {0} },
+    { I_RET,  0x00EE, 0, {0},                     {0} },
+    { I_CALL, 0x2000, 1, {SYM_INT},               {0x0FFF} },
+    { I_SE,   0x3000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
+    { I_SNE,  0x4000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
+    { I_SE,   0x5000, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
+    { I_LD,   0x6000, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
+    { I_ADD,  0x7000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
+    { I_LD,   0x8000, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
+    { I_OR,   0x8001, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
+    { I_AND,  0x8002, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
+    { I_XOR,  0x8003, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
+    { I_ADD,  0x8004, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
+    { I_SUB,  0x8005, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
+    { I_SHR,  0x8006, 1, {SYM_V},                 {0x0F00} },
+    { I_SUBN, 0x8007, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
+    { I_SHL,  0x800E, 1, {SYM_V},                 {0x0F00} },
+    { I_SNE,  0x9000, 2, {SYM_V, SYM_V},          {0x0F00} },
+    { I_LD,   0xA000, 2, {SYM_I, SYM_INT},        {0x0000, 0x0FFF} },
+    { I_JP,   0xB000, 2, {SYM_V, SYM_INT},        {0x0000, 0x0FFF} },
+    { I_RND,  0xC000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
+    { I_DRW,  0xD000, 3, {SYM_V, SYM_V, SYM_INT}, {0x0F00, 0x00FF} },
+    { I_SKP,  0xE09E, 1, {SYM_V},                 {0x0F00} },
+    { I_SKNP, 0xE0A1, 1, {SYM_V},                 {0x0F00} },
+    { I_LD,   0xF007, 2, {SYM_V, SYM_DT},         {0x0F00, 0x0000} },
+    { I_LD,   0xF00A, 2, {SYM_V, SYM_K},          {0x0F00, 0x0000} },
+    { I_LD,   0xF015, 2, {SYM_DT, SYM_V},         {0x0000, 0x0F00} },
+    { I_LD,   0xF018, 2, {SYM_ST, SYM_V},         {0x0000, 0x0F00} },
+    { I_ADD,  0xF01E, 2, {SYM_I, SYM_V},          {0x0000, 0x0F00} },
+    { I_LD,  0xF029,  2, {SYM_F, SYM_V},          {0x0000, 0x0F00} },
+    { I_LD,  0xF033,  2, {SYM_B, SYM_V},          {0x0000, 0x0F00} },
+    { I_LD,  0xF055,  2, {SYM_IP, SYM_V},         {0x0000, 0x0F00} },
+    { I_LD,  0xF065,  2, {SYM_V, SYM_IP},         {0x0F00, 0x0000} },
+    { -1,    0,       0, {0},                     {0} },
 };
 
 const char *instructionStrings[] = {
@@ -250,15 +234,42 @@ const char *identifierStrings[] = {
     NULL,
 };
 
-instruction_t *instructions;
-int instructionCount = 0;
-int instructionCeiling = INSTRUCTION_COUNT;
-
+instruction_t ins;
 symbol_t *symbols;
 int symbolCount = 1;
 int symbolCeiling = SYMBOL_COUNT;
 
-const char *labels[LABEL_COUNT];
+label_t labels[LABEL_COUNT];
+int labelCount = 0;
+
+static int build_instruction(int idx) {
+    int pc = 0;
+    ins.cmd = symbols[idx].value;
+    ins.line = symbols[idx].ln;
+    for (int i = 0; i < symbolCount - idx; i++) {
+        switch (symbols[idx + i].type) {
+            case SYM_V:
+            case SYM_INT:
+                ins.p[i] = symbols[idx+i].value;
+            case SYM_B:
+            case SYM_DT:
+            case SYM_F:
+            case SYM_I:
+            case SYM_IP:
+            case SYM_K:
+            case SYM_ST:
+                ins.ptype[i] = symbols[idx+i].type;
+                break;
+            default:
+                pc = i;
+                i = symbolCount; // FIXME messy
+                break;
+        }
+    }
+
+    ins.pcount = pc;
+    return set_instruction_format();
+}
 
 /**
  * @brief Returns the bytecode for the given instruction
@@ -268,11 +279,11 @@ const char *labels[LABEL_COUNT];
  * @param ins the instruction to encode
  * @return encoded instruction
  */
-static uint16_t encode_instruction(instruction_t *ins) {
-    uint16_t result = ins->format->base;
+static uint16_t encode_instruction(void) {
+    uint16_t result = ins.format->base;
 
-    for (int i = 0; i < ins->pcount; i++) {
-        result |= ins->p[i] << shift(ins->format->pmask[i]);
+    for (int i = 0; i < ins.pcount; i++) {
+        result |= ins.p[i] << shift(ins.format->pmask[i]);
     }
 
     return result;
@@ -292,74 +303,6 @@ void error(char *s, int ln) {
     } else {
         fprintf(stderr, "Error: %s\n", s);
     }
-}
-
-static int find_label(char *s) {
-    for (int i = 0; i < LABEL_COUNT; i++) {
-        if (labels[i]) {
-            if (!strcmp(s, labels[i])) {
-                return i;
-            }
-        } else {
-            labels[i] = s;
-            return i;
-        }
-    }
-
-    return 0; // Unreachable
-}
-
-/**
- * @brief Copy line from src to dest
- * 
- * This will copy characters from src to dest until a newline is reached,
- * or len characters were copied.
- * 
- * @param dest string to copy to
- * @param src string to copy from
- * @param len maximum number of characters to copy
- * @return 1 if newline reached, 0 otherwise
- */
-static int get_line(char *dest, char *src, int len) {
-    int c = 0;
-    while (c < len && src[c] != '\n') {
-        c++;
-    }
-    strncpy(dest, src, c);
-
-    return c != len;
-}
-
-/**
- * @brief Get index of c in s
- * 
- * Returns the first index of c in len. If c is not found, -1 is returned.
- * 
- * @param s string to search
- * @param len length to search
- * @param c char to search for
- * @return index if found, -1 if not found
- */
-static int index_of(char *s, int len, char c) {
-    int i = 0;
-    while (i < len && s[i] != c) {
-        s++;
-    }
-
-    return i == len ? -1 : i;
-}
-
-/**
- * @brief Check if given character is an arithmetic character
- * 
- * @param c character to check
- * @return 1 if true, 0 if false
- */
-static int is_arithmetic(char c) {
-    if (c == '+' || c == '-' || c == '*' || c == '/' || c == '%') {
-        return 1;
-    }
-    return 0;
 }
 
 /**
@@ -397,7 +340,7 @@ static int is_instruction(char *s) {
 }
 
 /**
- * @brief Check if the given string is a label
+ * @brief Check if the given string is a label definition
  * 
  * @param s the string to check
  * @param len the length of the string
@@ -432,72 +375,31 @@ static int is_reserved_identifier(char *s) {
 }
 
 /**
- * @brief Get the pointer to the next word in the given string
- * 
- * @param s the string to check
- * @param len the length of the string
- * @return NULL if no more words, pointer to next word otherwise
- */
-static char *next_word(char *s, int len) {
-    int i = 0;
-    int j = 0;
-    if (isspace(*s)) {
-        for (i = 0; i < len; i++) {
-            s++;
-            if (!isspace(*s)) {
-                return s;
-            } else {
-                *s = '\0';
-            }
-        }
-        return NULL;
-    }
-
-    for (i = 0; i < len; i++) {
-        s++;
-        if (!j && isspace(*s)) {
-            *s = '\0';
-            j++;
-        } else if (j && !isspace(*s)) {
-            return s;
-        }
-    }
-    return NULL;
-}
-
-/**
  * @brief Parse the given string
  */
-void parse(char *s) {
+void parse(char *s, FILE *f) {
     symbols = malloc(sizeof(symbol_t) * SYMBOL_COUNT);
-    instructions = malloc(sizeof(instruction_t) * INSTRUCTION_COUNT);
-    char **lines = malloc(500 * sizeof(char *)); // TODO fix
-    int len = strlen(s);
-    int lineCount = 1;
-    int newline = 0;
+    char **lines = malloc(MAX_LINES * sizeof(char *));
 
-    lines[0] = strtok(s, "\n");
-    for (int i = 1; i < 500; i++) {
-        if ((lines[lineCount] = strtok(NULL, "\n"))) {
-            lineCount++;
-        } else {
-            break;
+    s = trim(s);
+    int lineCount = 1;
+    tokenize(lines, s, "\n", MAX_LINES);
+
+    for (int i = 0; i < lineCount; i++) {
+        if (is_label_definition(lines[i], strlen(lines[i]))) {
+            labelCount++;
+            strcpy(labels[labelCount].identifier, lines[i]);
         }
     }
 
-    /* First pass */
     for (int i = 0; i < lineCount; i++) {
         parse_line(lines[i], i+1);
     }
 
-    for (int i = 0; i < symbolCount; i++) {
-        printf("%d %d %d\n", symbols[i].ln, symbols[i].type, symbols[i].value);
-    }
-
-    /* Second pass */
+    resolve_labels();
+    write(f);
 
     free(symbols);
-    free(instructions);
     free(lines);
 }
 
@@ -505,45 +407,37 @@ void parse(char *s) {
  * @brief Parse the given line
  */
 static void parse_line(char *s, int ln) {
-    if (is_comment(s, strlen(s))) return;
     int len = strlen(s);
-    char **words = malloc(64 * sizeof(char *));
-    int wordCount;
+    if (is_comment(s, len)) return;
+
+    char **words = malloc(MAX_WORDS * sizeof(char *));
+    int wc;
     int value;
     
-    symbol_t *sym = &symbols[symbolCount];
+    symbol_t *sym = &symbols[0];
 
-    s = trim_comment(s, len);
+    trim_comment(s, len);
+    wc = tokenize(words, s, " ", MAX_WORDS);
 
-    words[0] = strtok(s, ", ");
-    for (int i = 1; i < 64; i++) {
-        if ((words[i] = strtok(NULL, ", "))) {
-            wordCount++;
-        } else {
-            break;
-        }
-    }
-
-    for (int i = 0; i < wordCount; i++) {
-        printf("%s\n", words[i]);
+    for (int i = 0; i < wc; i++) {
         sym->ln = ln;
         if ((value = is_instruction(words[i])) != -1) {
             sym->type = SYM_INSTRUCTION;
             sym->value = value;
-        } else if (is_label_definition(s, strlen(s))) {
+        } else if (is_label_definition(words[i], strlen(s))) {
+            labelCount++;
+            strcpy(labels[labelCount].identifier, words[i]);
             sym->type = SYM_LABEL_DEFINITION;
-            sym->value = find_label(s);
-        } else if (is_register(s)) {
+        } else if ((value = is_register(words[i])) != -1) {
             sym->type = SYM_V;
-        } else if ((value = is_reserved_identifier(s) != -1)) {
+            sym->value = value;
+        } else if ((value = is_reserved_identifier(words[i]) != -1)) {
             sym->type = value;
-        } else if ((value = parse_int(s))) {
+        } else if ((value = parse_int(words[i]))) {
             sym->type = SYM_INT;
             sym->value = value;
         } else {
             sym->type = SYM_LABEL;
-            sym->value = find_label(s);
-            sym = next_symbol();
         }
         sym = next_symbol();
     }
@@ -560,51 +454,35 @@ static symbol_t *next_symbol(void) {
     return &symbols[symbolCount - 1];
 }
 
-/**
- * @brief Generate ptype and p for parameter pn in ins from s
- * 
- * @param ins instruction to populate parameter
- * @param pn parameter number to populate
- * @param s parameter string
- * @param len parameter string length
- */
-static void parse_parameter(instruction_t *ins, int pn, char *s, int len) {
-    int intValue = parse_int(s);;
-    if (*s == 'V') {
-        ins->ptype[pn] = P_V;
-        ins->p[pn] = parse_int(s+1);
-    } else if (*s == 'I') {
-        ins->ptype[pn] = P_I;
-    } else if (!strncmp(s, "DT", 2)) {
-        // TODO check for len < 2
-        ins->ptype[pn] = P_DT;
-    } else if (!strncmp(s, "ST", 2)) {
-        // TODO check for len < 2
-        ins->ptype[pn] = P_ST;
-    } else if ((intValue = parse_int(s))) {
-        ins->ptype[pn] = P_IMM;
-        // TODO throw error if immediate too big
-        ins->p[pn] = intValue;
-    }
-}
-
-/**
- * @brief Expand instructions array
- */
-static void reallocate_instructions(void) {
-    instruction_t *oldins = instructions;
-    instructions = malloc(sizeof(instruction_t) * instructionCeiling + INSTRUCTION_COUNT);
-    memcpy(instructions, oldins, instructionCeiling);
-    instructionCeiling += INSTRUCTION_COUNT;
-    free(oldins);
-}
-
 static void reallocate_symbols(void) {
     symbol_t *oldsym = symbols;
-    instructions = malloc(sizeof(symbol_t) * symbolCeiling + SYMBOL_COUNT);
+    symbols = malloc(sizeof(symbol_t) * symbolCeiling + SYMBOL_COUNT);
     memcpy(symbols, oldsym, symbolCeiling);
     symbolCeiling += SYMBOL_COUNT;
     free(oldsym);
+}
+
+static void resolve_labels(void) {
+    int byte = 0;
+    int labelIdx = 0;
+    for (int i = 0; i < symbolCount; i++) {
+        if (labelIdx == labelCount) {
+            return;
+        }
+
+        switch (symbols[i].type) {
+            case SYM_LABEL_DEFINITION:
+                labels[labelIdx++].byte = byte;
+            case SYM_DB:
+                byte += 1;
+                break;
+            case SYM_INSTRUCTION:
+            case SYM_DW:
+                byte += 2;
+            default:
+                break;
+        }
+    }
 }
 
 /**
@@ -614,24 +492,24 @@ static void reallocate_symbols(void) {
  * it to the given instruction.
  * 
  * @param ins instruction to validate
- * @return 1 if valid, 0 otherwise
+ * @return instruction bytes if valid, 0 otherwise
  */
-static int set_instruction_format(instruction_t *ins) {
+static uint16_t set_instruction_format(void) {
     instruction_format_t f;
     int j;
 
-    for (int i = 0; formats[i].s != NULL; i++) {
+    for (int i = 0; formats[i].cmd != -1; i++) {
         f = formats[i];
-        if (!strncmp(ins->s, f.s, strlen(f.s)) && ins->pcount == f.pcount) {
-            for (j = 0; j < ins->pcount; j++) {
-                if (ins->ptype[j] != f.ptype[j]) {
+        if (ins.pcount == f.pcount && ins.cmd == f.cmd) {
+            for (j = 0; j < ins.pcount; j++) {
+                if (ins.ptype[j] != f.ptype[j]) {
                     break;
                 }
             }
 
-            if (j == ins->pcount) {
-                ins->format = &formats[i];
-                return 1;
+            if (j == ins.pcount) {
+                ins.format = &formats[i];
+                return encode_instruction();
             }
         }
     }
@@ -654,6 +532,21 @@ static int shift(uint16_t fmt) {
     return shift;
 }
 
+static int tokenize(char **tok, char *s, const char *delim, int maxTokens) {
+    if (maxTokens <= 0 || !s || !tok) {
+        return 0;
+    }
+
+    int tokenCount = 0;
+    char *token = strtok(s, delim);
+    while (token && tokenCount < maxTokens) {
+        tok[tokenCount++] = token;
+        token = strtok(NULL, delim);
+    }
+
+    return tokenCount;
+}
+
 /**
  * @brief Trim and remove comment from line if exists
  * 
@@ -661,17 +554,43 @@ static int shift(uint16_t fmt) {
  * @param len length of string
  * @return trimmed string
  */
-static char *trim_comment(char *s, int len) {
-    char *s2;
-    s = trim(s);
-    s2 = s;
-
-    while (!is_comment(s2, len--) && len > 0) {
-        s2++;
+static void trim_comment(char *s, int len) {
+    for (int i = 0; i < len; i++) {
+        if (s[i] == ';') s[i] = '\0';
     }
+}
 
-    if (len == 0) {
-        *s2 = '\0';
+static void write(FILE *output) {
+    int ret;
+    printf("%d %d\n", symbolCount, symbols[0].type);
+    for (int i = 0; i < symbolCount; i++) {
+        switch(symbols[i].type) {
+            case SYM_INSTRUCTION:
+                ret = build_instruction(i);
+                if (ret) {
+                    i += ins.pcount;
+                    fputc((ret & 0xFF00) >> 8, output);
+                    fputc(ret & 0xFF, output);
+                } else {
+                    error("Invalid instruction", symbols[i].ln);
+                }
+                break;
+            case SYM_DB:
+                if (symbols[i].value > UINT8_MAX) {
+                    error("Value too big", symbols[i].ln);
+                } else {
+                    fputc(symbols[i].value, output);
+                }
+                break;
+            case SYM_DW:
+                if (symbols[i].value > UINT16_MAX) {
+                    error("Value too big", symbols[i].ln);
+                } else {
+                    fputc(symbols[i].value, output);
+                }
+                break;
+            default:
+                break;
+        }
     }
-    return s;
 }
