@@ -6,6 +6,10 @@ C8_SRC = $(C8_SRCPREFIX)/chip8.c $(C8_SRCPREFIX)/debug.c \
 C8_OBJ = $(patsubst %.c, %.o, $(C8_SRC))
 C8_TARG = c8
 
+C8AS_SRC = $(C8AS_SRCPREFIX)/encode.c $(C8AS_SRCPREFIX)/main.c $(UTILPREFIX)/util.c
+C8AS_OBJ = $(patsubst %.c, %.o, $(C8AS_SRC))
+C8AS_TARG = c8as
+
 C8DIS_SRC = $(C8DIS_SRCPREFIX)/dis.c $(C8DIS_SRCPREFIX)/main.c \
             $(UTILPREFIX)/decode.c
 C8DIS_OBJ = $(patsubst %.c, %.o, $(C8DIS_SRC))
@@ -15,6 +19,9 @@ all: $(C8_TARG) $(C8DIS_TARG)
 
 .c.o:
 	$(CC) $(CFLAGS) -o $@ -c $<
+
+$(C8AS_TARG): $(C8AS_OBJ)
+	$(CC) -o $@ $(C8AS_OBJ) $(LDFLAGS)
 
 $(C8_TARG): $(C8_OBJ)
 	$(CC) -o $@ $(C8_OBJ) $(LDFLAGS)

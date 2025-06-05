@@ -10,6 +10,8 @@
 
 #define MAX_LINE_LENGTH 100
 #define INSTRUCTION_COUNT 64
+#define SYMBOL_COUNT 64
+#define LABEL_COUNT 64
 
 #define S_CLS "CLS"
 #define S_RET "RET"
@@ -30,6 +32,15 @@
 #define S_SKP "SKP"
 #define S_SKNP "SKNP"
 #define S_XOR "XOR"
+#define S_K "K"
+#define S_F "F"
+#define S_B "B"
+#define S_DT "DT"
+#define S_ST "ST"
+#define S_I "I"
+#define S_IP "[I]"
+#define S_DB "DB"
+#define S_DW "DW"
 
 /**
  * @enum Instruction
@@ -37,7 +48,7 @@
  * 
  * This enumeration defines all possible CHIP-8 instructions.
  */
-enum Instruction {
+typedef enum {
     I_CLS,
     I_RET,
     I_JP,
@@ -56,7 +67,7 @@ enum Instruction {
     I_DRW,
     I_SKP,
     I_SKNP,
-};
+} Instruction;
 
 /**
  * @enum Symbol
@@ -64,20 +75,34 @@ enum Instruction {
  * 
  * This enumeration defines all symbol types found during the first assembler
  * pass.
+ * 
+ * NOTE: values before label need to be kept in same order as identifierStrings
  */
-enum Symbol {
-    SYM_INT,
-    SYM_STRING,
-    SYM_V,
-    SYM_INSTRUCTION,
-    SYM_DT,
+typedef enum {
+    SYM_DT = 0,
     SYM_ST,
     SYM_I,
     SYM_IP,
     SYM_K,
     SYM_F,
-    SYM_B
-};
+    SYM_B,
+    SYM_DB,
+    SYM_DW,
+    SYM_LABEL,
+    SYM_INT,
+    SYM_STRING,
+    SYM_V,
+    SYM_INSTRUCTION,
+    SYM_LABEL_DEFINITION,
+} Symbol;
+
+typedef struct {
+    Symbol type;
+    uint16_t value;
+    int ln;
+} symbol_t;
+
+symbol_t *symbols;
 
 /**
  * @enum Parameter
@@ -89,7 +114,7 @@ enum Symbol {
  * encoded into the instruction. In the second pass, instruction_ts are generated
  * from the symbols, converting labels into their respective immediate values, etc.
  */
-enum Parameter {
+typedef enum {
     P_IMM,
     P_I,
     P_IP,
@@ -99,7 +124,7 @@ enum Parameter {
     P_K,
     P_B,
     P_F
-};
+} Parameter;
 
 /**
  * @struct instruction_format_t
@@ -112,7 +137,7 @@ typedef struct instruction_format_s {
     const char *s;
     uint16_t base;
     int pcount;
-    enum Parameter ptype[3];
+    Parameter ptype[3];
     uint16_t pmask[3];
 } instruction_format_t;
 
@@ -126,26 +151,31 @@ typedef struct instruction_format_s {
 typedef struct instruction_s {
     char *s;
     int line;
-    enum Instruction cmd;
+    Instruction cmd;
     int pcount;
-    enum Parameter ptype[3];
+    Parameter ptype[3];
     int p[3];
     instruction_format_t *format;
 } instruction_t;
 
 static uint16_t encode_instruction(instruction_t *);
+static void error(char *, int);
+static int find_label(char *);
 static int get_line(char *, char *, int);
 static int index_of(char *, int, char);
 static int is_arithmetic(char);
 static int is_comment(char *, int);
-static int is_instruction(char *, int);
-static int is_label(char *, int);
-static int next_word(char *, int);
-static void parse_parameters(instruction_t *, int, char *, int);
+static int is_instruction(char *);
+static int is_label_definition(char *, int);
+static int is_register(char *);
+static int is_reserved_identifier(char *s);
+static symbol_t *next_symbol(void);
+static char *next_word(char *, int);
 static void parse_line(char *, int);
-static void error(char *, int);
 static void reallocate_instructions(void);
+static void reallocate_symbols(void);
 static int shift(uint16_t);
+static char *trim_comment(char *, int);
 
 instruction_format_t formats[] = {
     { S_CLS,  0x00E0, 0, {},                 {} },
@@ -204,11 +234,31 @@ const char *instructionStrings[] = {
     S_SKP,
     S_SKNP,
     S_XOR,
+    NULL
 };
 
-static instruction_t *instructions;
+const char *identifierStrings[] = {
+    S_DT,
+    S_ST,
+    S_I,
+    S_IP,
+    S_K,
+    S_F,
+    S_B,
+    S_DB,
+    S_DW,
+    NULL,
+};
+
+instruction_t *instructions;
 int instructionCount = 0;
 int instructionCeiling = INSTRUCTION_COUNT;
+
+symbol_t *symbols;
+int symbolCount = 1;
+int symbolCeiling = SYMBOL_COUNT;
+
+const char *labels[LABEL_COUNT];
 
 /**
  * @brief Returns the bytecode for the given instruction
@@ -240,8 +290,23 @@ void error(char *s, int ln) {
     if (ln) {
         fprintf(stderr, "Error (line %d): %s\n", ln, s);
     } else {
-        fprintf(stderr, "Error: %s\n", ln, s);
+        fprintf(stderr, "Error: %s\n", s);
     }
+}
+
+static int find_label(char *s) {
+    for (int i = 0; i < LABEL_COUNT; i++) {
+        if (labels[i]) {
+            if (!strcmp(s, labels[i])) {
+                return i;
+            }
+        } else {
+            labels[i] = s;
+            return i;
+        }
+    }
+
+    return 0; // Unreachable
 }
 
 /**
@@ -319,11 +384,11 @@ static int is_comment(char *s, int len) {
  * 
  * @param s the string to check
  * @param len length of the string
- * @return 1 if true, 0 if false
+ * @return instruction enumerator if true, -1 if false
  */
-static int is_instruction(char *s, int len) {
-    for (int i = 0; i < 18; i++) {
-        if (!strncmp(s, instructionStrings[i], strlen(instructionStrings[i]))) {
+static int is_instruction(char *s) {
+    for (int i = 0; instructionStrings[i]; i++) {
+        if (!strcmp(s, instructionStrings[i])) {
             return i;
         }
     }
@@ -338,11 +403,32 @@ static int is_instruction(char *s, int len) {
  * @param len the length of the string
  * @return 1 if true, 0 if false
  */
-static int is_label(char *s, int len) {
+static int is_label_definition(char *s, int len) {
     if (len < 2) {
         return 0;
     }
     return s[len-1] == ':';
+}
+
+static int is_register(char *s) {
+    if (*s == 'V') {
+        return parse_int(&s[1]);
+    }
+
+    return -1;
+}
+
+/**
+ * @brief Check if given string is a reserved identifier
+ */
+static int is_reserved_identifier(char *s) {
+    for (int i = 0; identifierStrings[i]; i++) {
+        if (!strcmp(s, identifierStrings[i])) {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 /**
@@ -350,79 +436,128 @@ static int is_label(char *s, int len) {
  * 
  * @param s the string to check
  * @param len the length of the string
- * @return -1 if no more words, index of next word otherwise
+ * @return NULL if no more words, pointer to next word otherwise
  */
-static int next_word(char *s, int len) {
+static char *next_word(char *s, int len) {
     int i = 0;
     int j = 0;
-    for (i = 0; i < len; i++) {
-        if (j && !isspace(*s)) {
-            break;
-        } else if (!j && isspace(*s)) {
-            j++;
+    if (isspace(*s)) {
+        for (i = 0; i < len; i++) {
+            s++;
+            if (!isspace(*s)) {
+                return s;
+            } else {
+                *s = '\0';
+            }
         }
-        s++;
+        return NULL;
     }
 
-    return i == len ? -1 : i;
+    for (i = 0; i < len; i++) {
+        s++;
+        if (!j && isspace(*s)) {
+            *s = '\0';
+            j++;
+        } else if (j && !isspace(*s)) {
+            return s;
+        }
+    }
+    return NULL;
 }
 
 /**
  * @brief Parse the given string
- * 
- * FIXME needs to be restructured for 2 pass
  */
-static void parse(char *s) {
+void parse(char *s) {
+    symbols = malloc(sizeof(symbol_t) * SYMBOL_COUNT);
+    instructions = malloc(sizeof(instruction_t) * INSTRUCTION_COUNT);
+    char **lines = malloc(500 * sizeof(char *)); // TODO fix
     int len = strlen(s);
-    char line[MAX_LINE_LENGTH];
-    int ln = 1;
+    int lineCount = 1;
+    int newline = 0;
 
-    instructions = (instruction_t *) malloc(INSTRUCTION_COUNT * sizeof(instruction_t));
-
-    while (get_line(line, s, len)) {
-        parse_line(line, ln);
-        ln++;
+    lines[0] = strtok(s, "\n");
+    for (int i = 1; i < 500; i++) {
+        if ((lines[lineCount] = strtok(NULL, "\n"))) {
+            lineCount++;
+        } else {
+            break;
+        }
     }
+
+    /* First pass */
+    for (int i = 0; i < lineCount; i++) {
+        parse_line(lines[i], i+1);
+    }
+
+    for (int i = 0; i < symbolCount; i++) {
+        printf("%d %d %d\n", symbols[i].ln, symbols[i].type, symbols[i].value);
+    }
+
+    /* Second pass */
+
+    free(symbols);
+    free(instructions);
+    free(lines);
 }
 
 /**
  * @brief Parse the given line
- * 
- * FIXME needs to be restructured for 2 pass
  */
 static void parse_line(char *s, int ln) {
-    instruction_t *ins = &instructions[instructionCount];
-    instruction_t *oldins;
-    int idx = 0;
+    if (is_comment(s, strlen(s))) return;
     int len = strlen(s);
-    char buf[64];
+    char **words = malloc(64 * sizeof(char *));
+    int wordCount;
+    int value;
+    
+    symbol_t *sym = &symbols[symbolCount];
 
-    if (!is_comment(s, len)) {
-        ins->line = ln;
+    s = trim_comment(s, len);
 
-        if ((ins->cmd = is_instruction(s, len)) == -1) {
-            return;
-        }
-
-        /* get args */
-        while ((idx = next_word(s, len)) != NULL) {
-            if (ins->pcount > 2) {
-                // TODO throw too many args error
-                break;
-            }
-            len -= idx;
-            s += idx;
-
-            parse_arg(s, len, ins, ins->pcount);
-            ins->pcount++;
+    words[0] = strtok(s, ", ");
+    for (int i = 1; i < 64; i++) {
+        if ((words[i] = strtok(NULL, ", "))) {
+            wordCount++;
+        } else {
+            break;
         }
     }
 
-    instructionCount++;
-
-    if (instructionCount == instructionCeiling) {
-        reallocateInstructions();
+    for (int i = 0; i < wordCount; i++) {
+        printf("%s\n", words[i]);
+        sym->ln = ln;
+        if ((value = is_instruction(words[i])) != -1) {
+            sym->type = SYM_INSTRUCTION;
+            sym->value = value;
+        } else if (is_label_definition(s, strlen(s))) {
+            sym->type = SYM_LABEL_DEFINITION;
+            sym->value = find_label(s);
+        } else if (is_register(s)) {
+            sym->type = SYM_V;
+        } else if ((value = is_reserved_identifier(s) != -1)) {
+            sym->type = value;
+        } else if ((value = parse_int(s))) {
+            sym->type = SYM_INT;
+            sym->value = value;
+        } else {
+            sym->type = SYM_LABEL;
+            sym->value = find_label(s);
+            sym = next_symbol();
+        }
+        sym = next_symbol();
     }
+
+    free(words);
+}
+
+static symbol_t *next_symbol(void) {
+    symbolCount++;
+    if (symbolCount == symbolCeiling) {
+        reallocate_symbols();
+    }
+
+    return &symbols[symbolCount - 1];
 }
 
 /**
@@ -462,6 +597,14 @@ static void reallocate_instructions(void) {
     memcpy(instructions, oldins, instructionCeiling);
     instructionCeiling += INSTRUCTION_COUNT;
     free(oldins);
+}
+
+static void reallocate_symbols(void) {
+    symbol_t *oldsym = symbols;
+    instructions = malloc(sizeof(symbol_t) * symbolCeiling + SYMBOL_COUNT);
+    memcpy(symbols, oldsym, symbolCeiling);
+    symbolCeiling += SYMBOL_COUNT;
+    free(oldsym);
 }
 
 /**
@@ -511,4 +654,24 @@ static int shift(uint16_t fmt) {
     return shift;
 }
 
+/**
+ * @brief Trim and remove comment from line if exists
+ * 
+ * @param s string to trim
+ * @param len length of string
+ * @return trimmed string
+ */
+static char *trim_comment(char *s, int len) {
+    char *s2;
+    s = trim(s);
+    s2 = s;
 
+    while (!is_comment(s2, len--) && len > 0) {
+        s2++;
+    }
+
+    if (len == 0) {
+        *s2 = '\0';
+    }
+    return s;
+}
