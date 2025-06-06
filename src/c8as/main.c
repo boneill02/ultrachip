@@ -62,7 +62,6 @@ int main(int argc, char *argv[]) {
 
     char *input = dynamic_load(inf);
 
-    printf("%s\n", input);
 	parse(input, outf);
 
 	/* Cleanup */

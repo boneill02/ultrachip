@@ -242,7 +242,7 @@ const char *identifierStrings[] = {
 
 instruction_t ins;
 symbol_t *symbols;
-int symbolCount = 1;
+int symbolCount = 0;
 int symbolCeiling = SYMBOL_COUNT;
 
 label_t labels[LABEL_COUNT];
@@ -254,6 +254,7 @@ static int build_instruction(int idx) {
 
     ins.cmd = symbols[idx].value;
     ins.line = symbols[idx].ln;
+    ins.pcount = 0;
 
     idx++;
     for (int i = 0; i < symbolCount - idx; i++) {
@@ -280,7 +281,6 @@ static int build_instruction(int idx) {
     int match;
     for (int i = 0; formats[i].cmd != -1; i++) {
         f = formats[i];
-        printf("%d %d %s %d %s\n", idx, ins.pcount, instructionStrings[ins.cmd], f.pcount, instructionStrings[f.cmd]);
         if (ins.pcount == f.pcount && ins.cmd == f.cmd) {
             match = 1;
             for (j = 0; j < ins.pcount; j++) {
@@ -376,8 +376,8 @@ static int is_label_definition(char *s, int len) {
  * @return V register number if true, -1 otherwise
  */
 static int is_register(char *s) {
-    if (*s == 'V') {
-        return parse_int(&s[1]);
+    if (*s == 'V' || *s == 'v') {
+        return parse_int(s);
     }
 
     return -1;
@@ -446,7 +446,7 @@ static void parse_line(char *s, int ln) {
     int wc;
     int value;
     
-    symbol_t *sym = &symbols[0];
+    symbol_t *sym = &symbols[symbolCount];
 
     trim_comment(s, len);
     wc = tokenize(words, s, " ", MAX_WORDS);
@@ -488,7 +488,7 @@ static symbol_t *next_symbol(void) {
         reallocate_symbols();
     }
 
-    return &symbols[symbolCount - 1];
+    return &symbols[symbolCount];
 }
 
 /**
@@ -590,15 +590,14 @@ static void trim_comment(char *s, int len) {
 static void write(FILE *output) {
     int ret;
 
-    printf("NUMBER OF SYMBOLS: %d\n", symbolCount);
-
     for (int i = 0; i < symbolCount; i++) {
         switch(symbols[i].type) {
             case SYM_INSTRUCTION:
-                printf("INSTRUCTION AT SYMBOL %d: ", i);
                 ret = build_instruction(i);
-                printf("%d\n", ret);
                 if (ret) {
+                    fputc((ret>>8) & 0xFF, output);
+                    fputc(ret & 0xFF, output);
+                    printf("%04x\n", ret);
                     i += ins.pcount;
                 } else {
                     error("Invalid instruction", symbols[i].ln);
@@ -609,13 +608,16 @@ static void write(FILE *output) {
                     error("Value too big", symbols[i].ln);
                 } else {
                     fputc(symbols[i].value, output);
+                    printf("%02x\n", symbols[i].value);
                 }
                 break;
             case SYM_DW:
                 if (symbols[i].value > UINT16_MAX) {
                     error("Value too big", symbols[i].ln);
                 } else {
-                    fputc(symbols[i].value, output);
+                    fputc((symbols[i].value>>8) & 0xFF, output);
+                    fputc(symbols[i].value & 0xFF, output);
+                    printf("%04x\n", symbols[i].value);
                 }
                 break;
             default:

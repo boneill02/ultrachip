@@ -51,7 +51,7 @@ int hex_to_int(char c) {
  * @return 0 if failed, otherwise whatever the value is
  */
 int parse_int(char *s) {
-    if (s[0] == '$' || s[0] == 'x') {
+    if (s[0] == '$' || s[0] == 'x' || s[0] == 'V' || s[0] == 'v') {
         return strtol(s+1, NULL, 16);
     } else {
         return strtol(s, NULL, 10);
