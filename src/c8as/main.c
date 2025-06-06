@@ -1,15 +1,71 @@
 #include "encode.h"
 
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
 
-#define TEST "SNE V2 46\n"
+char *dynamic_load(FILE *f) {
+    int capacity = BUFSIZ;
+    char *buf = (char *) malloc(capacity);
+    char *newbuf;
+    char ch;
+    int len = 0;
+
+    while ((ch = fgetc(f)) != EOF) {
+        if (len >= capacity - 1) {
+            capacity *= 2;
+            newbuf = (char *) realloc(buf, capacity);
+
+            if (!newbuf) {
+                free(buf);
+                fclose(f);
+                return NULL;
+            }
+        }
+
+        buf[len++] = ch;
+    }
+
+    buf[len] = '\0';
+    fclose(f);
+    return buf;
+}
+
 
 int main(int argc, char *argv[]) {
-    char *testStr = malloc(500);
-    strcpy(testStr, TEST);
-    parse(testStr);
+	int opt;
+    int args = 0;
+	char *outp = "a.c8";
+	FILE *inf;
+	FILE *outf;
 
-    free(testStr);
-    return 0;
+	/* Parse args */
+	while ((opt = getopt(argc, argv, "alo:")) != -1) {
+		switch (opt) {
+			case 'v': args |= ARG_VERBOSE; break;
+			case 'o': outp = optarg; break;
+			default:
+				  fprintf(stderr, "Usage: %s [-v] [-o outputfile] file\n", argv[0]);
+				  exit(1);
+		}
+	}
+
+	if (!(inf = fopen(argv[optind], "r"))) {
+		fprintf(stderr, "Error: Failed to load input file\n");
+		exit(EXIT_FAILURE);
+	}
+
+    if (!outp || !(outf = fopen(outp, "wb"))) {
+        fprintf(stderr, "Error: Failed to load output file\n");
+        fclose(inf);
+    }
+
+    char *input = dynamic_load(inf);
+
+    printf("%s\n", input);
+	parse(input, outf);
+
+	/* Cleanup */
+    free(input);
+	return EXIT_SUCCESS;
 }

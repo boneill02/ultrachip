@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#define ARG_VERBOSE 1
+
 void parse(char *, FILE *);
 
 #endif

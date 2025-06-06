@@ -1,6 +1,7 @@
 #include "encode.h"
 
 #include "util/util.h"
+#include "util/defs.h"
 
 #include <ctype.h>
 #include <stdint.h>
@@ -82,7 +83,7 @@ typedef enum {
  * NOTE: values before label need to be kept in same order as identifierStrings
  */
 typedef enum {
-    SYM_DT = 0,
+    SYM_DT = 1,
     SYM_ST,
     SYM_I,
     SYM_IP,
@@ -138,13 +139,18 @@ typedef struct instruction_s {
     instruction_format_t *format;
 } instruction_t;
 
+/**
+ * @struct label_t
+ * @brief Represents a label
+ * 
+ * Represents a label with a corresponding byte value
+ */
 typedef struct {
     char identifier[20];
     int byte;
 } label_t;
 
 static int build_instruction(int idx);
-static uint16_t encode_instruction(void);
 static void error(char *, int);
 static int is_comment(char *, int);
 static int is_instruction(char *);
@@ -155,7 +161,6 @@ static symbol_t *next_symbol(void);
 static void parse_line(char *, int);
 static void reallocate_symbols(void);
 static void resolve_labels(void);
-static uint16_t set_instruction_format(void);
 static int shift(uint16_t);
 static int tokenize(char **, char *, const char *, int);
 static void trim_comment(char *, int);
@@ -179,11 +184,11 @@ instruction_format_t formats[] = {
     { I_SHR,  0x8006, 1, {SYM_V},                 {0x0F00} },
     { I_SUBN, 0x8007, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
     { I_SHL,  0x800E, 1, {SYM_V},                 {0x0F00} },
-    { I_SNE,  0x9000, 2, {SYM_V, SYM_V},          {0x0F00} },
+    { I_SNE,  0x9000, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
     { I_LD,   0xA000, 2, {SYM_I, SYM_INT},        {0x0000, 0x0FFF} },
     { I_JP,   0xB000, 2, {SYM_V, SYM_INT},        {0x0000, 0x0FFF} },
     { I_RND,  0xC000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
-    { I_DRW,  0xD000, 3, {SYM_V, SYM_V, SYM_INT}, {0x0F00, 0x00FF} },
+    { I_DRW,  0xD000, 3, {SYM_V, SYM_V, SYM_INT}, {0x0F00, 0x00F0, 0x000F} },
     { I_SKP,  0xE09E, 1, {SYM_V},                 {0x0F00} },
     { I_SKNP, 0xE0A1, 1, {SYM_V},                 {0x0F00} },
     { I_LD,   0xF007, 2, {SYM_V, SYM_DT},         {0x0F00, 0x0000} },
@@ -222,6 +227,7 @@ const char *instructionStrings[] = {
 };
 
 const char *identifierStrings[] = {
+    "",
     S_DT,
     S_ST,
     S_I,
@@ -243,9 +249,13 @@ label_t labels[LABEL_COUNT];
 int labelCount = 0;
 
 static int build_instruction(int idx) {
-    int pc = 0;
+    instruction_format_t f;
+    int j;
+
     ins.cmd = symbols[idx].value;
     ins.line = symbols[idx].ln;
+
+    idx++;
     for (int i = 0; i < symbolCount - idx; i++) {
         switch (symbols[idx + i].type) {
             case SYM_V:
@@ -259,34 +269,40 @@ static int build_instruction(int idx) {
             case SYM_K:
             case SYM_ST:
                 ins.ptype[i] = symbols[idx+i].type;
+                ins.pcount++;
                 break;
             default:
-                pc = i;
-                i = symbolCount; // FIXME messy
+                i = symbolCount;
                 break;
         }
     }
 
-    ins.pcount = pc;
-    return set_instruction_format();
-}
+    int match;
+    for (int i = 0; formats[i].cmd != -1; i++) {
+        f = formats[i];
+        printf("%d %d %s %d %s\n", idx, ins.pcount, instructionStrings[ins.cmd], f.pcount, instructionStrings[f.cmd]);
+        if (ins.pcount == f.pcount && ins.cmd == f.cmd) {
+            match = 1;
+            for (j = 0; j < ins.pcount; j++) {
+                if (ins.ptype[j] != f.ptype[j]) {
+                    match = 0;
+                    break;
+                }
+            }
 
-/**
- * @brief Returns the bytecode for the given instruction
- * 
- * This function assumes the instruction is complete and valid.
- * 
- * @param ins the instruction to encode
- * @return encoded instruction
- */
-static uint16_t encode_instruction(void) {
-    uint16_t result = ins.format->base;
-
-    for (int i = 0; i < ins.pcount; i++) {
-        result |= ins.p[i] << shift(ins.format->pmask[i]);
+            if (match) {
+                uint16_t result = f.base;
+                for (int j = 0; j < ins.pcount; j++) {
+                    if (f.pmask[j]) {
+                        result |= ins.p[j] << shift(f.pmask[j]);
+                    }
+                }
+                return result;
+            }
+        }
     }
 
-    return result;
+    return 0;
 }
 
 /**
@@ -353,6 +369,12 @@ static int is_label_definition(char *s, int len) {
     return s[len-1] == ':';
 }
 
+/**
+ * @brief Check if the given string represents a V register
+ * 
+ * @param s string to check
+ * @return V register number if true, -1 otherwise
+ */
 static int is_register(char *s) {
     if (*s == 'V') {
         return parse_int(&s[1]);
@@ -363,6 +385,9 @@ static int is_register(char *s) {
 
 /**
  * @brief Check if given string is a reserved identifier
+ * 
+ * @param s string to check
+ * @return type of identifier if true, -1 otherwise
  */
 static int is_reserved_identifier(char *s) {
     for (int i = 0; identifierStrings[i]; i++) {
@@ -376,14 +401,18 @@ static int is_reserved_identifier(char *s) {
 
 /**
  * @brief Parse the given string
+ * 
+ * This generates bytecode from the given assembly code in s and writes the output to f
+ * 
+ * @param s string containing assembly code
+ * @param f file to write to
  */
 void parse(char *s, FILE *f) {
     symbols = malloc(sizeof(symbol_t) * SYMBOL_COUNT);
     char **lines = malloc(MAX_LINES * sizeof(char *));
 
     s = trim(s);
-    int lineCount = 1;
-    tokenize(lines, s, "\n", MAX_LINES);
+    int lineCount = tokenize(lines, s, "\n", MAX_LINES);
 
     for (int i = 0; i < lineCount; i++) {
         if (is_label_definition(lines[i], strlen(lines[i]))) {
@@ -405,6 +434,9 @@ void parse(char *s, FILE *f) {
 
 /**
  * @brief Parse the given line
+ * 
+ * @param s line string
+ * @param ln line number
  */
 static void parse_line(char *s, int ln) {
     int len = strlen(s);
@@ -445,6 +477,11 @@ static void parse_line(char *s, int ln) {
     free(words);
 }
 
+/**
+ * @brief Get the next symbol
+ * 
+ * @return first empty symbol in symbol table
+ */
 static symbol_t *next_symbol(void) {
     symbolCount++;
     if (symbolCount == symbolCeiling) {
@@ -454,6 +491,9 @@ static symbol_t *next_symbol(void) {
     return &symbols[symbolCount - 1];
 }
 
+/**
+ * @brief Expand symbol array
+ */
 static void reallocate_symbols(void) {
     symbol_t *oldsym = symbols;
     symbols = malloc(sizeof(symbol_t) * symbolCeiling + SYMBOL_COUNT);
@@ -462,8 +502,11 @@ static void reallocate_symbols(void) {
     free(oldsym);
 }
 
+/**
+ * @brief Get byte values of labels from completed symbol table
+ */
 static void resolve_labels(void) {
-    int byte = 0;
+    int byte = PROG_START;
     int labelIdx = 0;
     for (int i = 0; i < symbolCount; i++) {
         if (labelIdx == labelCount) {
@@ -486,39 +529,7 @@ static void resolve_labels(void) {
 }
 
 /**
- * @brief Validate the given instruction's format
- * 
- * Finds a matching instruction_format_t for the given instruction and assigns
- * it to the given instruction.
- * 
- * @param ins instruction to validate
- * @return instruction bytes if valid, 0 otherwise
- */
-static uint16_t set_instruction_format(void) {
-    instruction_format_t f;
-    int j;
-
-    for (int i = 0; formats[i].cmd != -1; i++) {
-        f = formats[i];
-        if (ins.pcount == f.pcount && ins.cmd == f.cmd) {
-            for (j = 0; j < ins.pcount; j++) {
-                if (ins.ptype[j] != f.ptype[j]) {
-                    break;
-                }
-            }
-
-            if (j == ins.pcount) {
-                ins.format = &formats[i];
-                return encode_instruction();
-            }
-        }
-    }
-
-    return 0;
-}
-
-/**
- * @brief Find the bits needed to shift to OR something into mask
+ * @brief Find the bits needed to shift to OR a parameter into an instruction
  * 
  * FIXME find a better way to do this without having to do this every
  * time an instruction is encoded
@@ -529,9 +540,20 @@ static int shift(uint16_t fmt) {
         fmt >>= 1;
         shift++;
     }
+
     return shift;
 }
 
+/**
+ * @brief split string into token array separated by delimeter
+ * 
+ * @param tok token array
+ * @param s string to tokenize
+ * @param delim delimeter to separate tokens
+ * @param maxTokens maximum number of tokens
+ * 
+ * @return number of tokens
+ */
 static int tokenize(char **tok, char *s, const char *delim, int maxTokens) {
     if (maxTokens <= 0 || !s || !tok) {
         return 0;
@@ -560,17 +582,24 @@ static void trim_comment(char *s, int len) {
     }
 }
 
+/**
+ * @brief Convert symbols to bytes and write to output
+ * 
+ * @param output output file
+ */
 static void write(FILE *output) {
     int ret;
-    printf("%d %d\n", symbolCount, symbols[0].type);
+
+    printf("NUMBER OF SYMBOLS: %d\n", symbolCount);
+
     for (int i = 0; i < symbolCount; i++) {
         switch(symbols[i].type) {
             case SYM_INSTRUCTION:
+                printf("INSTRUCTION AT SYMBOL %d: ", i);
                 ret = build_instruction(i);
+                printf("%d\n", ret);
                 if (ret) {
                     i += ins.pcount;
-                    fputc((ret & 0xFF00) >> 8, output);
-                    fputc(ret & 0xFF, output);
                 } else {
                     error("Invalid instruction", symbols[i].ln);
                 }
@@ -593,4 +622,6 @@ static void write(FILE *output) {
                 break;
         }
     }
+
+    fclose(output);
 }
