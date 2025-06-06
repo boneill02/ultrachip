@@ -153,6 +153,8 @@ typedef struct {
 static int build_instruction(int idx);
 static void error(char *, int);
 static int is_comment(char *, int);
+static inline int is_db(char *);
+static inline int is_dw(char *);
 static int is_instruction(char *);
 static int is_label_definition(char *, int);
 static int is_register(char *);
@@ -338,6 +340,14 @@ static int is_comment(char *s, int len) {
     return i < len && *s == ';';
 }
 
+static inline int is_db(char *s) {
+    return !strcmp(s, S_DB);
+}
+
+static inline int is_dw(char *s) {
+    return !strcmp(s, S_DW);
+}
+
 /**
  * @brief Check if the given string is an instruction
  * 
@@ -456,6 +466,14 @@ static void parse_line(char *s, int ln) {
         if ((value = is_instruction(words[i])) != -1) {
             sym->type = SYM_INSTRUCTION;
             sym->value = value;
+        } else if (is_db(s)) {
+            sym->type = SYM_DB;
+            i++;
+            sym->value = parse_int(words[i]);
+        } else if (is_dw(s)) {
+            sym->type = SYM_DW;
+            i++;
+            sym->value = parse_int(words[i]);
         } else if (is_label_definition(words[i], strlen(s))) {
             labelCount++;
             strcpy(labels[labelCount].identifier, words[i]);
