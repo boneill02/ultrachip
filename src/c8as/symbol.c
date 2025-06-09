@@ -19,6 +19,8 @@ static const char *identifierStrings[] = {
 	S_B,
 	S_DB,
 	S_DW,
+	S_HF,
+	S_R,
 	NULL,
 };
 

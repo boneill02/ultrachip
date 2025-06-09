@@ -27,6 +27,12 @@
 #define S_SKP "SKP"
 #define S_SKNP "SKNP"
 #define S_XOR "XOR"
+#define S_SCD "SCD"
+#define S_SCR "SCR"
+#define S_SCL "SCL"
+#define S_EXIT "EXIT"
+#define S_LOW "LOW"
+#define S_HIGH "HIGH"
 #define S_K "K"
 #define S_F "F"
 #define S_B "B"
@@ -36,6 +42,8 @@
 #define S_IP "[I]"
 #define S_DB "DB"
 #define S_DW "DW"
+#define S_HF "HF"
+#define S_R "R"
 
 /**
  * @struct label_t
@@ -85,6 +93,8 @@ typedef enum {
 	SYM_B,
 	SYM_DB,
 	SYM_DW,
+	SYM_HF,
+	SYM_R,
 	SYM_LABEL,
 	SYM_INT,
 	SYM_STRING,

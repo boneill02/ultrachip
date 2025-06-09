@@ -34,6 +34,12 @@ typedef enum {
 	I_SKP,
 	I_SKNP,
 	I_XOR,
+	I_SCD,
+	I_SCR,
+	I_SCL,
+	I_EXIT,
+	I_LOW,
+	I_HIGH,
 } Instruction;
 
 /**

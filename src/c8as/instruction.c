@@ -22,12 +22,24 @@ const char *instructionStrings[] = {
 	S_SKP,
 	S_SKNP,
 	S_XOR,
-	NULL
+	S_SCD,
+	S_SCR,
+	S_SCL,
+	S_EXIT,
+	S_LOW,
+	S_HIGH,
+	NULL,
 };
 
 instruction_format_t formats[] = {
+	{ I_SCD,  0x00C0, 1, {SYM_INT},               {0x000F}},
 	{ I_CLS,  0x00E0, 0, {SYM_NULL},              {0} },
 	{ I_RET,  0x00EE, 0, {SYM_NULL},              {0} },
+	{ I_SCR,  0x00FB, 0, {SYM_NULL},              {0}},
+	{ I_SCL,  0x00FC, 0, {SYM_NULL},              {0}},
+	{ I_EXIT, 0x00FD, 0, {SYM_NULL},              {0}},
+	{ I_LOW,  0x00FE, 0, {SYM_NULL},              {0}},
+	{ I_HIGH, 0x00FF, 0, {SYM_NULL},              {0}},
 	{ I_JP,   0x1000, 1, {SYM_INT},               {0x0FFF} },
 	{ I_CALL, 0x2000, 1, {SYM_INT},               {0x0FFF} },
 	{ I_SE,   0x3000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
@@ -57,9 +69,12 @@ instruction_format_t formats[] = {
 	{ I_LD,   0xF018, 2, {SYM_ST, SYM_V},         {0x0000, 0x0F00} },
 	{ I_ADD,  0xF01E, 2, {SYM_I, SYM_V},          {0x0000, 0x0F00} },
 	{ I_LD,   0xF029, 2, {SYM_F, SYM_V},          {0x0000, 0x0F00} },
+	{ I_LD,   0xF030, 2, {SYM_HF, SYM_V},         {0x0000, 0x0F00} },
 	{ I_LD,   0xF033, 2, {SYM_B, SYM_V},          {0x0000, 0x0F00} },
 	{ I_LD,   0xF055, 2, {SYM_IP, SYM_V},         {0x0000, 0x0F00} },
 	{ I_LD,   0xF065, 2, {SYM_V, SYM_IP},         {0x0F00, 0x0000} },
+	{ I_LD,   0xF075, 2, {SYM_R, SYM_V},          {0x0000, 0x0F00} },
+	{ I_LD,   0xF085, 2, {SYM_V, SYM_R},          {0x0F00, 0x0000} },
 	{ I_NULL, 0,      0, {SYM_NULL},              {0} },
 };
 
@@ -98,6 +113,8 @@ uint16_t build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) 
 			case SYM_IP:
 			case SYM_K:
 			case SYM_ST:
+			case SYM_HF:
+			case SYM_R:
 				ins->ptype[i] = symbols->s[idx+i].type;
 				ins->pcount++;
 				break;
