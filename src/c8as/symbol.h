@@ -47,8 +47,8 @@
  * @var byte location of the label
  */
 typedef struct {
-    char identifier[LABEL_IDENTIFIER_SIZE];
-    int byte;
+	char identifier[LABEL_IDENTIFIER_SIZE];
+	int byte;
 } label_t;
 
 /**
@@ -60,9 +60,9 @@ typedef struct {
  * @var ceil maximum length of the list
  */
 typedef struct {
-    label_t *l;
-    int len;
-    int ceil;
+	label_t *l;
+	int len;
+	int ceil;
 } label_list_t;
 
 /**
@@ -75,22 +75,22 @@ typedef struct {
  * NOTE: values before label need to be kept in same order as identifierStrings
  */
 typedef enum {
-    SYM_NULL,
-    SYM_DT,
-    SYM_ST,
-    SYM_I,
-    SYM_IP,
-    SYM_K,
-    SYM_F,
-    SYM_B,
-    SYM_DB,
-    SYM_DW,
-    SYM_LABEL,
-    SYM_INT,
-    SYM_STRING,
-    SYM_V,
-    SYM_INSTRUCTION,
-    SYM_LABEL_DEFINITION,
+	SYM_NULL,
+	SYM_DT,
+	SYM_ST,
+	SYM_I,
+	SYM_IP,
+	SYM_K,
+	SYM_F,
+	SYM_B,
+	SYM_DB,
+	SYM_DW,
+	SYM_LABEL,
+	SYM_INT,
+	SYM_STRING,
+	SYM_V,
+	SYM_INSTRUCTION,
+	SYM_LABEL_DEFINITION,
 } Symbol;
 
 /**
@@ -98,9 +98,9 @@ typedef enum {
  * @brief Represents a symbol with a type, value, and line number
  */
 typedef struct {
-    Symbol type;
-    uint16_t value;
-    int ln;
+	Symbol type;
+	uint16_t value;
+	int ln;
 } symbol_t;
 
 /**
@@ -108,9 +108,9 @@ typedef struct {
  * @brief Represents a symbol with a type, value, and line number
  */
 typedef struct {
-    symbol_t *s;
-    int len;
-    int ceil;
+	symbol_t *s;
+	int len;
+	int ceil;
 } symbol_list_t;
 
 int is_comment(char *);

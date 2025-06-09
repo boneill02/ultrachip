@@ -8,7 +8,7 @@
 
 int main(int argc, char *argv[]) {
 	int cs = CLOCK_SPEED;
-    int flags = 0;
+	int flags = 0;
 	int opt;
 	chip8_t *c8;
 
@@ -24,9 +24,9 @@ int main(int argc, char *argv[]) {
 			case 'v':
 				flags |= FLAG_VERBOSE;
 				break;
-            case 'V':
-                print_version(argv[0]);
-                break;
+			case 'V':
+				print_version(argv[0]);
+				break;
 			default:
 			  fprintf(stderr, "Usage: %s [-dvV] [-c clockspeed] file\n", argv[0]);
 			  exit(EXIT_FAILURE);
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 
 	simulate(c8);
 
-    deinit_chip8(c8);
+	deinit_chip8(c8);
 
 	return EXIT_SUCCESS;
 }

@@ -14,26 +14,26 @@
  * This enumeration defines all possible CHIP-8 instructions.
  */
 typedef enum {
-    I_NULL = -1,
-    I_CLS,
-    I_RET,
-    I_JP,
-    I_CALL,
-    I_SE,
-    I_SNE,
-    I_LD,
-    I_ADD,
-    I_OR,
-    I_AND,
-    I_SUB,
-    I_SHR,
-    I_SUBN,
-    I_SHL,
-    I_RND,
-    I_DRW,
-    I_SKP,
-    I_SKNP,
-    I_XOR,
+	I_NULL = -1,
+	I_CLS,
+	I_RET,
+	I_JP,
+	I_CALL,
+	I_SE,
+	I_SNE,
+	I_LD,
+	I_ADD,
+	I_OR,
+	I_AND,
+	I_SUB,
+	I_SHR,
+	I_SUBN,
+	I_SHL,
+	I_RND,
+	I_DRW,
+	I_SKP,
+	I_SKNP,
+	I_XOR,
 } Instruction;
 
 /**
@@ -44,11 +44,11 @@ typedef enum {
  * that they will produce valid instructions.
  */
 typedef struct {
-    Instruction cmd;
-    uint16_t base;
-    int pcount;
-    Symbol ptype[3];
-    uint16_t pmask[3];
+	Instruction cmd;
+	uint16_t base;
+	int pcount;
+	Symbol ptype[3];
+	uint16_t pmask[3];
 } instruction_format_t;
 
 /**
@@ -59,12 +59,12 @@ typedef struct {
  * validity and generate the bytecode.
  */
 typedef struct {
-    int line;
-    Instruction cmd;
-    int pcount;
-    Symbol ptype[3];
-    int p[3];
-    instruction_format_t *format;
+	int line;
+	Instruction cmd;
+	int pcount;
+	Symbol ptype[3];
+	int p[3];
+	instruction_format_t *format;
 } instruction_t;
 
 extern const char *instructionStrings[];

@@ -9,17 +9,17 @@
 #include <string.h>
 
 static const char *identifierStrings[] = {
-    "",
-    S_DT,
-    S_ST,
-    S_I,
-    S_IP,
-    S_K,
-    S_F,
-    S_B,
-    S_DB,
-    S_DW,
-    NULL,
+	"",
+	S_DT,
+	S_ST,
+	S_I,
+	S_IP,
+	S_K,
+	S_F,
+	S_B,
+	S_DB,
+	S_DW,
+	NULL,
 };
 
 static void reallocate_symbols(symbol_list_t *symbols);
@@ -31,15 +31,15 @@ static void reallocate_symbols(symbol_list_t *symbols);
  * @return 1 if true, 0 if false
  */
 int is_comment(char *s) {
-    int i = 0;
-    int len = strlen(s);
+	int i = 0;
+	int len = strlen(s);
 
-    for (; i < len; isspace(*s)) {
-        s++;
-        i++;
-    }
+	for (; i < len; isspace(*s)) {
+		s++;
+		i++;
+	}
 
-    return i < len && *s == ';';
+	return i < len && *s == ';';
 }
 
 /**
@@ -48,7 +48,7 @@ int is_comment(char *s) {
  * @return 1 if true, 0 if false
  */
 int is_db(char *s) {
-    return !strcmp(s, S_DB);
+	return !strcmp(s, S_DB);
 }
 
 /**
@@ -57,7 +57,7 @@ int is_db(char *s) {
  * @return 1 if true, 0 if false
  */
 int is_dw(char *s) {
-    return !strcmp(s, S_DW);
+	return !strcmp(s, S_DW);
 }
 
 /**
@@ -68,13 +68,13 @@ int is_dw(char *s) {
  * @return instruction enumerator if true, -1 if false
  */
 int is_instruction(char *s) {
-    for (int i = 0; instructionStrings[i]; i++) {
-        if (!strcmp(s, instructionStrings[i])) {
-            return i;
-        }
-    }
+	for (int i = 0; instructionStrings[i]; i++) {
+		if (!strcmp(s, instructionStrings[i])) {
+			return i;
+		}
+	}
 
-    return -1;
+	return -1;
 }
 
 /**
@@ -84,12 +84,12 @@ int is_instruction(char *s) {
  * @return 1 if true, 0 if false
  */
 int is_label_definition(char *s) {
-    int len = strlen(s);
-    if (len < 2) {
-        return 0;
-    }
+	int len = strlen(s);
+	if (len < 2) {
+		return 0;
+	}
 
-    return s[len-1] == ':';
+	return s[len-1] == ':';
 }
 
 /**
@@ -99,13 +99,13 @@ int is_label_definition(char *s) {
  * @return label index if true, -1 otherwise
  */
 int is_label(char *s, label_list_t *labels) {
-    for (int i = 0; i < labels->len; i++) {
-        if (!strcmp(s, labels->l[i].identifier)) {
-            return i;
-        }
-    }
+	for (int i = 0; i < labels->len; i++) {
+		if (!strcmp(s, labels->l[i].identifier)) {
+			return i;
+		}
+	}
 
-    return -1;
+	return -1;
 }
 
 /**
@@ -115,11 +115,11 @@ int is_label(char *s, label_list_t *labels) {
  * @return V register number if true, -1 otherwise
  */
 int is_register(char *s) {
-    if (*s == 'V' || *s == 'v') {
-        return parse_int(s);
-    }
+	if (*s == 'V' || *s == 'v') {
+		return parse_int(s);
+	}
 
-    return -1;
+	return -1;
 }
 
 /**
@@ -129,13 +129,13 @@ int is_register(char *s) {
  * @return type of identifier if true, -1 otherwise
  */
 int is_reserved_identifier(char *s) {
-    for (int i = 0; identifierStrings[i]; i++) {
-        if (!strcmp(s, identifierStrings[i])) {
-            return i;
-        }
-    }
+	for (int i = 0; identifierStrings[i]; i++) {
+		if (!strcmp(s, identifierStrings[i])) {
+			return i;
+		}
+	}
 
-    return -1;
+	return -1;
 }
 
 /**
@@ -144,12 +144,12 @@ int is_reserved_identifier(char *s) {
  * @return first empty symbol in symbol table
  */
 symbol_t *next_symbol(symbol_list_t *symbols) {
-    symbols->len++;
-    if (symbols->len == symbols->ceil) {
-        reallocate_symbols(symbols);
-    }
+	symbols->len++;
+	if (symbols->len == symbols->ceil) {
+		reallocate_symbols(symbols);
+	}
 
-    return &symbols->s[symbols->len];
+	return &symbols->s[symbols->len];
 }
 
 /**
@@ -162,32 +162,32 @@ symbol_t *next_symbol(symbol_list_t *symbols) {
  * @return 1 if success, 0 if too many labels exist in source
  */
 int populate_labels(char **lines, int lineCount, label_list_t *labels) {
-    for (int i = 0; i < lineCount; i++) {
-        if (labels->len == labels->ceil) {
-            return 0;
-        }
+	for (int i = 0; i < lineCount; i++) {
+		if (labels->len == labels->ceil) {
+			return 0;
+		}
 
-        if (strlen(lines[i]) == 0) {
-            continue;
-        }
-        lines[i] = trim_comment(lines[i]);
-        if (strlen(trim_comment(lines[i])) == 0) {
-            continue;
-        }
+		if (strlen(lines[i]) == 0) {
+			continue;
+		}
+		lines[i] = trim_comment(lines[i]);
+		if (strlen(trim_comment(lines[i])) == 0) {
+			continue;
+		}
 
-        if (is_label_definition(lines[i])) {
-            int l = strlen(lines[i]) - 1;
-            if (l > LABEL_IDENTIFIER_SIZE) {
-                fprintf(stderr, "Error (line %d): Label identifier too long: %s\n", i+1, lines[i]);
-                return 0;
-            } else {
-                strncpy(labels->l[labels->len].identifier, lines[i], l);
-            }
-            labels->len++;
-        }
-    }
+		if (is_label_definition(lines[i])) {
+			int l = strlen(lines[i]) - 1;
+			if (l > LABEL_IDENTIFIER_SIZE) {
+				fprintf(stderr, "Error (line %d): Label identifier too long: %s\n", i+1, lines[i]);
+				return 0;
+			} else {
+				strncpy(labels->l[labels->len].identifier, lines[i], l);
+			}
+			labels->len++;
+		}
+	}
 
-    return 1;
+	return 1;
 }
 
 /**
@@ -197,27 +197,27 @@ int populate_labels(char **lines, int lineCount, label_list_t *labels) {
  * @param labels list of labels
  */
 void resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
-    int byte = PROG_START;
-    int labelIdx = 0;
-    for (int i = 0; i < symbols->len; i++) {
-        if (labelIdx == labels->len) {
-            return;
-        }
+	int byte = PROG_START;
+	int labelIdx = 0;
+	for (int i = 0; i < symbols->len; i++) {
+		if (labelIdx == labels->len) {
+			return;
+		}
 
-        switch (symbols->s[i].type) {
-            case SYM_LABEL_DEFINITION:
-                labels->l[labelIdx++].byte = byte;
-                break;
-            case SYM_DB:
-                byte++;
-                break;
-            case SYM_INSTRUCTION:
-            case SYM_DW:
-                byte += 2;
-            default:
-                break;
-        }
-    }
+		switch (symbols->s[i].type) {
+			case SYM_LABEL_DEFINITION:
+				labels->l[labelIdx++].byte = byte;
+				break;
+			case SYM_DB:
+				byte++;
+				break;
+			case SYM_INSTRUCTION:
+			case SYM_DW:
+				byte += 2;
+			default:
+				break;
+		}
+	}
 }
 
 /**
@@ -227,12 +227,12 @@ void resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
  * @param labels labels to search
  */
 void substitute_labels(symbol_list_t *symbols, label_list_t *labels) {
-    for (int i = 0; i < symbols->len; i++) {
-        if (symbols->s[i].type == SYM_LABEL) {
-            symbols->s[i].type = SYM_INT;
-            symbols->s[i].value = labels->l[symbols->s[i].value].byte;
-        }
-    }
+	for (int i = 0; i < symbols->len; i++) {
+		if (symbols->s[i].type == SYM_LABEL) {
+			symbols->s[i].type = SYM_INT;
+			symbols->s[i].value = labels->l[symbols->s[i].value].byte;
+		}
+	}
 }
 /**
  * @brief Expand symbol list
@@ -240,10 +240,10 @@ void substitute_labels(symbol_list_t *symbols, label_list_t *labels) {
  * @param symbols symbol list
  */
 static void reallocate_symbols(symbol_list_t *symbols) {
-    int newCeiling = symbols->ceil + SYMBOL_CEILING;
-    symbol_t *oldsym = symbols->s;
-    symbols->s = (symbol_t *) malloc(sizeof(symbol_t) * newCeiling);
-    memcpy(symbols->s, oldsym, symbols->ceil * sizeof(symbol_t));
-    symbols->ceil = newCeiling;
-    free(oldsym);
+	int newCeiling = symbols->ceil + SYMBOL_CEILING;
+	symbol_t *oldsym = symbols->s;
+	symbols->s = (symbol_t *) malloc(sizeof(symbol_t) * newCeiling);
+	memcpy(symbols->s, oldsym, symbols->ceil * sizeof(symbol_t));
+	symbols->ceil = newCeiling;
+	free(oldsym);
 }

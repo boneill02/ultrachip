@@ -113,7 +113,7 @@ void render(int *display) {
 int tick(int *key, int clockSpeed) {
 	SDL_Delay(1000 / clockSpeed);
 	SDL_Event e;
-    int ret = -1;
+	int ret = -1;
 	while (SDL_PollEvent(&e)) {
 		switch (e.type) {
 			case SDL_QUIT:
@@ -131,5 +131,5 @@ int tick(int *key, int clockSpeed) {
 		}
 	}
 
-    return ret;
+	return ret;
 }
