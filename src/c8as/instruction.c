@@ -28,11 +28,12 @@ const char *instructionStrings[] = {
 instruction_format_t formats[] = {
     { I_CLS,  0x00E0, 0, {SYM_NULL},              {0} },
     { I_RET,  0x00EE, 0, {SYM_NULL},              {0} },
+    { I_JP,   0x1000, 1, {SYM_INT},               {0x0FFF} },
     { I_CALL, 0x2000, 1, {SYM_INT},               {0x0FFF} },
     { I_SE,   0x3000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
     { I_SNE,  0x4000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
     { I_SE,   0x5000, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
-    { I_LD,   0x6000, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
+    { I_LD,   0x6000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
     { I_ADD,  0x7000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
     { I_LD,   0x8000, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
     { I_OR,   0x8001, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },

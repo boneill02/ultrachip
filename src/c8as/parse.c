@@ -127,7 +127,7 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
         sym->value = value;
     } else if ((value = is_reserved_identifier(s) != -1)) {
         sym->type = value;
-    } else if ((value = parse_int(s))) {
+    } else if ((value = parse_int(s)) != -1) {
         sym->type = SYM_INT;
         sym->value = value;
     } else if ((value = is_label(s, labels)) != -1) {
