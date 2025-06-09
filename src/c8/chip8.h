@@ -8,7 +8,8 @@
 #define FLAG_DEBUG 0x1
 #define FLAG_VERBOSE 0x2
 
-typedef struct chip8_s {
+typedef struct chip8_s
+{
 	uint8_t mem[MEMSIZE];
 	uint8_t V[16];
 	uint8_t sp;
