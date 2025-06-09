@@ -53,14 +53,15 @@ int hex_to_int(char c) {
  */
 int parse_int(char *s) {
     int result = -1;
+	char *endptr = NULL;
     errno = 0;
     if (s[0] == '$' || s[0] == 'x' || s[0] == 'V' || s[0] == 'v') {
-        result = strtol(s+1, NULL, 16);
+        result = strtol(s+1, &endptr, 16);
     } else {
-        result = strtol(s, NULL, 10);
+        result = strtol(s, &endptr, 10);
     }
 
-    if (errno) {
+    if (s == endptr || errno) {
         return -1;
     }
 
