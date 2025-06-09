@@ -238,10 +238,8 @@ static void write(FILE *output, symbol_list_t *symbols) {
                 if (ret) {
                     put16(output, ret);
                     i += ins.pcount;
-                    printf("INSTRUCTION: %04x %d\n", ret, ins.pcount);
                 } else {
                     fprintf(stderr, "Error (line %d): Invalid instruction\n", symbols->s[i].ln);
-                    fprintf(stderr, "%d %d\n", ins.cmd, ins.ptype[0]);
                 }
                 break;
             case SYM_DB:
@@ -250,7 +248,6 @@ static void write(FILE *output, symbol_list_t *symbols) {
                     fprintf(stderr, "Error (line %d): DB value too big\n", symbols->s[i].ln);
                 } else {
                     fputc(symbols->s[i].value, output);
-                    printf("DB: %02x\n", symbols->s[i].value);
                 }
                 break;
             case SYM_DW:
@@ -258,7 +255,6 @@ static void write(FILE *output, symbol_list_t *symbols) {
                     fprintf(stderr, "Error (line %d): DW value too big\n", symbols->s[i].ln);
                 } else {
                     put16(output, symbols->s[i].value);
-                    printf("DW: %04x\n", symbols->s[i].value);
                 }
                 break;
             default:
