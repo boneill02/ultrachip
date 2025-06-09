@@ -32,14 +32,18 @@ $(C8DIS_TARG): $(C8DIS_OBJ)
 	$(CC) -o $@ $(C8DIS_OBJ) $(LDFLAGS)
 
 clean:
-	rm -f $(C8_TARG) $(C8_OBJ) $(C8DIS_TARG) $(C8DIS_OBJ) $(C8AS_TARG) $(C8AS_OBJ)
+	rm -f $(C8_TARG) $(C8_OBJ) $(C8DIS_TARG) $(C8DIS_OBJ) $(C8AS_TARG) \
+	      $(C8AS_OBJ)
 
-install: $(C8_TARG) $(C8DIS_TARG)
-	cp $(C8_TARG) $(C8DIS_TARG) $(PREFIX)/bin
+install: $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG)
+	cp $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG) $(PREFIX)/bin
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/$(C8_TARG)
+	chmod 755 $(DESTDIR)$(PREFIX)/bin/$(C8AS_TARG)
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/$(C8DIS_TARG)
 
 uninstall:
-	rm -f $(PREFIX)/bin/$(C8_TARG) $(PREFIX)/bin/$(C8DIS_TARG)
+	rm -f $(DESTDIR)$(PREFIX)/bin/$(C8_TARG) \
+	      $(DESTDIR)$(PREFIX)/bin/$(C8DIS_TARG) \
+		  $(DESTDIR)$(PREFIX)/bin/
 
 .PHONY: all $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG) clean install uninstall
