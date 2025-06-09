@@ -34,16 +34,20 @@ char *dynamic_load(FILE *f) {
 
 int main(int argc, char *argv[]) {
 	int opt;
+	int args = 0;
 	char *outp = "a.c8";
 	FILE *inf;
 	FILE *outf;
 
 	/* Parse args */
-	while ((opt = getopt(argc, argv, "o:")) != -1) {
+	while ((opt = getopt(argc, argv, "o:v")) != -1) {
 		switch (opt) {
 			case 'o':
                 outp = optarg;
                 break;
+			case 'v':
+				args |= ARG_VERBOSE;
+				break;
 			default:
 				  fprintf(stderr, "Usage: %s [-v] [-o outputfile] file\n", argv[0]);
 				  exit(1);
@@ -61,7 +65,7 @@ int main(int argc, char *argv[]) {
     }
 
     char *input = dynamic_load(inf);
-	parse(input, outf);
+	parse(input, outf, args);
     free(input);
 	return EXIT_SUCCESS;
 }

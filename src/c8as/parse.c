@@ -17,7 +17,7 @@ static int parse_word(char *, char *, int, symbol_t *, label_list_t *);
 static inline void put16(FILE *, uint16_t);
 static int tokenize(char **, char *, const char *, int);
 static char *trim_comma(char *);
-static void write(FILE *, symbol_list_t *);
+static void write(FILE *, symbol_list_t *, int);
 
 /**
  * @brief Parse the given string
@@ -29,8 +29,9 @@ static void write(FILE *, symbol_list_t *);
  * 
  * @param s string containing assembly code
  * @param f file to write to
+ * @param a args
  */
-void parse(char *s, FILE *f) {
+void parse(char *s, FILE *f, int args) {
     int lineCount = line_count(s);
 
     symbol_list_t symbols;
@@ -57,12 +58,28 @@ void parse(char *s, FILE *f) {
     resolve_labels(&symbols, &labels);
     substitute_labels(&symbols, &labels);
 
-    write(f, &symbols);
+    write(f, &symbols, args);
 
     free(symbols.s);
     free(labels.l);
     free(lines);
 }
+
+/**
+ * @brief Trim and remove comment from line if exists
+ * 
+ * @param s string to trim
+ * @return trimmed string
+ */
+char *trim_comment(char *s) {
+    trim(s);
+    for (int i = 0; i < strlen(s); i++) {
+        if (s[i] == ';') s[i] = '\0';
+    }
+
+    return s;
+}
+
 
 static int line_count(char *s) {
     int ln = 0;
@@ -184,7 +201,7 @@ static int tokenize(char **tok, char *s, const char *delim, int maxTokens) {
     int tokenCount = 0;
     char *token = strtok(s, delim);
     while (token && tokenCount < maxTokens) {
-        tok[tokenCount++] = token;
+        tok[tokenCount++] = trim(token);
         token = strtok(NULL, delim);
     }
 
@@ -207,29 +224,15 @@ static char *trim_comma(char *s) {
 }
 
 /**
- * @brief Trim and remove comment from line if exists
- * 
- * @param s string to trim
- * @return trimmed string
- */
-char *trim_comment(char *s) {
-    trim(s);
-    for (int i = 0; i < strlen(s); i++) {
-        if (s[i] == ';') s[i] = '\0';
-    }
-
-    return s;
-}
-
-/**
  * @brief Convert symbols to bytes and write to output
  * 
  * @param output output file
  * @param symbols symbol list
  */
-static void write(FILE *output, symbol_list_t *symbols) {
+static void write(FILE *output, symbol_list_t *symbols, int args) {
     int ret;
     instruction_t ins;
+	int byte = PROG_START;
 
     for (int i = 0; i < symbols->len; i++) {
         switch(symbols->s[i].type) {
@@ -238,16 +241,21 @@ static void write(FILE *output, symbol_list_t *symbols) {
                 if (ret) {
                     put16(output, ret);
                     i += ins.pcount;
+					if (args & ARG_VERBOSE) {
+						printf("%03x: %04x\n", byte, ret);
+					}
+					byte += 2;
                 } else {
                     fprintf(stderr, "Error (line %d): Invalid instruction\n", symbols->s[i].ln);
                 }
                 break;
             case SYM_DB:
-                printf("DB\n");
                 if (symbols->s[i].value > UINT8_MAX) {
                     fprintf(stderr, "Error (line %d): DB value too big\n", symbols->s[i].ln);
                 } else {
                     fputc(symbols->s[i].value, output);
+					printf("%03x: %04x\n", byte, symbols->s[i].value);
+					byte++;
                 }
                 break;
             case SYM_DW:
@@ -255,6 +263,8 @@ static void write(FILE *output, symbol_list_t *symbols) {
                     fprintf(stderr, "Error (line %d): DW value too big\n", symbols->s[i].ln);
                 } else {
                     put16(output, symbols->s[i].value);
+					printf("%03x: %04x\n", byte, symbols->s[i].value);
+					byte += 2;
                 }
                 break;
             default:
