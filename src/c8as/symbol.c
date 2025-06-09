@@ -209,7 +209,7 @@ void resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
                 labels->l[labelIdx++].byte = byte;
                 break;
             case SYM_DB:
-                byte += 1;
+                byte++;
                 break;
             case SYM_INSTRUCTION:
             case SYM_DW:

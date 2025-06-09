@@ -74,8 +74,11 @@ The assembler converts CHIP-8 assembly language into bytecode.
 ### Usage
 
 ```
-c8as [-o outputfile] src
+c8as [-v] [-o outputfile] src
 ```
+
+* `-v` prints the resulting hex-formatted bytecode to standard output
+* `-o` sets an output file (default is `a.c8`)
 
 Commas are optional for instruction parameters. See `tests/c8as` for example code.
 
