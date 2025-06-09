@@ -1,7 +1,5 @@
 /c8
 *.o
-*.ch8
-*.c8
 /c8dis
 .vscode/
 /c8as
