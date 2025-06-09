@@ -22,11 +22,11 @@ all: $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG)
 .c.o:
 	$(CC) $(CFLAGS) -o $@ -c $<
 
+$(C8_TARG): $(C8_OBJ)
+	$(CC) -o $@ $(C8_OBJ) $(LDFLAGS) $(C8_LIBS)
+
 $(C8AS_TARG): $(C8AS_OBJ)
 	$(CC) -o $@ $(C8AS_OBJ) $(LDFLAGS)
-
-$(C8_TARG): $(C8_OBJ)
-	$(CC) -o $@ $(C8_OBJ) $(LDFLAGS)
 
 $(C8DIS_TARG): $(C8DIS_OBJ)
 	$(CC) -o $@ $(C8DIS_OBJ) $(LDFLAGS)
