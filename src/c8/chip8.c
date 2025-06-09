@@ -10,8 +10,8 @@
 
 #define DEBUG(c) (c->flags & FLAG_DEBUG)
 #define VERBOSE(c) (c->flags & FLAG_VERBOSE)
-#define BORROWS(x, y) ((((int)x) - y) < 0)
-#define CARRIES(x, y) ((((int)x) + y) > UINT8_MAX)
+#define BORROWS(x, y) ((((int) x) - y) < 0)
+#define CARRIES(x, y) ((((int) x) + y) > UINT8_MAX)
 
 static void init_font(chip8_t *);
 static int load_rom(chip8_t *, const char *);
@@ -36,28 +36,25 @@ uint16_t font[] = {
 	0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 };
 
-void deinit_chip8(chip8_t *c8)
-{
+void deinit_chip8(chip8_t *c8) {
 	deinit_graphics();
 	free(c8);
 }
 
 /**
  * @brief Initialize and return a `chip8_t` with the specified clockspeed.
- *
+ * 
  * This function allocates memory for a new `chip8_t` with all values set to 0,
  * sets the clockspeed to `cs`, adds the font to memory, and returns a pointer
  * to it.
- *
+ * 
  * @param cs clockspeed
- *
+ * 
  * @return pointer to initialized chip8_t (must be `free`'d). `NULL` if failed.
  */
-chip8_t *init_chip8(int cs, int flags, const char *path)
-{
+chip8_t *init_chip8(int cs, int flags, const char *path) {
 	chip8_t *c8;
-	if (!(c8 = (chip8_t *)calloc(1, sizeof(chip8_t))))
-	{
+	if (!(c8 = (chip8_t *) calloc(1, sizeof(chip8_t)))) {
 		return NULL;
 	}
 
@@ -65,15 +62,13 @@ chip8_t *init_chip8(int cs, int flags, const char *path)
 	c8->cs = cs;
 	init_font(c8);
 
-	if (!load_rom(c8, path))
-	{
+	if (!load_rom(c8, path)) {
 		fprintf(stderr, "Error: Failed to load ROM.\n");
 		free(c8);
 		return NULL;
 	}
 
-	if (!init_graphics())
-	{
+	if (!init_graphics()) {
 		fprintf(stderr, "Error: Failed to initialize graphics.\n");
 		free(c8);
 		return NULL;
@@ -84,32 +79,28 @@ chip8_t *init_chip8(int cs, int flags, const char *path)
 
 /**
  * @brief Add the font to `c8->mem`.
- *
+ * 
  * @param c8 `chip8_t` to add the font to
  */
-static void init_font(chip8_t *c8)
-{
-	for (int i = 0; i < (0x10 * 5); i++)
-	{
+static void init_font(chip8_t *c8) {
+	for (int i = 0; i < (0x10 * 5); i++) {
 		c8->mem[FONT_START + i] = font[i];
 	}
 }
 
 /**
  * @brief Load a ROM to `c8->mem` at path `addr`.
- *
+ * 
  * @param c8 `chip8_t` to store the ROM's contents
  * @param addr path to the ROM
- *
+ * 
  * @return 0 if failed, 1 otherwise.
  */
-static int load_rom(chip8_t *c8, const char *addr)
-{
+static int load_rom(chip8_t *c8, const char *addr) {
 	FILE *f;
 	int size;
-
-	if (!(f = fopen(addr, "r")))
-	{
+	
+	if (!(f = fopen(addr, "r"))) {
 		/* Can't open file */
 		return 0;
 	}
@@ -117,8 +108,7 @@ static int load_rom(chip8_t *c8, const char *addr)
 	/* Get file size */
 	fseek(f, 0, SEEK_END);
 	size = ftell(f);
-	if (ftell(f) > (0x1000 - 0x200))
-	{
+	if (ftell(f) > (0x1000 - 0x200)) {
 		/* File is too big, failure */
 		fclose(f);
 		return 0;
@@ -134,17 +124,16 @@ static int load_rom(chip8_t *c8, const char *addr)
 
 /**
  * @brief Execute the instruction at `c8->pc`
- *
+ * 
  * This function parses and executes the instruction at the current program
  * counter.
- *
+ * 
  * If verbose flag is set, this will print the instruction to `stdout` as well.
- *
+ * 
  * @param c8 the `chip8_t` to execute the instruction from
  */
-static void parse_instruction(chip8_t *c8)
-{
-	uint16_t in = (((uint16_t)c8->mem[c8->pc]) << 8) | c8->mem[c8->pc + 1];
+static void parse_instruction(chip8_t *c8) {
+	uint16_t in = (((uint16_t) c8->mem[c8->pc]) << 8) | c8->mem[c8->pc + 1];
 	int x = X(in);
 	int kk = KK(in);
 	int y = Y(in);
@@ -152,282 +141,255 @@ static void parse_instruction(chip8_t *c8)
 	int a = A(in);
 	int b = B(in);
 
-	if (VERBOSE(c8))
-	{
+	if (VERBOSE(c8)) {
 		printf("%s\n", decode_instruction(in, NULL));
 	}
 
-	switch (a)
-	{
-	case 0x0:
-		if (y == 0xC)
-		{
-			/* SCD n */
-			// TODO implement
-		}
-		switch (kk)
-		{
-		case 0xE0:
-			/* CLS */
-			for (int i = 0; i < DISPLAY_WIDTH; i++)
-			{
-				for (int j = 0; j < DISPLAY_HEIGHT; j++)
-				{
-					*get_pixel(c8->display, x, y) = 0;
-				}
-			}
-			break;
-		case 0xEE:
-			/* RET */
-			c8->sp--;
-			c8->pc = c8->stack[c8->sp];
-			break;
-		case 0xFB:
-			/* SCR */
-			// TODO implement
-			break;
-		case 0xFC:
-			// TODO implement
-			break;
-		case 0xFD:
-			/* EXIT */
-			c8->running = 0;
-			break;
-		case 0xFE:
-			/* LOW */
-			// TODO implement
-			break;
-		case 0xFF:
-			/* HIGH */
-			// TODO implement
-			break;
-		}
-		break;
-	case 0x1:
-		/* JP nnn */
-		c8->pc = nnn;
-		break;
-	case 0x2:
-		/* CALL nnn */
-		c8->stack[c8->sp] = c8->pc;
-		c8->sp++;
-		c8->pc = nnn;
-		break;
-	case 0x3:
-		/* SE Vx, kk */
-		if (c8->V[x] == kk)
-		{
-			c8->pc += 2;
-		}
-		break;
-	case 0x4:
-		/* SNE Vx, kk */
-		if (c8->V[x] != kk)
-		{
-			c8->pc += 2;
-		}
-		break;
-	case 0x5:
-		/* SE Vx, Vy */
-		if (c8->V[x] == c8->V[y])
-		{
-			c8->pc += 2;
-		}
-		break;
-	case 0x6:
-		/* LD Vx, kk */
-		c8->V[x] = kk;
-		break;
-	case 0x7:
-		/* ADD Vx, kk */
-		c8->V[0xF] = CARRIES(c8->V[x], kk);
-		c8->V[x] += kk;
-		break;
-	case 0x8:
-		switch (b)
-		{
+	switch (a) {
 		case 0x0:
-			/* LD Vx, Vy */
-			c8->V[x] = c8->V[y];
+			if (y == 0xC) {
+				/* SCD n */
+				// TODO implement
+			}
+			switch (kk) {
+				case 0xE0:
+					/* CLS */
+					for (int i = 0; i < DISPLAY_WIDTH; i++) {
+						for (int j = 0; j < DISPLAY_HEIGHT; j++) {
+							*get_pixel(c8->display, x, y) = 0;
+						}
+					}
+					break;
+				case 0xEE:
+					/* RET */
+					c8->sp--;
+					c8->pc = c8->stack[c8->sp];
+					break;
+				case 0xFB:
+					/* SCR */
+					// TODO implement
+					break;
+				case 0xFC:
+					// TODO implement
+					break;
+				case 0xFD:
+					/* EXIT */
+					c8->running = 0;
+					break;
+				case 0xFE:
+					/* LOW */
+					// TODO implement
+					break;
+				case 0xFF:
+					/* HIGH */
+					// TODO implement
+					break;
+			}
 			break;
 		case 0x1:
-			/* OR Vx, Vy */
-			c8->V[x] = c8->V[x] | c8->V[y];
+			/* JP nnn */
+			c8->pc = nnn;
 			break;
 		case 0x2:
-			/* AND Vx, Vy */
-			c8->V[x] = c8->V[x] & c8->V[y];
+			/* CALL nnn */
+			c8->stack[c8->sp] = c8->pc;
+			c8->sp++;
+			c8->pc = nnn;
 			break;
 		case 0x3:
-			/* XOR Vx, Vy */
-			c8->V[x] = c8->V[x] ^ c8->V[y];
+			/* SE Vx, kk */
+			if (c8->V[x] == kk) {
+				c8->pc += 2;
+			}
 			break;
 		case 0x4:
-			/* ADD Vx, Vy */
-			c8->V[0xF] = CARRIES(c8->V[x], c8->V[y]);
-			c8->V[x] += c8->V[y];
+			/* SNE Vx, kk */
+			if (c8->V[x] != kk) {
+				c8->pc += 2;
+			}
 			break;
 		case 0x5:
-			/* SUB Vx, Vy */
-			c8->V[0xF] = !BORROWS(c8->V[x], c8->V[y]);
-			c8->V[x] -= c8->V[y];
+			/* SE Vx, Vy */
+			if (c8->V[x] == c8->V[y]) {
+				c8->pc += 2;
+			}
 			break;
 		case 0x6:
-			/* SHR Vx */
-			c8->V[x] = c8->V[x] >> 1;
-			c8->V[0xF] = c8->V[x] & 0x1;
-			c8->V[x] /= 2;
+			/* LD Vx, kk */
+			c8->V[x] = kk;
 			break;
 		case 0x7:
-			/* SUBN Vx, Vy */
-			c8->V[0xF] = BORROWS(c8->V[y], c8->V[x]) == 0 ? 1 : 0;
-			c8->V[x] = c8->V[y] - c8->V[x];
+			/* ADD Vx, kk */
+			c8->V[0xF] = CARRIES(c8->V[x], kk);
+			c8->V[x] += kk;
+			break;
+		case 0x8:
+			switch (b) {
+				case 0x0:
+					/* LD Vx, Vy */
+					c8->V[x] = c8->V[y];
+					break;
+				case 0x1:
+					/* OR Vx, Vy */
+					c8->V[x] = c8->V[x] | c8->V[y];
+					break;
+				case 0x2:
+					/* AND Vx, Vy */
+					c8->V[x] = c8->V[x] & c8->V[y];
+					break;
+				case 0x3:
+					/* XOR Vx, Vy */
+					c8->V[x] = c8->V[x] ^ c8->V[y];
+					break;
+				case 0x4:
+					/* ADD Vx, Vy */
+					c8->V[0xF] = CARRIES(c8->V[x], c8->V[y]);
+					c8->V[x] += c8->V[y];
+					break;
+				case 0x5:
+					/* SUB Vx, Vy */
+					c8->V[0xF] = !BORROWS(c8->V[x], c8->V[y]);
+					c8->V[x] -= c8->V[y];
+					break;
+				case 0x6:
+					/* SHR Vx */
+					c8->V[x] = c8->V[x] >> 1;
+					c8->V[0xF] = c8->V[x] & 0x1;
+					c8->V[x] /= 2;
+					break;
+				case 0x7:
+					/* SUBN Vx, Vy */
+					c8->V[0xF] = BORROWS(c8->V[y], c8->V[x]) == 0 ? 1 : 0;
+					c8->V[x] = c8->V[y] - c8->V[x];
+					break;
+				case 0xE:
+					/* SHL Vx */
+					c8->V[x] = c8->V[x] << 1;
+					c8->V[0xF] = (c8->V[x] & 0x40) >> 7;
+					c8->V[x] *= 2;
+					break;
+			}
+			break;
+		case 0x9:
+			/* SNE Vx, Vy */
+			if (c8->V[x] != c8->V[y])
+				c8->pc += 2;
+			break;
+		case 0xA:
+			/* LD I, nnn */
+			c8->I = nnn;
+			break;
+		case 0xB:
+			/* JP V0, nnn */
+			c8->pc = nnn + c8->V[0] - 2;
+			break;
+		case 0xC:
+			/* RND Vx, kk */
+			c8->V[x] = rand() & kk;
+			break;
+		case 0xD:
+			/* DRW Vx, Vy, b */
+			c8->V[0xF] = 0;
+			for (int i = 0; i < b; i++) {
+				for (int j = 0; j < 8; j++) {
+					int dx = c8->V[x] + j;
+					int dy = c8->V[y] + i;
+
+					while (dx >= DISPLAY_WIDTH) {
+						dx -= DISPLAY_WIDTH;
+					}
+					while (dy >= DISPLAY_HEIGHT) {
+						dy -= DISPLAY_HEIGHT;
+					}
+
+					int before = *get_pixel(c8->display, dx, dy);
+					if ((c8->mem[c8->I + i] >> (7 - j)) & 1) {
+						*get_pixel(c8->display, dx, dy) ^= 1;
+					}
+
+					if (before != *get_pixel(c8->display, dx, dy)) {
+						c8->V[0xF] = 1;
+					}
+				}
+			}
+			render(c8->display);
 			break;
 		case 0xE:
-			/* SHL Vx */
-			c8->V[x] = c8->V[x] << 1;
-			c8->V[0xF] = (c8->V[x] & 0x40) >> 7;
-			c8->V[x] *= 2;
-			break;
-		}
-		break;
-	case 0x9:
-		/* SNE Vx, Vy */
-		if (c8->V[x] != c8->V[y])
-			c8->pc += 2;
-		break;
-	case 0xA:
-		/* LD I, nnn */
-		c8->I = nnn;
-		break;
-	case 0xB:
-		/* JP V0, nnn */
-		c8->pc = nnn + c8->V[0] - 2;
-		break;
-	case 0xC:
-		/* RND Vx, kk */
-		c8->V[x] = rand() & kk;
-		break;
-	case 0xD:
-		/* DRW Vx, Vy, b */
-		c8->V[0xF] = 0;
-		for (int i = 0; i < b; i++)
-		{
-			for (int j = 0; j < 8; j++)
-			{
-				int dx = c8->V[x] + j;
-				int dy = c8->V[y] + i;
-
-				while (dx >= DISPLAY_WIDTH)
-				{
-					dx -= DISPLAY_WIDTH;
+			if (kk == 0x9E) {
+				/* SKP Vx */
+				if (c8->key[c8->V[x]]) {
+					c8->pc += 2;
 				}
-				while (dy >= DISPLAY_HEIGHT)
-				{
-					dy -= DISPLAY_HEIGHT;
-				}
-
-				int before = *get_pixel(c8->display, dx, dy);
-				if ((c8->mem[c8->I + i] >> (7 - j)) & 1)
-				{
-					*get_pixel(c8->display, dx, dy) ^= 1;
-				}
-
-				if (before != *get_pixel(c8->display, dx, dy))
-				{
-					c8->V[0xF] = 1;
+			} else if (kk == 0xA1) {
+				/* SKNP Vx */
+				if (!c8->key[c8->V[x]]) {
+					c8->pc += 2;
 				}
 			}
-		}
-		render(c8->display);
-		break;
-	case 0xE:
-		if (kk == 0x9E)
-		{
-			/* SKP Vx */
-			if (c8->key[c8->V[x]])
-			{
-				c8->pc += 2;
+			break;
+		case 0xF:
+			switch (kk) {
+				case 0x07:
+					/* LD Vx, dt */
+					c8->V[x] = c8->dt;
+					break;
+				case 0x0A:
+					/* LD Vx, K */
+					c8->VK = x;
+					c8->waitingForKey = 1;
+					break;
+				case 0x15:
+					/* LD DT, Vx */
+					c8->dt = c8->V[x];
+					break;
+				case 0x18:
+					/* LD ST, Vx */
+					c8->st = c8->V[x];
+					break;
+				case 0x1E:
+					/* ADD I, Vx */
+					c8->I += c8->V[x];
+					break;
+				case 0x29:
+					/* LD F, Vx */
+					c8->I = FONT_START + (c8->V[x] * 5);
+					break;
+				case 0x33:
+					/* LD B, Vx */
+					c8->mem[c8->I] = (c8->V[x] / 100) % 10; // hundreds
+					c8->mem[c8->I + 1] = (c8->V[x] / 10) % 10; // tens
+					c8->mem[c8->I + 2] = c8->V[x] % 10; // ones
+					break;
+				case 0x55:
+					/* LD [I], Vx */
+					for (int i = 0; i < x; i++) {
+						c8->mem[c8->I + i] = c8->V[i];
+					}
+					break;
+				case 0x65:
+					/* LD Vx, [I] */
+					for (int i = 0; i < x; i++) {
+						c8->V[i] = c8->mem[c8->I + i];
+					}
+					break;
 			}
-		}
-		else if (kk == 0xA1)
-		{
-			/* SKNP Vx */
-			if (!c8->key[c8->V[x]])
-			{
-				c8->pc += 2;
-			}
-		}
-		break;
-	case 0xF:
-		switch (kk)
-		{
-		case 0x07:
-			/* LD Vx, dt */
-			c8->V[x] = c8->dt;
-			break;
-		case 0x0A:
-			/* LD Vx, K */
-			c8->VK = x;
-			c8->waitingForKey = 1;
-			break;
-		case 0x15:
-			/* LD DT, Vx */
-			c8->dt = c8->V[x];
-			break;
-		case 0x18:
-			/* LD ST, Vx */
-			c8->st = c8->V[x];
-			break;
-		case 0x1E:
-			/* ADD I, Vx */
-			c8->I += c8->V[x];
-			break;
-		case 0x29:
-			/* LD F, Vx */
-			c8->I = FONT_START + (c8->V[x] * 5);
-			break;
-		case 0x33:
-			/* LD B, Vx */
-			c8->mem[c8->I] = (c8->V[x] / 100) % 10;	   // hundreds
-			c8->mem[c8->I + 1] = (c8->V[x] / 10) % 10; // tens
-			c8->mem[c8->I + 2] = c8->V[x] % 10;		   // ones
-			break;
-		case 0x55:
-			/* LD [I], Vx */
-			for (int i = 0; i < x; i++)
-			{
-				c8->mem[c8->I + i] = c8->V[i];
-			}
-			break;
-		case 0x65:
-			/* LD Vx, [I] */
-			for (int i = 0; i < x; i++)
-			{
-				c8->V[i] = c8->mem[c8->I + i];
-			}
-			break;
-		}
 	}
 
-	if (c8->dt > 0)
-	{
+	if (c8->dt > 0) {
 		c8->dt--;
 	}
 
-	if (c8->st > 0)
-	{
+	if (c8->st > 0) {
 		c8->st--; // TODO sound
 	}
 }
 
 /**
  * @brief Main VM simulation loop. Exits when `running` is 0.
- *
+ * 
  * @param c8 the `chip8_t` to simulate
  */
-void simulate(chip8_t *c8)
-{
+void simulate(chip8_t * c8) {
 	int t;
 	int debugRet;
 	int step = 0;
@@ -435,44 +397,37 @@ void simulate(chip8_t *c8)
 	c8->pc = PROG_START;
 	c8->running = 1;
 
-	if (DEBUG(c8))
-	{
+	if (DEBUG(c8)) {
 		debugRet = debug_repl(c8);
 	}
-	while (c8->running)
-	{
+	while (c8->running) {
 		t = tick(c8->key, c8->cs);
 
-		if (DEBUG(c8) && (has_breakpoint(c8->pc) || step))
-		{
+		if (DEBUG(c8) && (has_breakpoint(c8->pc) || step)) {
 			debugRet = debug_repl(c8);
 
-			switch (debugRet)
-			{
-			case DEBUG_QUIT:
-				c8->running = 0;
-				continue;
-			case DEBUG_STEP:
-				step = 1;
-				break;
+			switch (debugRet) {
+				case DEBUG_QUIT:
+					c8->running = 0;
+					continue;
+				case DEBUG_STEP:
+					step = 1;
+					break;
 			}
 		}
 
-		if (t == -2)
-		{
+		if (t == -2) {
 			/* Quit */
 			c8->running = 0;
 		}
 
-		if (t >= 0 && c8->waitingForKey)
-		{
+		if (t >= 0 && c8->waitingForKey) {
 			/* Waiting for key and a key was pressed */
 			c8->V[c8->VK] = t;
 			c8->waitingForKey = 0;
 		}
 
-		if (!c8->waitingForKey)
-		{
+		if (!c8->waitingForKey) {
 			/* Not waiting for key, parse next instruction */
 			c8->pc += 2;
 			parse_instruction(c8);

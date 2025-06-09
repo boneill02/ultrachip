@@ -40,82 +40,77 @@
 /**
  * @struct label_t
  * @brief Represents a label
- *
+ * 
  * Represents a label with an identifier and byte value
- *
+ * 
  * @var identifier string identifier
  * @var byte location of the label
  */
-typedef struct
-{
-	char identifier[LABEL_IDENTIFIER_SIZE];
-	int byte;
+typedef struct {
+    char identifier[LABEL_IDENTIFIER_SIZE];
+    int byte;
 } label_t;
 
 /**
  * @struct label_list_t
  * @brief Represents a list of labels
- *
+ * 
  * @var l pointer to first label
  * @var len length of the list
  * @var ceil maximum length of the list
  */
-typedef struct
-{
-	label_t *l;
-	int len;
-	int ceil;
+typedef struct {
+    label_t *l;
+    int len;
+    int ceil;
 } label_list_t;
 
 /**
  * @enum Symbol
  * @brief Represents symbol types
- *
+ * 
  * This enumeration defines all symbol types found during the first assembler
  * pass.
- *
+ * 
  * NOTE: values before label need to be kept in same order as identifierStrings
  */
-typedef enum
-{
-	SYM_NULL,
-	SYM_DT,
-	SYM_ST,
-	SYM_I,
-	SYM_IP,
-	SYM_K,
-	SYM_F,
-	SYM_B,
-	SYM_DB,
-	SYM_DW,
-	SYM_LABEL,
-	SYM_INT,
-	SYM_STRING,
-	SYM_V,
-	SYM_INSTRUCTION,
-	SYM_LABEL_DEFINITION,
+typedef enum {
+    SYM_NULL,
+    SYM_DT,
+    SYM_ST,
+    SYM_I,
+    SYM_IP,
+    SYM_K,
+    SYM_F,
+    SYM_B,
+    SYM_DB,
+    SYM_DW,
+    SYM_LABEL,
+    SYM_INT,
+    SYM_STRING,
+    SYM_V,
+    SYM_INSTRUCTION,
+    SYM_LABEL_DEFINITION,
 } Symbol;
 
 /**
  * @struct symbol_t
  * @brief Represents a symbol with a type, value, and line number
  */
-typedef struct
-{
-	Symbol type;
-	uint16_t value;
-	int ln;
+typedef struct {
+    Symbol type;
+    uint16_t value;
+    int ln;
 } symbol_t;
 
 /**
  * @struct symbol_list_t
  * @brief Represents a symbol with a type, value, and line number
  */
-typedef struct
-{
-	symbol_t *s;
-	int len;
-	int ceil;
+typedef struct {
+    symbol_t *s;
+    int len;
+    int ceil;
 } symbol_list_t;
 
 int is_comment(char *);
