@@ -76,7 +76,7 @@ void disassemble(FILE *input, FILE *output, int args) {
 				fprintf(output, "label%d:\n", labelMap[addr]);
 			}
 
-			if (args & PRINT_ADDRESSES) {
+			if (PRINT_ADDRESSES) {
 				fprintf(output, "%03x: ", addr - 1);
 			}
 			fprintf(output, "%s\n", decode_instruction(ins, labelMap));
