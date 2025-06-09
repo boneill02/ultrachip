@@ -184,12 +184,7 @@ static int load_rom(chip8_t *c8, const char *addr) {
  */
 static void parse_instruction(chip8_t *c8) {
 	uint16_t in = (((uint16_t) c8->mem[c8->pc]) << 8) | c8->mem[c8->pc + 1];
-	int x = X(in);
-	int kk = KK(in);
-	int y = Y(in);
-	int nnn = NNN(in);
-	int a = A(in);
-	int b = B(in);
+	EXPAND(in);
 
 	if (VERBOSE(c8)) {
 		printf("%s\n", decode_instruction(in, NULL));

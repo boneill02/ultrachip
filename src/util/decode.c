@@ -27,14 +27,10 @@ char result[32];
  * @return `result` containing the associated assembly instruction
  */
 char *decode_instruction(uint16_t in, uint8_t *label_map) {
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < 16; i++) {
 		result[i] = '\0';
-	int x = X(in);
-	int kk = KK(in);
-	int nnn = NNN(in);
-	int y = Y(in);
-	int a = A(in);
-	int b = B(in);
+	}
+	EXPAND(in);
 
 	switch (a) {
 		case 0x0:
