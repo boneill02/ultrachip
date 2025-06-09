@@ -180,8 +180,8 @@ char *decode_instruction(uint16_t in, uint8_t *label_map) {
  * @return `in`'s `nnn` value if it exists, 0 otherwise.
  */
 uint16_t jump(uint16_t in) {
-	uint16_t a = (in & 0xF000) >> 12;
-	uint16_t nnn = in & 0x0FFF;
+	uint16_t a = A(in);
+	uint16_t nnn = NNN(in);
 
 	if (a == 0x1 || a == 0x2 || a == 0xa || a == 0xb) {
 		return nnn;
