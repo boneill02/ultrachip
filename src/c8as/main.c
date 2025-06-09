@@ -1,4 +1,4 @@
-#include "encode.h"
+#include "parse.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,16 +34,16 @@ char *dynamic_load(FILE *f) {
 
 int main(int argc, char *argv[]) {
 	int opt;
-    int args = 0;
 	char *outp = "a.c8";
 	FILE *inf;
 	FILE *outf;
 
 	/* Parse args */
-	while ((opt = getopt(argc, argv, "ov:")) != -1) {
+	while ((opt = getopt(argc, argv, "o:")) != -1) {
 		switch (opt) {
-			case 'v': args |= ARG_VERBOSE; break;
-			case 'o': outp = optarg; break;
+			case 'o':
+                outp = optarg;
+                break;
 			default:
 				  fprintf(stderr, "Usage: %s [-v] [-o outputfile] file\n", argv[0]);
 				  exit(1);
@@ -51,12 +51,12 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (!(inf = fopen(argv[optind], "r"))) {
-        error("Failed to load input file", 0);
+        fprintf(stderr, "Failed to load input file\n");
 		exit(EXIT_FAILURE);
 	}
 
     if (!outp || !(outf = fopen(outp, "wb"))) {
-        error("Failed to load output file", 0);
+        fprintf(stderr, "Failed to load output file\n");
         fclose(inf);
     }
 
