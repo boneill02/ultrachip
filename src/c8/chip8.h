@@ -11,6 +11,7 @@
 
 typedef struct {
 	uint8_t mem[MEMSIZE];
+	uint8_t R[8];
 	uint8_t V[16];
 	uint8_t sp;
 	uint8_t dt;

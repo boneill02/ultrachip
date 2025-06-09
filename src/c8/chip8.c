@@ -426,12 +426,16 @@ static void parse_instruction(chip8_t *c8) {
 					}
 					break;
 				case 0x75:
-					/* STORE Vx */
-					// TODO implement
+					/* LD R, Vx */
+					for (int i = 0; i < x; i++) {
+						c8->R[i] = c8->V[i];
+					}
 					break;
 				case 0x85:
-					/* LOAD Vx */
-					// TODO implement
+					/* LD Vx, R */
+					for (int i = 0; i < x; i++) {
+						c8->V[i] = c8->R[i];
+					}
 					break;
 			}
 	}
