@@ -236,7 +236,7 @@ static void reallocate_symbols(symbol_list_t *symbols) {
     int newCeiling = symbols->ceil + SYMBOL_CEILING;
     symbol_t *oldsym = symbols->s;
     symbols->s = (symbol_t *) malloc(sizeof(symbol_t) * newCeiling);
-    memcpy(symbols->s, oldsym, symbols->ceil);
+    memcpy(symbols->s, oldsym, symbols->ceil * sizeof(symbol_t));
     symbols->ceil = newCeiling;
     free(oldsym);
 }

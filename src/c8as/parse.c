@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-
+static int line_count(char *);
 static void parse_line(char *, int, symbol_list_t *, label_list_t *);
 static int parse_word(char *, char *, int, symbol_t *, label_list_t *);
 static inline void put16(FILE *, uint16_t);
@@ -31,6 +31,8 @@ static void write(FILE *, symbol_list_t *);
  * @param f file to write to
  */
 void parse(char *s, FILE *f) {
+    int lineCount = line_count(s);
+
     symbol_list_t symbols;
     symbols.s = malloc(sizeof(symbol_t) * SYMBOL_CEILING);
     symbols.len = 0;
@@ -41,10 +43,10 @@ void parse(char *s, FILE *f) {
     labels.len = 0;
     labels.ceil = LABEL_CEILING;
 
-    char **lines = malloc(MAX_LINES * sizeof(char *));
+    char **lines = malloc(lineCount * sizeof(char *));
 
     s = trim(s);
-    int lineCount = tokenize(lines, s, "\n", MAX_LINES);
+    tokenize(lines, s, "\n", lineCount);
 
     populate_labels(lines, lineCount, &labels);
 
@@ -60,6 +62,17 @@ void parse(char *s, FILE *f) {
     free(symbols.s);
     free(labels.l);
     free(lines);
+}
+
+static int line_count(char *s) {
+    int ln = 0;
+    while (*s) {
+        if (*s == '\n') {
+            ln++;
+        }
+        s++;
+    }
+    return ln;
 }
 
 /**
@@ -98,6 +111,8 @@ static void parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *la
  * @param ln line number
  * @param sym symbol to populate
  * @param labels label list
+ * 
+ * @return number of words to skip
  */
 static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *labels) {
     int value;
@@ -111,7 +126,7 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
                 sym->value = j;
             }
         }
-    } else if ((value = is_instruction(s)) != -1) {
+    } else if ((value = is_instruction(s)) != I_NULL) {
         sym->type = SYM_INSTRUCTION;
         sym->value = value;
     } else if (is_db(s)) {
@@ -125,7 +140,7 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
     } else if ((value = is_register(s)) != -1) {
         sym->type = SYM_V;
         sym->value = value;
-    } else if ((value = is_reserved_identifier(s) != -1)) {
+    } else if ((value = is_reserved_identifier(s)) != -1) {
         sym->type = value;
     } else if ((value = parse_int(s)) != -1) {
         sym->type = SYM_INT;
@@ -224,17 +239,19 @@ static void write(FILE *output, symbol_list_t *symbols) {
                 if (ret) {
                     put16(output, ret);
                     i += ins.pcount;
-                    printf("%04x\n", ret);
+                    printf("INSTRUCTION: %04x %d\n", ret, ins.pcount);
                 } else {
                     fprintf(stderr, "Error (line %d): Invalid instruction\n", symbols->s[i].ln);
+                    fprintf(stderr, "%d %d\n", ins.cmd, ins.ptype[0]);
                 }
                 break;
             case SYM_DB:
+                printf("DB\n");
                 if (symbols->s[i].value > UINT8_MAX) {
                     fprintf(stderr, "Error (line %d): DB value too big\n", symbols->s[i].ln);
                 } else {
                     fputc(symbols->s[i].value, output);
-                    printf("%02x\n", symbols->s[i].value);
+                    printf("DB: %02x\n", symbols->s[i].value);
                 }
                 break;
             case SYM_DW:
@@ -242,10 +259,11 @@ static void write(FILE *output, symbol_list_t *symbols) {
                     fprintf(stderr, "Error (line %d): DW value too big\n", symbols->s[i].ln);
                 } else {
                     put16(output, symbols->s[i].value);
-                    printf("%04x\n", symbols->s[i].value);
+                    printf("DW: %04x\n", symbols->s[i].value);
                 }
                 break;
             default:
+                printf("Something else: %d %d %04x\n", i, symbols->s[i].type, symbols->s[i].value);
                 break;
         }
     }
