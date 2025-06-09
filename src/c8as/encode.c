@@ -100,14 +100,6 @@ typedef enum {
     SYM_LABEL_DEFINITION,
 } Symbol;
 
-typedef struct {
-    Symbol type;
-    uint16_t value;
-    int ln;
-} symbol_t;
-
-symbol_t *symbols;
-
 /**
  * @struct instruction_format_t
  * @brief Represents a valid instruction format
@@ -115,7 +107,7 @@ symbol_t *symbols;
  * instruction_t's are checked against instruction_format_t's to verify
  * that they will produce valid instructions.
  */
-typedef struct instruction_format_s {
+typedef struct {
     Instruction cmd;
     uint16_t base;
     int pcount;
@@ -130,7 +122,7 @@ typedef struct instruction_format_s {
  * During the second pass, this structure is used to verify the instruction's
  * validity and generate the bytecode.
  */
-typedef struct instruction_s {
+typedef struct {
     int line;
     Instruction cmd;
     int pcount;
@@ -150,6 +142,17 @@ typedef struct {
     int byte;
 } label_t;
 
+/**
+ * @struct symbol_t
+ * @brief Represents a symbol with a type, value, and line number
+ */
+typedef struct {
+    Symbol type;
+    uint16_t value;
+    int ln;
+} symbol_t;
+
+
 static int build_instruction(int idx);
 static int is_comment(char *, int);
 static inline int is_db(char *);
@@ -168,7 +171,7 @@ static int tokenize(char **, char *, const char *, int);
 static char *trim_comment(char *);
 static void write(FILE *);
 
-instruction_format_t formats[] = {
+static instruction_format_t formats[] = {
     { I_CLS,  0x00E0, 0, {0},                     {0} },
     { I_RET,  0x00EE, 0, {0},                     {0} },
     { I_CALL, 0x2000, 1, {SYM_INT},               {0x0FFF} },
@@ -205,7 +208,7 @@ instruction_format_t formats[] = {
     { -1,    0,       0, {0},                     {0} },
 };
 
-const char *instructionStrings[] = {
+static const char *instructionStrings[] = {
     S_CLS,
     S_RET,
     S_JP,
@@ -228,7 +231,7 @@ const char *instructionStrings[] = {
     NULL
 };
 
-const char *identifierStrings[] = {
+static const char *identifierStrings[] = {
     "",
     S_DT,
     S_ST,
@@ -242,22 +245,32 @@ const char *identifierStrings[] = {
     NULL,
 };
 
-instruction_t ins;
-symbol_t *symbols;
-int symbolCount = 0;
-int symbolCeiling = SYMBOL_COUNT;
+static instruction_t ins;
+static symbol_t *symbols;
+static int symbolCount = 0;
+static int symbolCeiling = SYMBOL_COUNT;
+static label_t labels[LABEL_COUNT];
+static int labelCount = 0;
 
-label_t labels[LABEL_COUNT];
-int labelCount = 0;
-
+/**
+ * @brief Build an instruction from symbols beginning at idx
+ * 
+ * This function builds and validates an instruction from a completely parsed
+ * set of symbols (with labels expanded).
+ * 
+ * @param idx symbols index of start of instruction
+ * @return instruction bytecode
+ */
 static int build_instruction(int idx) {
     instruction_format_t f;
     int j;
 
+    /* parse instruction command */
     ins.cmd = symbols[idx].value;
     ins.line = symbols[idx].ln;
     ins.pcount = 0;
 
+    /* parse instruction args */
     idx++;
     for (int i = 0; i < symbolCount - idx; i++) {
         switch (symbols[idx + i].type) {
@@ -285,6 +298,7 @@ static int build_instruction(int idx) {
         }
     }
 
+    /* find matching format */
     int match;
     for (int i = 0; formats[i].cmd != -1; i++) {
         f = formats[i];
@@ -345,10 +359,20 @@ static int is_comment(char *s, int len) {
     return i < len && *s == ';';
 }
 
+/**
+ * @brief Check if given string is a DB identifier
+ * 
+ * @return 1 if true, 0 if false
+ */
 static inline int is_db(char *s) {
     return !strcmp(s, S_DB);
 }
 
+/**
+ * @brief Check if given string is a DW identifier
+ * 
+ * @return 1 if true, 0 if false
+ */
 static inline int is_dw(char *s) {
     return !strcmp(s, S_DW);
 }
@@ -384,6 +408,12 @@ static int is_label_definition(char *s, int len) {
     return s[len-1] == ':';
 }
 
+/**
+ * @brief Check if given string is a label reference
+ * 
+ * @param s string to check
+ * @return label index if true, -1 otherwise
+ */
 static int is_label(char *s) {
     for (int i = 0; i < labelCount; i++) {
         if (!strcmp(s, labels[i].identifier)) {
@@ -427,7 +457,10 @@ static int is_reserved_identifier(char *s) {
 /**
  * @brief Parse the given string
  * 
- * This generates bytecode from the given assembly code in s and writes the output to f
+ * This is the main assembler function.
+ * 
+ * This function generates bytecode from the given assembly code in s and writes
+ * the output to f.
  * 
  * @param s string containing assembly code
  * @param f file to write to
@@ -439,6 +472,7 @@ void parse(char *s, FILE *f) {
     s = trim(s);
     int lineCount = tokenize(lines, s, "\n", MAX_LINES);
 
+    /* Find label definitions and populate labels[] (first pass) */
     for (int i = 0; i < lineCount; i++) {
         lines[i] = trim_comment(lines[i]);
         if (is_label_definition(lines[i], strlen(lines[i]))) {
@@ -447,6 +481,7 @@ void parse(char *s, FILE *f) {
         }
     }
 
+    /* Parse lines (second pass) */
     for (int i = 0; i < lineCount; i++) {
         parse_line(lines[i], i+1);
     }
@@ -530,7 +565,13 @@ static symbol_t *next_symbol(void) {
     return &symbols[symbolCount];
 }
 
-static void put16(FILE *f, uint16_t n) {
+/**
+ * @brief Write 16 bit int to f
+ * 
+ * @param f file to write to
+ * @param n int to write
+ */
+static inline void put16(FILE *f, uint16_t n) {
     fputc((n >> 8) & 0xFF, f);
     fputc(n & 0xFF, f);
 }
@@ -547,7 +588,7 @@ static void reallocate_symbols(void) {
 }
 
 /**
- * @brief Get byte values of labels from completed symbol table
+ * @brief Get byte indexes of label defs from completed symbol table
  */
 static void resolve_labels(void) {
     int byte = PROG_START;
