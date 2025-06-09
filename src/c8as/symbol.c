@@ -199,7 +199,6 @@ void resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
 
         switch (symbols->s[i].type) {
             case SYM_LABEL_DEFINITION:
-                printf("LABEL %d RESOLVED: %d\n", labelIdx, byte);
                 labels->l[labelIdx++].byte = byte;
                 break;
             case SYM_DB:
@@ -222,9 +221,7 @@ void resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
  */
 void substitute_labels(symbol_list_t *symbols, label_list_t *labels) {
     for (int i = 0; i < symbols->len; i++) {
-        printf("SYMBOL %d: %d %04x\n",i, symbols->s[i].type, symbols->s[i].value);
         if (symbols->s[i].type == SYM_LABEL) {
-            printf("LABEL %d SUBSTITUTED AT %d\n", symbols->s[i].value, i);
             symbols->s[i].type = SYM_INT;
             symbols->s[i].value = labels->l[symbols->s[i].value].byte;
         }
