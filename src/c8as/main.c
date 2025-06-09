@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 	FILE *outf;
 
 	/* Parse args */
-	while ((opt = getopt(argc, argv, "alo:")) != -1) {
+	while ((opt = getopt(argc, argv, "ov:")) != -1) {
 		switch (opt) {
 			case 'v': args |= ARG_VERBOSE; break;
 			case 'o': outp = optarg; break;
@@ -51,20 +51,17 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (!(inf = fopen(argv[optind], "r"))) {
-		fprintf(stderr, "Error: Failed to load input file\n");
+        error("Failed to load input file", 0);
 		exit(EXIT_FAILURE);
 	}
 
     if (!outp || !(outf = fopen(outp, "wb"))) {
-        fprintf(stderr, "Error: Failed to load output file\n");
+        error("Failed to load output file", 0);
         fclose(inf);
     }
 
     char *input = dynamic_load(inf);
-
 	parse(input, outf);
-
-	/* Cleanup */
     free(input);
 	return EXIT_SUCCESS;
 }

@@ -5,6 +5,7 @@
 
 #define ARG_VERBOSE 1
 
+void error(char *, int);
 void parse(char *, FILE *);
 
 #endif

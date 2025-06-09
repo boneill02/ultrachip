@@ -143,7 +143,7 @@ typedef struct instruction_s {
  * @struct label_t
  * @brief Represents a label
  * 
- * Represents a label with a corresponding byte value
+ * Represents a label with an identifier and byte value
  */
 typedef struct {
     char identifier[20];
@@ -151,12 +151,12 @@ typedef struct {
 } label_t;
 
 static int build_instruction(int idx);
-static void error(char *, int);
 static int is_comment(char *, int);
 static inline int is_db(char *);
 static inline int is_dw(char *);
 static int is_instruction(char *);
 static int is_label_definition(char *, int);
+static int is_label(char *);
 static int is_register(char *);
 static int is_reserved_identifier(char *s);
 static symbol_t *next_symbol(void);
@@ -165,7 +165,7 @@ static void reallocate_symbols(void);
 static void resolve_labels(void);
 static int shift(uint16_t);
 static int tokenize(char **, char *, const char *, int);
-static void trim_comment(char *, int);
+static char *trim_comment(char *);
 static void write(FILE *);
 
 instruction_format_t formats[] = {
@@ -274,6 +274,11 @@ static int build_instruction(int idx) {
                 ins.ptype[i] = symbols[idx+i].type;
                 ins.pcount++;
                 break;
+            case SYM_LABEL:
+                ins.ptype[i] = SYM_INT;
+                ins.p[i] = labels[symbols[idx + i].value].byte;
+                ins.pcount++;
+                break;
             default:
                 i = symbolCount;
                 break;
@@ -379,6 +384,16 @@ static int is_label_definition(char *s, int len) {
     return s[len-1] == ':';
 }
 
+static int is_label(char *s) {
+    for (int i = 0; i < labelCount; i++) {
+        if (!strcmp(s, labels[i].identifier)) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
 /**
  * @brief Check if the given string represents a V register
  * 
@@ -425,9 +440,10 @@ void parse(char *s, FILE *f) {
     int lineCount = tokenize(lines, s, "\n", MAX_LINES);
 
     for (int i = 0; i < lineCount; i++) {
+        lines[i] = trim_comment(lines[i]);
         if (is_label_definition(lines[i], strlen(lines[i]))) {
+            strncpy(labels[labelCount].identifier, lines[i], strlen(lines[i]) - 1);
             labelCount++;
-            strcpy(labels[labelCount].identifier, lines[i]);
         }
     }
 
@@ -436,6 +452,7 @@ void parse(char *s, FILE *f) {
     }
 
     resolve_labels();
+
     write(f);
 
     free(symbols);
@@ -443,7 +460,7 @@ void parse(char *s, FILE *f) {
 }
 
 /**
- * @brief Parse the given line
+ * @brief Generate symbols for the given line
  * 
  * @param s line string
  * @param ln line number
@@ -452,18 +469,25 @@ static void parse_line(char *s, int ln) {
     int len = strlen(s);
     if (is_comment(s, len)) return;
 
-    char **words = malloc(MAX_WORDS * sizeof(char *));
+    char *words[MAX_WORDS];
     int wc;
     int value;
     
     symbol_t *sym = &symbols[symbolCount];
 
-    trim_comment(s, len);
+    trim_comment(s);
     wc = tokenize(words, s, " ", MAX_WORDS);
 
     for (int i = 0; i < wc; i++) {
         sym->ln = ln;
-        if ((value = is_instruction(words[i])) != -1) {
+        if (is_label_definition(words[i], strlen(words[i]))) {
+            sym->type = SYM_LABEL_DEFINITION;
+            for (int j = 0; j < labelCount; j++) {
+                if (!strcmp(words[i], labels[j].identifier)) {
+                    sym->value = j;
+                }
+            }
+        } else if ((value = is_instruction(words[i])) != -1) {
             sym->type = SYM_INSTRUCTION;
             sym->value = value;
         } else if (is_db(s)) {
@@ -474,10 +498,6 @@ static void parse_line(char *s, int ln) {
             sym->type = SYM_DW;
             i++;
             sym->value = parse_int(words[i]);
-        } else if (is_label_definition(words[i], strlen(s))) {
-            labelCount++;
-            strcpy(labels[labelCount].identifier, words[i]);
-            sym->type = SYM_LABEL_DEFINITION;
         } else if ((value = is_register(words[i])) != -1) {
             sym->type = SYM_V;
             sym->value = value;
@@ -486,13 +506,14 @@ static void parse_line(char *s, int ln) {
         } else if ((value = parse_int(words[i]))) {
             sym->type = SYM_INT;
             sym->value = value;
-        } else {
+        } else if ((value = is_label(words[i])) != -1) {
             sym->type = SYM_LABEL;
+            sym->value = value;
+        } else {
+            error("Unknown symbol", ln);
         }
         sym = next_symbol();
     }
-
-    free(words);
 }
 
 /**
@@ -507,6 +528,11 @@ static symbol_t *next_symbol(void) {
     }
 
     return &symbols[symbolCount];
+}
+
+static void put16(FILE *f, uint16_t n) {
+    fputc((n >> 8) & 0xFF, f);
+    fputc(n & 0xFF, f);
 }
 
 /**
@@ -534,6 +560,7 @@ static void resolve_labels(void) {
         switch (symbols[i].type) {
             case SYM_LABEL_DEFINITION:
                 labels[labelIdx++].byte = byte;
+                break;
             case SYM_DB:
                 byte += 1;
                 break;
@@ -591,13 +618,15 @@ static int tokenize(char **tok, char *s, const char *delim, int maxTokens) {
  * @brief Trim and remove comment from line if exists
  * 
  * @param s string to trim
- * @param len length of string
  * @return trimmed string
  */
-static void trim_comment(char *s, int len) {
-    for (int i = 0; i < len; i++) {
+static char *trim_comment(char *s) {
+    trim(s);
+    for (int i = 0; i < strlen(s); i++) {
         if (s[i] == ';') s[i] = '\0';
     }
+
+    return s;
 }
 
 /**
@@ -613,10 +642,9 @@ static void write(FILE *output) {
             case SYM_INSTRUCTION:
                 ret = build_instruction(i);
                 if (ret) {
-                    fputc((ret>>8) & 0xFF, output);
-                    fputc(ret & 0xFF, output);
-                    printf("%04x\n", ret);
+                    put16(output, ret);
                     i += ins.pcount;
+                    printf("%04x\n", ret);
                 } else {
                     error("Invalid instruction", symbols[i].ln);
                 }
@@ -633,8 +661,7 @@ static void write(FILE *output) {
                 if (symbols[i].value > UINT16_MAX) {
                     error("Value too big", symbols[i].ln);
                 } else {
-                    fputc((symbols[i].value>>8) & 0xFF, output);
-                    fputc(symbols[i].value & 0xFF, output);
+                    put16(output, symbols[i].value);
                     printf("%04x\n", symbols[i].value);
                 }
                 break;
