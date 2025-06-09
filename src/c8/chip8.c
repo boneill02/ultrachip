@@ -1,7 +1,6 @@
 #include "chip8.h"
 
 #include "debug.h"
-#include "graphics.h"
 #include "util/decode.h"
 #include "util/util.h"
 
@@ -78,6 +77,57 @@ chip8_t *init_chip8(int cs, int flags, const char *path) {
 }
 
 /**
+ * @brief Main VM simulation loop. Exits when `running` is 0.
+ * 
+ * @param c8 the `chip8_t` to simulate
+ */
+void simulate(chip8_t * c8) {
+	int t;
+	int debugRet;
+	int step = 0;
+
+	c8->pc = PROG_START;
+	c8->running = 1;
+
+	if (DEBUG(c8)) {
+		debugRet = debug_repl(c8);
+	}
+	while (c8->running) {
+		t = tick(c8->key, c8->cs);
+
+		if (DEBUG(c8) && (has_breakpoint(c8->pc) || step)) {
+			debugRet = debug_repl(c8);
+
+			switch (debugRet) {
+				case DEBUG_QUIT:
+					c8->running = 0;
+					continue;
+				case DEBUG_STEP:
+					step = 1;
+					break;
+			}
+		}
+
+		if (t == -2) {
+			/* Quit */
+			c8->running = 0;
+		}
+
+		if (t >= 0 && c8->waitingForKey) {
+			/* Waiting for key and a key was pressed */
+			c8->V[c8->VK] = t;
+			c8->waitingForKey = 0;
+		}
+
+		if (!c8->waitingForKey) {
+			/* Not waiting for key, parse next instruction */
+			c8->pc += 2;
+			parse_instruction(c8);
+		}
+	}
+}
+
+/**
  * @brief Add the font to `c8->mem`.
  * 
  * @param c8 `chip8_t` to add the font to
@@ -149,14 +199,15 @@ static void parse_instruction(chip8_t *c8) {
 		case 0x0:
 			if (y == 0xC) {
 				/* SCD n */
-				// TODO implement
+				c8->display.y += b;
+				break;
 			}
 			switch (kk) {
 				case 0xE0:
 					/* CLS */
-					for (int i = 0; i < DISPLAY_WIDTH; i++) {
-						for (int j = 0; j < DISPLAY_HEIGHT; j++) {
-							*get_pixel(c8->display, x, y) = 0;
+					for (int i = 0; i < EXTENDED_DISPLAY_WIDTH; i++) {
+						for (int j = 0; j < EXTENDED_DISPLAY_HEIGHT; j++) {
+							*get_pixel(&c8->display, x, y) = 0;
 						}
 					}
 					break;
@@ -167,10 +218,11 @@ static void parse_instruction(chip8_t *c8) {
 					break;
 				case 0xFB:
 					/* SCR */
-					// TODO implement
+					c8->display.x += 4;
 					break;
 				case 0xFC:
-					// TODO implement
+					/* SCL */
+					c8->display.x -= 4;
 					break;
 				case 0xFD:
 					/* EXIT */
@@ -178,11 +230,11 @@ static void parse_instruction(chip8_t *c8) {
 					break;
 				case 0xFE:
 					/* LOW */
-					// TODO implement
+					c8->display.mode = DISPLAY_STANDARD;
 					break;
 				case 0xFF:
 					/* HIGH */
-					// TODO implement
+					c8->display.mode = DISPLAY_EXTENDED;
 					break;
 			}
 			break;
@@ -290,29 +342,30 @@ static void parse_instruction(chip8_t *c8) {
 		case 0xD:
 			/* DRW Vx, Vy, b */
 			c8->V[0xF] = 0;
+			int width = STANDARD_DISPLAY_WIDTH;
+			int height = STANDARD_DISPLAY_HEIGHT;
+			if (b == 0 && c8->display.mode == DISPLAY_EXTENDED) {
+				b = 16;
+				width = EXTENDED_DISPLAY_WIDTH;
+				height = EXTENDED_DISPLAY_HEIGHT;
+			}
 			for (int i = 0; i < b; i++) {
 				for (int j = 0; j < 8; j++) {
-					int dx = c8->V[x] + j;
-					int dy = c8->V[y] + i;
+					int dx = (c8->V[x] + j) % width;
+					int dy = (c8->V[y] + i) % height;
 
-					while (dx >= DISPLAY_WIDTH) {
-						dx -= DISPLAY_WIDTH;
-					}
-					while (dy >= DISPLAY_HEIGHT) {
-						dy -= DISPLAY_HEIGHT;
-					}
-
-					int before = *get_pixel(c8->display, dx, dy);
+					int before = *get_pixel(&c8->display, dx, dy);
 					if ((c8->mem[c8->I + i] >> (7 - j)) & 1) {
-						*get_pixel(c8->display, dx, dy) ^= 1;
+						*get_pixel(&c8->display, dx, dy) ^= 1;
 					}
 
-					if (before != *get_pixel(c8->display, dx, dy)) {
+					if (before != *get_pixel(&c8->display, dx, dy)) {
 						c8->V[0xF] = 1;
 					}
 				}
 			}
-			render(c8->display);
+
+			render(&c8->display);
 			break;
 		case 0xE:
 			if (kk == 0x9E) {
@@ -372,6 +425,14 @@ static void parse_instruction(chip8_t *c8) {
 						c8->V[i] = c8->mem[c8->I + i];
 					}
 					break;
+				case 0x75:
+					/* STORE Vx */
+					// TODO implement
+					break;
+				case 0x85:
+					/* LOAD Vx */
+					// TODO implement
+					break;
 			}
 	}
 
@@ -384,53 +445,3 @@ static void parse_instruction(chip8_t *c8) {
 	}
 }
 
-/**
- * @brief Main VM simulation loop. Exits when `running` is 0.
- * 
- * @param c8 the `chip8_t` to simulate
- */
-void simulate(chip8_t * c8) {
-	int t;
-	int debugRet;
-	int step = 0;
-
-	c8->pc = PROG_START;
-	c8->running = 1;
-
-	if (DEBUG(c8)) {
-		debugRet = debug_repl(c8);
-	}
-	while (c8->running) {
-		t = tick(c8->key, c8->cs);
-
-		if (DEBUG(c8) && (has_breakpoint(c8->pc) || step)) {
-			debugRet = debug_repl(c8);
-
-			switch (debugRet) {
-				case DEBUG_QUIT:
-					c8->running = 0;
-					continue;
-				case DEBUG_STEP:
-					step = 1;
-					break;
-			}
-		}
-
-		if (t == -2) {
-			/* Quit */
-			c8->running = 0;
-		}
-
-		if (t >= 0 && c8->waitingForKey) {
-			/* Waiting for key and a key was pressed */
-			c8->V[c8->VK] = t;
-			c8->waitingForKey = 0;
-		}
-
-		if (!c8->waitingForKey) {
-			/* Not waiting for key, parse next instruction */
-			c8->pc += 2;
-			parse_instruction(c8);
-		}
-	}
-}
