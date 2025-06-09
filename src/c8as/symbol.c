@@ -159,7 +159,7 @@ symbol_t *next_symbol(symbol_list_t *symbols) {
  * @param lineCount number of lines to search
  * @param labels label list to populate
  * 
- * @return 1 if success, 0 if too many labels exist in source
+ * @return 1 if success, 0 if error caught
  */
 int populate_labels(char **lines, int lineCount, label_list_t *labels) {
 	for (int i = 0; i < lineCount; i++) {
