@@ -167,7 +167,14 @@ int populate_labels(char **lines, int lineCount, label_list_t *labels) {
             return 0;
         }
 
+        if (strlen(lines[i]) == 0) {
+            continue;
+        }
         lines[i] = trim_comment(lines[i]);
+        if (strlen(trim_comment(lines[i])) == 0) {
+            continue;
+        }
+
         if (is_label_definition(lines[i])) {
             int l = strlen(lines[i]) - 1;
             if (l > LABEL_IDENTIFIER_SIZE) {

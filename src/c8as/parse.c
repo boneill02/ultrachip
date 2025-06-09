@@ -46,7 +46,7 @@ void parse(char *s, FILE *f) {
     char **lines = malloc(lineCount * sizeof(char *));
 
     s = trim(s);
-    tokenize(lines, s, "\n", lineCount);
+    lineCount = tokenize(lines, s, "\n", lineCount); // lineCount updated to remove empty lines
 
     populate_labels(lines, lineCount, &labels);
 
@@ -84,8 +84,7 @@ static int line_count(char *s) {
  * @param labels label list
  */
 static void parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *labels) {
-    trim_comment(s);
-    if (strlen(s) == 0) {
+    if (strlen(s) == 0 || strlen(trim_comment(s)) == 0) {
         return;
     }
 
@@ -263,7 +262,6 @@ static void write(FILE *output, symbol_list_t *symbols) {
                 }
                 break;
             default:
-                printf("Something else: %d %d %04x\n", i, symbols->s[i].type, symbols->s[i].value);
                 break;
         }
     }
