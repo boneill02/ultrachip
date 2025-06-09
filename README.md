@@ -1,7 +1,7 @@
-# CHIP-8 Virtual Machine and Disassembler
+# CHIP-8 Toolkit
 
-This is a virtual machine and disassembler for the CHIP-8 written in C,
-utilizing the SDL2 library for graphics.
+This is a virtual machine, assembler, and disassembler for the CHIP-8 written
+in C, utilizing the SDL2 library for graphics.
 
 ## Installation
 
@@ -67,6 +67,17 @@ Attributes:
 If no argument is given to `print`, it will print all of the above attributes
 except for address values.
 
+## Assembler
+
+The assembler converts CHIP-8 assembly language into bytecode.
+
+### Usage
+
+```
+c8as [-o outputfile] src
+```
+
+Commas are optional for instruction parameters. See `tests/c8as` for example code.
 
 ## Disassembler
 
@@ -76,7 +87,7 @@ instructions.
 ### Usage
 
 ```
-dis [-al] [-o outputfile] rom
+c8dis [-al] [-o outputfile] rom
 ```
 
 * `-a` toggles printing of addresses
