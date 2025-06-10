@@ -339,15 +339,15 @@ static void parse_instruction(chip8_t *c8) {
 			c8->V[0xF] = 0;
 			int width = STANDARD_DISPLAY_WIDTH;
 			int height = STANDARD_DISPLAY_HEIGHT;
-			int sh = 8;
+			int h = 8;
 			if (b == 0 && c8->display.mode == DISPLAY_EXTENDED) {
 				b = 16;
-				sh = 16;
+				h = 16;
 				width = EXTENDED_DISPLAY_WIDTH;
 				height = EXTENDED_DISPLAY_HEIGHT;
 			}
 			for (int i = 0; i < b; i++) {
-				for (int j = 0; j < sh; j++) {
+				for (int j = 0; j < h; j++) {
 					int dx = (c8->V[x] + j) % width;
 					int dy = (c8->V[y] + i) % height;
 
