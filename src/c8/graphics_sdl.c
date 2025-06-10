@@ -19,7 +19,7 @@ static SDL_Rect winRect = {
 	.h = DEFAULT_WINDOW_HEIGHT,
 };
 
-static uint16_t keyMap[16][2] = {
+static uint16_t keyMap[17][2] = {
 	{ SDLK_1, 0 },
 	{ SDLK_2, 1 },
 	{ SDLK_3, 2 },
@@ -36,6 +36,7 @@ static uint16_t keyMap[16][2] = {
 	{ SDLK_x, 13 },
 	{ SDLK_c, 14 },
 	{ SDLK_v, 15 },
+	{ SDLK_p, 16}, // Enter debug mode
 };
 
 static int get_key(SDL_Keycode k);
@@ -56,7 +57,7 @@ void deinit_graphics(void) {
  * @return the CHIP-8 keycode
  */
 static int get_key(SDL_Keycode k) {
-	for (int i = 0; i < 16; i++) {
+	for (int i = 0; i < 17; i++) {
 		if (keyMap[i][0] == k) return keyMap[i][1];
 	}
 	return -1;
@@ -139,5 +140,5 @@ int tick(int *key, int clockSpeed) {
 		}
 	}
 
-	return ret;
+	return ret == 16 ? -1 : ret;
 }

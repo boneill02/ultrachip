@@ -258,10 +258,13 @@ int has_breakpoint(uint16_t pc) {
 	return breakpoints[pc];
 }
 
-static int load_state(chip8_t *c8, const char *addr) {
-	// TODO implement
-	printf("Unimplemented\n");
-	return 0;
+static int load_state(chip8_t *c8, const char *path) {
+	FILE *f = fopen(path, "rb");
+	if (!f) {
+		return 0;
+	}
+	fread(c8, sizeof(chip8_t), 1, f);
+	return 1;
 }
 
 /**
@@ -436,10 +439,13 @@ static void print_value(chip8_t *c8, cmd_t *cmd) {
 	}
 }
 
-static int save_state(chip8_t *c8, const char *addr) {
-	// TODO implement
-	printf("Unimplemented\n");
-	return 0;
+static int save_state(chip8_t *c8, const char *path) {
+	FILE *f = fopen(path, "wb");
+	if (!f) {
+		return 0;
+	}
+	fwrite(c8, sizeof(chip8_t), 1, f);
+	return 1;
 }
 
 /**

@@ -19,7 +19,7 @@ typedef struct {
 	uint16_t stack[STACK_SIZE];
 	uint16_t pc;
 	uint16_t I;
-	int key[0x10];
+	int key[17];
 	int VK;
 	int cs;
 	int waitingForKey;

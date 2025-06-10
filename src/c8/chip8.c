@@ -94,7 +94,11 @@ void simulate(chip8_t * c8) {
 	}
 	while (c8->running) {
 		t = tick(c8->key, c8->cs);
-
+		if (c8->key[16]) {
+			// Enter debug mode
+			c8->flags |= FLAG_DEBUG;
+			step = 1;
+		}
 		if (DEBUG(c8) && (has_breakpoint(c8->pc) || step)) {
 			debugRet = debug_repl(c8);
 
@@ -105,6 +109,7 @@ void simulate(chip8_t * c8) {
 				case DEBUG_STEP:
 					step = 1;
 					break;
+
 			}
 		}
 

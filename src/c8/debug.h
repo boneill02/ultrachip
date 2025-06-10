@@ -8,12 +8,15 @@
 #define DEBUG_STEP 3
 
 #define DEBUG_HELP_STRING "Available commands:\n\
-break [addr]: add breakpoint to PC or addr, if given\n\
-rmbreak [addr]: Remove breakpoint at PC or addr, if given\n\
+break [ADDRESS]: Add breakpoint to PC or ADDRESS, if given\n\
+rmbreak [ADDRESS]: Remove breakpoint at PC or ADDRESS, if given\n\
 continue: Exit debug mode until next breakpoint or completion\n\
-next: Step to the next instruction\n\
-print [attribute]: Print current value of given attribute\n\
 help: Print this help string\n\
+load PATH: Load program state from PATH\n\
+next: Step to the next instruction\n\
+print [ATTRIBUTE]: Print current value of ATTRIBUTE\n\
+save PATH: Save program state to the given file\n\
+set ATTRIBUTE VALUE: Set the given attribute to the given value\n\
 quit: Terminate the program\n\
 \n\
 Available attributes to print:\n\
