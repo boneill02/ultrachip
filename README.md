@@ -16,7 +16,8 @@ sudo make install
 
 ## CHIP-8 VM
 
-This is a fully functional CHIP-8 virtual machine with some extra features.
+This is a fully functional CHIP-8 and Super Chip-48 virtual machine with an
+integrated debug mode.
 
 ### Usage
 
@@ -40,17 +41,22 @@ z x c v
 
 ### Debug mode
 
+Debug mode can be enabled via the `-d` command-line argument or by pressing P at
+any time during execution.
+
 The following commands are supported in debug mode:
 
-* `break [addr]`: add breakpoint to PC or addr, if given
-* `rmbreak [addr]`: Remove breakpoint at PC or addr, if given and exists
+* `break [ADDRESS]`: Add breakpoint to `PC` or `ADDRESS`, if given
+* `rmbreak [ADDRESS]`: Remove breakpoint at `PC` or `ADDRESS`, if given and exists
 * `continue`: Exit debug mode until next breakpoint or until execution is
   complete
-* `next`: Step to the next instruction
-* `set [attribute] [value]`: Set the given attribute to the given value
-* `print [attribute]`: Print current value of given attribute
 * `help`: Print a help string
+* `load PATH`: Load program state from `PATH`
+* `next`: Step to the next instruction
+* `print [ATTRIBUTE]`: Print current value of the given attribute
 * `quit`: Terminate the program
+* `save PATH`: Save program state to `PATH`
+* `set ATTRIBUTE VALUE`: Set the given attribute to the given value
 
 Attributes:
 
@@ -69,7 +75,7 @@ except for address values.
 
 ## Assembler
 
-The assembler converts CHIP-8 assembly language into bytecode.
+The assembler converts CHIP-8 and Super Chip-48 assembly language into bytecode.
 
 ### Usage
 
@@ -98,3 +104,8 @@ c8dis [-al] [-o outputfile] rom
 * `-o` writes the output to the specified file
 
 By default, `dis` will write to `stdout`.
+
+## Further Reading
+
+* [Cowgod's Chip-8 Technical Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
+* [S-CHIP 1.1 Reference](http://devernay.free.fr/hacks/chip8/schip.txt)
