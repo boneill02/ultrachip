@@ -8,12 +8,22 @@
 #define B(i) (i & 0x000F)
 #define KK(i) (i & 0x00FF)
 
+#define EXPAND(i) \
+	int x = X(i); \
+	int y = Y(i); \
+	int nnn = NNN(i); \
+	int a = A(i); \
+	int b = B(i); \
+	int kk = KK(i);
+
 #define FONT_START 0x000
 #define PROG_START 0x200
 #define MEMSIZE 0x1000
 #define CLOCK_SPEED 500
-#define DISPLAY_WIDTH 64
-#define DISPLAY_HEIGHT 32
 #define STACK_SIZE 16
+#define STANDARD_DISPLAY_WIDTH 64
+#define STANDARD_DISPLAY_HEIGHT 32
+#define EXTENDED_DISPLAY_WIDTH 128
+#define EXTENDED_DISPLAY_HEIGHT 64
 
 #endif

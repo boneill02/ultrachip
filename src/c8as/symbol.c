@@ -19,6 +19,8 @@ static const char *identifierStrings[] = {
 	S_B,
 	S_DB,
 	S_DW,
+	S_HF,
+	S_R,
 	NULL,
 };
 
@@ -177,12 +179,8 @@ int populate_labels(char **lines, int lineCount, label_list_t *labels) {
 
 		if (is_label_definition(lines[i])) {
 			int l = strlen(lines[i]) - 1;
-			if (l > LABEL_IDENTIFIER_SIZE) {
-				fprintf(stderr, "Error (line %d): Label identifier too long: %s\n", i+1, lines[i]);
-				return 0;
-			} else {
-				strncpy(labels->l[labels->len].identifier, lines[i], l);
-			}
+			strncpy(labels->l[labels->len].identifier, lines[i], LABEL_IDENTIFIER_SIZE);
+			labels->l[labels->len].identifier[l] = '\0';
 			labels->len++;
 		}
 	}

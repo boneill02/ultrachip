@@ -15,7 +15,7 @@
  *
  * This enumeration defines all possible debug mode commands
  */
-enum Command {
+typedef enum {
 	CMD_NONE = -1,
 	CMD_ADD_BREAKPOINT = 0,
 	CMD_RM_BREAKPOINT,
@@ -27,7 +27,7 @@ enum Command {
 	CMD_PRINT,
 	CMD_HELP,
 	CMD_QUIT,
-};
+} Command;
 
 /**
  * @enum Argument
@@ -35,7 +35,7 @@ enum Command {
  *
  * This enumeration defines all possible debug mode arguments.
  */
-enum Argument {
+typedef enum {
 	ARG_NONE = -1,
 	ARG_SP = 0,
 	ARG_DT,
@@ -47,7 +47,7 @@ enum Argument {
 	ARG_V,
 	ARG_ADDR,
 	ARG_FILE,
-};
+} Argument;
 
 /**
  * @union Arg
@@ -57,34 +57,19 @@ enum Argument {
  * `s` gets the string value.
  * `i` gets the integer value.
  */
-union ArgValue {
+typedef union {
 	char *s;
 	int i;
-};
+} ArgValue;
 
 /**
  * @struct arg_s
  * @brief Represents an argument for a command with a type and value.
  */
-struct arg_s {
-	enum Argument type;
-	union ArgValue value;
-};
-
-/**
- * @struct cmd_s
- * @brief Represents a command with an ID, argument ID, and associated argument.
- *
- * This structure defines a command that includes:
- * - the command identifier (`id`),
- * - an argument (`arg`)
- * - value to set `arg->value` to (`setValue`, for set commands)
- */
-struct cmd_s {
-	enum Command id;
-	struct arg_s arg;
-	int setValue;
-};
+typedef struct {
+	Argument type;
+	ArgValue value;
+} arg_t;
 
 /**
  * @struct cmd_t
@@ -92,12 +77,14 @@ struct cmd_s {
  *
  * This structure defines a command that includes:
  * - the command identifier (`id`),
- * - an argument identifier (`argid`), and
- * - an argument value (`arg`) which can be a string or an integer.
- *
- * The `arg` member is a union that stores the actual argument data.
+ * - an argument (`arg`)
+ * - value to set `arg->value` to (`setValue`, for set commands)
  */
-typedef struct cmd_s cmd_t;
+typedef struct {
+	Command id;
+	arg_t arg;
+	int setValue;
+} cmd_t;
 
 int breakpoints[MEMSIZE];
 
@@ -233,7 +220,7 @@ static int get_command(cmd_t *cmd, char *s) {
 
 		if (!strncmp(s, full, len)) {
 			/* Full cmd */
-			cmd->id = (enum Command) i;
+			cmd->id = (Command) i;
 			if (s[len] == '\0') {
 				/* No arg */
 				cmd->arg.type = ARG_NONE;
@@ -246,14 +233,14 @@ static int get_command(cmd_t *cmd, char *s) {
 
 		if (strlen(s) == 1 && s[0] == full[0]) {
 			/* Shorthand with no arg */
-			cmd->id = (enum Command) i;
+			cmd->id = (Command) i;
 			cmd->arg.type = ARG_NONE;
 			return 1;
 		}
 
 		if (s[0] == full[0] && isspace(s[1])) {
 			/* Shorthand with arg */
-			cmd->id = (enum Command) i;
+			cmd->id = (Command) i;
 			return parse_arg(cmd, trim(s + 1));
 		}
 	}
@@ -271,10 +258,13 @@ int has_breakpoint(uint16_t pc) {
 	return breakpoints[pc];
 }
 
-static int load_state(chip8_t *c8, const char *addr) {
-	// TODO implement
-	printf("Unimplemented\n");
-	return 0;
+static int load_state(chip8_t *c8, const char *path) {
+	FILE *f = fopen(path, "rb");
+	if (!f) {
+		return 0;
+	}
+	fread(c8, sizeof(chip8_t), 1, f);
+	return 1;
 }
 
 /**
@@ -299,7 +289,7 @@ static int load_file_arg(cmd_t *cmd, char *arg) {
  * @param s arg string (user input after command)
  */
 static int parse_arg(cmd_t *cmd, char *s) {
-	struct arg_s *arg = &cmd->arg;
+	arg_t *arg = &cmd->arg;
 	char *value;
 	s = trim(s);
 
@@ -348,7 +338,7 @@ static int parse_arg(cmd_t *cmd, char *s) {
 	} else { // other value
 		for (int i = 0; i < (int) (sizeof(args) / sizeof(args[0])); i++) {
 			if (!strcmp(s, args[i])) {
-				arg->type = (enum Argument) i;
+				arg->type = (Argument) i;
 				arg->value.i = -1;
 				return 1;
 			}
@@ -449,10 +439,13 @@ static void print_value(chip8_t *c8, cmd_t *cmd) {
 	}
 }
 
-static int save_state(chip8_t *c8, const char *addr) {
-	// TODO implement
-	printf("Unimplemented\n");
-	return 0;
+static int save_state(chip8_t *c8, const char *path) {
+	FILE *f = fopen(path, "wb");
+	if (!f) {
+		return 0;
+	}
+	fwrite(c8, sizeof(chip8_t), 1, f);
+	return 1;
 }
 
 /**

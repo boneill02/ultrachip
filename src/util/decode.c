@@ -27,21 +27,30 @@ char result[32];
  * @return `result` containing the associated assembly instruction
  */
 char *decode_instruction(uint16_t in, uint8_t *label_map) {
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < 16; i++) {
 		result[i] = '\0';
-	int x = X(in);
-	int kk = KK(in);
-	int nnn = NNN(in);
-	int y = Y(in);
-	int a = A(in);
-	int b = B(in);
+	}
+	EXPAND(in);
 
 	switch (a) {
 		case 0x0:
-			if (in == 0x00E0)
+			if (in == 0x00E0) {
 				sprintf(result, "CLS");
-			else if (in == 0x00EE)
+			} else if (in == 0x00EE) {
 				sprintf(result, "RET");
+			} else if (x == 0x0 && y == 0xC) {
+				sprintf(result, "SCD %d", b);
+			} else if (in == 0x00FB) {
+				sprintf(result, "SCR");
+			} else if (in == 0x00FC) {
+				sprintf(result, "SCL");
+			} else if (in == 0x00FD) {
+				sprintf(result, "EXIT");
+			} else if (in == 0x00FE) {
+				sprintf(result, "LOW");
+			} else if (in == 0x00FF) {
+				sprintf(result, "HIGH");
+			}
 			break;
 		case 0x1:
 			if (label_map && label_map[nnn]) {
@@ -154,6 +163,9 @@ char *decode_instruction(uint16_t in, uint8_t *label_map) {
 				case 0x29:
 					sprintf(result, "LD F, V%01x", x);
 					break;
+				case 0x30:
+					sprintf(result, "LD HF, V%01x", x);
+					break;
 				case 0x33:
 					sprintf(result, "LD B, V%01x", x);
 					break;
@@ -162,6 +174,12 @@ char *decode_instruction(uint16_t in, uint8_t *label_map) {
 					break;
 				case 0x65:
 					sprintf(result, "LD V%01x, [I]", x);
+					break;
+				case 0x75:
+					sprintf(result, "LD R, V%01x", x);
+					break;
+				case 0x85:
+					sprintf(result, "LD V%01x, R", x);
 					break;
 			}
 			break;
