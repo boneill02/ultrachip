@@ -94,7 +94,10 @@ static int validate_instruction(instruction_t *);
  * @return instruction bytecode
  */
 uint16_t build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) {
-	/* parse instruction command */
+	if (symbols == NULL || idx < 0) {
+		return 0;
+	}
+
 	ins->cmd = (Instruction) symbols->s[idx].value;
 	ins->line = symbols->s[idx].ln;
 	ins->pcount = 0;
