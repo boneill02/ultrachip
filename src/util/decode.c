@@ -56,30 +56,30 @@ char *decode_instruction(uint16_t in, uint8_t *label_map) {
 			if (label_map && label_map[nnn]) {
 				sprintf(result, "JP label%d", label_map[nnn]);
 			} else {
-				sprintf(result, "JP 0x%03x", nnn);
+				sprintf(result, "JP $%03x", nnn);
 			}
 			break;
 		case 0x2:
 			if (label_map && label_map[nnn]) {
 				sprintf(result, "CALL label%d", label_map[nnn]);
 			} else {
-				sprintf(result, "CALL 0x%03x", nnn);
+				sprintf(result, "CALL $%03x", nnn);
 			}
 			break;
 		case 0x3:
-			sprintf(result, "SE V%01x, 0x%03x", x, kk);
+			sprintf(result, "SE V%01x, $%02x", x, kk);
 			break;
 		case 0x4:
-			sprintf(result, "SNE V%01x, 0x%03x", x, kk);
+			sprintf(result, "SNE V%01x, $%02x", x, kk);
 			break;
 		case 0x5:
 			sprintf(result, "SE V%01x, V%01x", x, y);
 			break;
 		case 0x6:
-			sprintf(result, "LD V%01x, 0x%02x", x, kk);
+			sprintf(result, "LD V%01x, $%02x", x, kk);
 			break;
 		case 0x7:
-			sprintf(result, "ADD V%01x, 0x%02x", x, kk);
+			sprintf(result, "ADD V%01x, $%02x", x, kk);
 			break;
 		case 0x8:
 			switch (b) {
@@ -119,21 +119,21 @@ char *decode_instruction(uint16_t in, uint8_t *label_map) {
 			if (label_map && label_map[nnn]) {
 				sprintf(result, "LD I, label%d", label_map[nnn]);
 			} else {
-				sprintf(result, "LD I, %03x", nnn);
+				sprintf(result, "LD I, $%03x", nnn);
 			}
 			break;
 		case 0xB:
 			if (label_map && label_map[nnn]) {
 				sprintf(result, "JP V0, label%d", label_map[nnn]);
 			} else {
-				sprintf(result, "JP V0, 0x%03x", nnn);
+				sprintf(result, "JP V0, $%03x", nnn);
 			}
 			break;
 		case 0xC:
-			sprintf(result, "RND V%01x, 0x%02x", x, kk);
+			sprintf(result, "RND V%01x, $%02x", x, kk);
 			break;
 		case 0xD:
-			sprintf(result, "DRW V%01x, V%02x, 0x%01x", x, y, b);
+			sprintf(result, "DRW V%01x, V%02x, $%01x", x, y, b);
 			break;
 		case 0xE:
 			if (kk == 0x9E) {
