@@ -4,6 +4,10 @@
 
 #include <SDL2/SDL.h>
 
+#define RGB_R(i) ((i >> 16) & 0xFF)
+#define RGB_G(i) ((i >> 8) & 0xFF)
+#define RGB_B(i) (i & 0xFF)
+
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 static SDL_Rect pix = {
@@ -81,15 +85,18 @@ int init_graphics(void) {
  * 
  * @param display pointer to a int arr of size `DISPLAY_WIDTH*DISPLAY_HEIGHT`
  */
-void render(display_t *display) {
+void render(display_t *display, int *colors) {
 	int dx = 0;
 	int dy = 0;
 
 	SDL_RenderClear(renderer);
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+	SDL_SetRenderDrawColor(renderer, RGB_R(colors[0]), RGB_G(colors[0]),
+	                       RGB_B(colors[0]), SDL_ALPHA_OPAQUE);
 	SDL_RenderFillRect(renderer, &winRect);
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+	SDL_SetRenderDrawColor(renderer, RGB_R(colors[1]), RGB_G(colors[1]),
+	                       RGB_B(colors[1]), SDL_ALPHA_OPAQUE);
 
+	printf("%d %d\n", colors[0], colors[1]);
 	if (display->mode == DISPLAY_EXTENDED) {
 		dx = display->x;
 		dy = display->y;

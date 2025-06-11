@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -11,15 +12,23 @@ int main(int argc, char *argv[]) {
 	int flags = 0;
 	int opt;
 	chip8_t *c8;
+	int colors[2];
+	int palette = 0;
 
 	/* Parse args */
-	while ((opt = getopt(argc, argv, "c:dv")) != -1) {
+	while ((opt = getopt(argc, argv, "c:dvVp:")) != -1) {
 		switch (opt) {
 			case 'c':
 				cs = atoi(optarg);
 				break;
 			case 'd':
 				flags |= FLAG_DEBUG;
+				break;
+			case 'p':
+				palette = 1;
+				if (load_palette(colors, optarg)) {
+					return EXIT_FAILURE;
+				}
 				break;
 			case 'v':
 				flags |= FLAG_VERBOSE;
@@ -38,6 +47,10 @@ int main(int argc, char *argv[]) {
 	if (!(c8 = init_chip8(cs, flags, argv[optind]))) {
 		fprintf(stderr, "Error: Failed to initialize.\n");
 		return EXIT_FAILURE;
+	}
+
+	if (palette) {
+		memcpy(&c8->colors, colors, sizeof(int) * 2);
 	}
 
 	simulate(c8);

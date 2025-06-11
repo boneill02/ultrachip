@@ -61,6 +61,9 @@ chip8_t *init_chip8(int cs, int flags, const char *path) {
 	c8->cs = cs;
 	init_font(c8);
 
+	c8->colors[0] = 0x000000;
+	c8->colors[1] = 0xFFFFFF;
+
 	if (!load_rom(c8, path)) {
 		fprintf(stderr, "Error: Failed to load ROM.\n");
 		free(c8);
@@ -74,6 +77,27 @@ chip8_t *init_chip8(int cs, int flags, const char *path) {
 	}
 
 	return c8;
+}
+
+int load_palette(int *colors, const char *path) {
+	char buf[BUFSIZ];
+	buf[0] = '$';
+	int c;
+	FILE *f = fopen(path, "r");
+	if (!f) {
+		fprintf(stderr, "Failed to open color palette.\n");
+		return 1;
+	}
+	for (int i = 0; i < 2; i++) {
+		fgets(buf + 1, BUFSIZ - 1, f);
+		if ((c = parse_int(buf)) == -1) {
+			fprintf(stderr, "Invalid color palette\n");
+			return 1;
+		}
+		colors[i] = c;
+	}
+
+	return 0;
 }
 
 /**
@@ -367,7 +391,8 @@ static void parse_instruction(chip8_t *c8) {
 				}
 			}
 
-			render(&c8->display);
+
+			render(&c8->display, c8->colors);
 			break;
 		case 0xE:
 			if (kk == 0x9E) {

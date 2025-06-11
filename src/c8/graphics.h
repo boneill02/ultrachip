@@ -20,6 +20,6 @@ typedef struct {
 void deinit_graphics(void);
 int *get_pixel(display_t *, int, int);
 int init_graphics(void);
-void render(display_t *);
+void render(display_t *, int *);
 int tick(int *, int);
 #endif

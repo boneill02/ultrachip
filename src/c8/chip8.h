@@ -27,11 +27,13 @@ typedef struct {
 	display_t display;
 	int flags;
 	int breakpoints[MEMSIZE];
+	int colors[2];
 } chip8_t;
 
 void deinit_chip8(chip8_t *);
 int *get_pixel(display_t *, int, int);
 chip8_t *init_chip8(int, int, const char *);
+int load_palette(int *, const char *);
 void simulate(chip8_t *);
 
 #endif
