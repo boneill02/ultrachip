@@ -17,14 +17,25 @@ static const char *identifierStrings[] = {
 	S_K,
 	S_F,
 	S_B,
-	S_DB,
-	S_DW,
 	S_HF,
 	S_R,
+	S_DB,
+	S_DW,
+	S_STRING,
 	NULL,
 };
 
 static void reallocate_symbols(symbol_list_t *symbols);
+
+int is_char(char *s) {
+	s = trim(s);
+	if (strlen(s) == 3) {
+		if (s[0] == '\'' && s[2] == '\'') {
+			return s[1];
+		}	
+	}
+	return 0;
+}
 
 /**
  * @brief Check if the given string is a comment
@@ -50,7 +61,7 @@ int is_comment(char *s) {
  * @return 1 if true, 0 if false
  */
 int is_db(char *s) {
-	return !strcmp(s, S_DB);
+	return !strncmp(s, S_DB, strlen(S_DB));
 }
 
 /**
@@ -59,7 +70,7 @@ int is_db(char *s) {
  * @return 1 if true, 0 if false
  */
 int is_dw(char *s) {
-	return !strcmp(s, S_DW);
+	return !strncmp(s, S_DW, strlen(S_DW));
 }
 
 /**
@@ -138,6 +149,13 @@ int is_reserved_identifier(char *s) {
 	}
 
 	return -1;
+}
+
+char *is_string(char *s) {
+	if (!strncmp(S_STRING, s, strlen((S_STRING)))) {
+		return trim(s + strlen(S_STRING));
+	}
+	return NULL;
 }
 
 /**

@@ -106,8 +106,30 @@ static void parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *la
 		return;
 	}
 
+
 	symbol_t *sym = &symbols->s[symbols->len];
 	char *words[MAX_WORDS];
+
+	char *s_str;
+	if (s_str = is_string(s)) {
+		s = s_str;
+		int escape = 0;
+
+		for (int i = 1; i < strlen(s); i++) {
+			if (s[i] == '\\') {
+				escape = 1;
+			} else if (s[i] == '\"' && !escape) {
+				i = strlen(s);
+			} else {
+				sym->ln = ln;
+				sym->type = SYM_DB;
+				sym->value = s[i];
+				sym = next_symbol(symbols);
+			}
+		}
+		return;
+	}
+
 	int wc = tokenize(words, s, " ", MAX_WORDS);
 
 	for (int i = 0; i < wc; i++) {
@@ -148,7 +170,10 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
 		sym->value = value;
 	} else if (is_db(to_upper(s))) {
 		sym->type = SYM_DB;
-		sym->value = parse_int(next);
+		if (!(sym->value = is_char(next))) {
+			sym->value = parse_int(next);
+		}
+		printf("%c\n", sym->value);
 		return 1;
 	} else if (is_dw(to_upper(s))) {
 		sym->type = SYM_DW;

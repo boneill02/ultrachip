@@ -40,10 +40,11 @@
 #define S_ST "ST"
 #define S_I "I"
 #define S_IP "[I]"
-#define S_DB "DB"
-#define S_DW "DW"
 #define S_HF "HF"
 #define S_R "R"
+#define S_DB "DB"
+#define S_DW "DW"
+#define S_STRING "STR"
 
 /**
  * @struct label_t
@@ -91,13 +92,13 @@ typedef enum {
 	SYM_K,
 	SYM_F,
 	SYM_B,
-	SYM_DB,
-	SYM_DW,
 	SYM_HF,
 	SYM_R,
+	SYM_DB,
+	SYM_DW,
+	SYM_STRING,
 	SYM_LABEL,
 	SYM_INT,
-	SYM_STRING,
 	SYM_V,
 	SYM_INSTRUCTION,
 	SYM_LABEL_DEFINITION,
@@ -124,6 +125,7 @@ typedef struct {
 } symbol_list_t;
 
 int is_comment(char *);
+int is_char(char *);
 int is_db(char *);
 int is_dw(char *);
 int is_instruction(char *);
@@ -131,6 +133,7 @@ int is_label_definition(char *);
 int is_label(char *, label_list_t *);
 int is_register(char *);
 int is_reserved_identifier(char *);
+char *is_string(char *);
 symbol_t *next_symbol(symbol_list_t *);
 int populate_labels(char **, int, label_list_t *);
 void resolve_labels(symbol_list_t *, label_list_t *);
