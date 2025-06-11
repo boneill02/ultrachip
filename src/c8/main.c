@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 				break;
 			case 'V':
 				print_version(argv[0]);
-				break;
+				exit(EXIT_SUCCESS);
 			default:
 			  fprintf(stderr, "Usage: %s [-dvV] [-c clockspeed] file\n", argv[0]);
 			  exit(EXIT_FAILURE);

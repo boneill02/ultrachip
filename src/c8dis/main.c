@@ -1,4 +1,5 @@
 #include "dis.h"
+#include "util/util.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -12,11 +13,20 @@ int main(int argc, char *argv[]) {
 	FILE *outf = stdout;
 
 	/* Parse args */
-	while ((opt = getopt(argc, argv, "alo:")) != -1) {
+	while ((opt = getopt(argc, argv, "alo:V")) != -1) {
 		switch (opt) {
-			case 'a': args |= ARG_PRINT_ADDRESSES; break;
-			case 'l': args |= ARG_DEFINE_LABELS; break;
-			case 'o': outp = optarg; break;
+			case 'a':
+				args |= ARG_PRINT_ADDRESSES;
+				break;
+			case 'l':
+				args |= ARG_DEFINE_LABELS;
+				break;
+			case 'o':
+				outp = optarg;
+				break;
+			case 'V':
+				print_version(argv[0]);
+				exit(EXIT_SUCCESS);
 			default:
 				  fprintf(stderr, "Usage: %s [-al] [-o outputfile] file\n", argv[0]);
 				  exit(1);

@@ -14,7 +14,7 @@ C8AS_OBJ = $(patsubst %.c, %.o, $(C8AS_SRC))
 C8AS_TARG = c8as
 
 C8DIS_SRC = $(C8DIS_SRCPREFIX)/dis.c $(C8DIS_SRCPREFIX)/main.c \
-            $(UTILPREFIX)/decode.c
+            $(UTILPREFIX)/decode.c $(UTILPREFIX)/util.c
 C8DIS_OBJ = $(patsubst %.c, %.o, $(C8DIS_SRC))
 C8DIS_TARG = c8dis
 

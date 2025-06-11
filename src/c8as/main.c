@@ -1,4 +1,5 @@
 #include "parse.h"
+#include "util/util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,7 +41,7 @@ int main(int argc, char *argv[]) {
 	FILE *outf;
 
 	/* Parse args */
-	while ((opt = getopt(argc, argv, "o:v")) != -1) {
+	while ((opt = getopt(argc, argv, "o:vV")) != -1) {
 		switch (opt) {
 			case 'o':
 				outp = optarg;
@@ -48,6 +49,9 @@ int main(int argc, char *argv[]) {
 			case 'v':
 				args |= ARG_VERBOSE;
 				break;
+			case 'V':
+				print_version(argv[0]);
+				exit(EXIT_SUCCESS);
 			default:
 				  fprintf(stderr, "Usage: %s [-v] [-o outputfile] file\n", argv[0]);
 				  exit(1);
