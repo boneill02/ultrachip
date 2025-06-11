@@ -16,6 +16,7 @@ static void parse_line(char *, int, symbol_list_t *, label_list_t *);
 static int parse_word(char *, char *, int, symbol_t *, label_list_t *);
 static inline void put16(FILE *, uint16_t);
 static int tokenize(char **, char *, const char *, int);
+static void to_upper(char *);
 static char *trim_comma(char *);
 static void write(FILE *, symbol_list_t *, int);
 
@@ -133,7 +134,8 @@ static void parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *la
 static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *labels) {
 	int value;
 	sym->ln = ln;
-	trim_comma(s);
+	s = trim_comma(s);
+	to_upper(s);
 
 	if (is_label_definition(s)) {
 		sym->type = SYM_LABEL_DEFINITION;
@@ -221,6 +223,18 @@ static char *trim_comma(char *s) {
 	}
 
 	return s;
+}
+
+/**
+ * @brief Convert all characters in s to uppercase
+ * 
+ * @param s string to convert
+ */
+static void to_upper(char *s) {
+	while (*s) {
+		*s = toupper(*s);
+		s++;
+	}
 }
 
 /**
