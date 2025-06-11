@@ -133,7 +133,7 @@ char *decode_instruction(uint16_t in, uint8_t *label_map) {
 			sprintf(result, "RND V%01x, $%02x", x, kk);
 			break;
 		case 0xD:
-			sprintf(result, "DRW V%01x, V%02x, $%01x", x, y, b);
+			sprintf(result, "DRW V%01x, V%01x, $%01x", x, y, b);
 			break;
 		case 0xE:
 			if (kk == 0x9E) {
