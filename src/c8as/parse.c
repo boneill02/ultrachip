@@ -135,7 +135,6 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
 	int value;
 	sym->ln = ln;
 	s = trim_comma(s);
-	to_upper(s);
 
 	if (is_label_definition(s)) {
 		sym->type = SYM_LABEL_DEFINITION;
@@ -144,21 +143,21 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
 				sym->value = j;
 			}
 		}
-	} else if ((value = is_instruction(s)) != I_NULL) {
+	} else if ((value = is_instruction(to_upper(s))) != I_NULL) {
 		sym->type = SYM_INSTRUCTION;
 		sym->value = value;
-	} else if (is_db(s)) {
+	} else if (is_db(to_upper(s))) {
 		sym->type = SYM_DB;
 		sym->value = parse_int(next);
 		return 1;
-	} else if (is_dw(s)) {
+	} else if (is_dw(to_upper(s))) {
 		sym->type = SYM_DW;
 		sym->value = parse_int(next);
 		return 1;
-	} else if ((value = is_register(s)) != -1) {
+	} else if ((value = is_register(to_upper(s))) != -1) {
 		sym->type = SYM_V;
 		sym->value = value;
-	} else if ((value = is_reserved_identifier(s)) != -1) {
+	} else if ((value = is_reserved_identifier(to_upper(s))) != -1) {
 		sym->type = value;
 	} else if ((value = parse_int(s)) != -1) {
 		sym->type = SYM_INT;
@@ -230,11 +229,13 @@ static char *trim_comma(char *s) {
  * 
  * @param s string to convert
  */
-static void to_upper(char *s) {
+static char *to_upper(char *s) {
 	while (*s) {
 		*s = toupper(*s);
 		s++;
 	}
+
+	return s;
 }
 
 /**
