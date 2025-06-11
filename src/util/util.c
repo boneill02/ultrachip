@@ -36,7 +36,7 @@ int hex_to_int(char c) {
  * 
  * @param s The string to convert.
  * 
- * @return 0 if failed, otherwise whatever the value is
+ * @return -1 if failed, otherwise whatever the value is
  */
 int parse_int(char *s) {
     int result = -1;
