@@ -16,7 +16,7 @@ static void parse_line(char *, int, symbol_list_t *, label_list_t *);
 static int parse_word(char *, char *, int, symbol_t *, label_list_t *);
 static inline void put16(FILE *, uint16_t);
 static int tokenize(char **, char *, const char *, int);
-static void to_upper(char *);
+static char *to_upper(char *);
 static char *trim_comma(char *);
 static void write(FILE *, symbol_list_t *, int);
 
