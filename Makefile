@@ -49,7 +49,10 @@ install: $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG)
 test-util: $(UNITY_PATH)
 	@make -f mk/test-util.mk
 
-test: test-util
+test-c8as: $(UNITY_PATH)
+	@make -f mk/test-c8as.mk
+
+test: test-util test-c8as
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/$(C8_TARG) \
