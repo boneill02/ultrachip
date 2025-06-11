@@ -103,7 +103,7 @@ c8dis [-al] [-o outputfile] rom
 * `-l` toggles printing of auto-generated labels
 * `-o` writes the output to the specified file
 
-By default, `dis` will write to `stdout`.
+By default, `c8dis` will write to `stdout`.
 
 ## Further Reading
 
