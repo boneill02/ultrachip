@@ -26,6 +26,7 @@ typedef struct {
 	int running;
 	display_t display;
 	int flags;
+	int breakpoints[MEMSIZE];
 } chip8_t;
 
 void deinit_chip8(chip8_t *);

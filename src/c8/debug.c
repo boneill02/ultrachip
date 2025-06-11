@@ -254,8 +254,8 @@ static int get_command(cmd_t *cmd, char *s) {
  * @param pc address to check for breakpoint at
  * @return 1 if yes, 0 if no
  */
-int has_breakpoint(uint16_t pc) {
-	return breakpoints[pc];
+int has_breakpoint(chip8_t *c8, uint16_t pc) {
+	return c8->breakpoints[pc];
 }
 
 static int load_state(chip8_t *c8, const char *path) {

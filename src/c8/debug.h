@@ -35,6 +35,6 @@ except for address values.\n"
 
 
 int debug_repl(chip8_t *);
-int has_breakpoint(uint16_t);
+int has_breakpoint(chip8_t *, uint16_t);
 
 #endif

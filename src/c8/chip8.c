@@ -99,7 +99,7 @@ void simulate(chip8_t * c8) {
 			c8->flags |= FLAG_DEBUG;
 			step = 1;
 		}
-		if (DEBUG(c8) && (has_breakpoint(c8->pc) || step)) {
+		if (DEBUG(c8) && (has_breakpoint(c8, c8->pc) || step)) {
 			debugRet = debug_repl(c8);
 
 			switch (debugRet) {
