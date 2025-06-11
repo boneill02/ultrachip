@@ -14,6 +14,15 @@ make
 sudo make install
 ```
 
+## Testing
+
+```
+make test
+make test-util
+```
+
+Tests are run using [Unity](https://github.com/ThrowTheSwitch/Unity).
+
 ## CHIP-8 VM
 
 This is a fully functional CHIP-8 and Super Chip-48 virtual machine with an

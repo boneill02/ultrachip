@@ -1,4 +1,4 @@
-include config.mk
+include mk/config/config.mk
 
 C8_SRC = $(C8_SRCPREFIX)/chip8.c $(C8_SRCPREFIX)/debug.c \
          $(C8_SRCPREFIX)/graphics.c $(C8_SRCPREFIX)/main.c \
@@ -20,6 +20,9 @@ C8DIS_TARG = c8dis
 
 all: $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG)
 
+$(UNITY_PATH):
+	git clone https://github.com/ThrowTheSwitch/Unity
+
 .c.o:
 	$(CC) $(CFLAGS) -o $@ -c $<
 
@@ -33,8 +36,8 @@ $(C8DIS_TARG): $(C8DIS_OBJ)
 	$(CC) -o $@ $(C8DIS_OBJ) $(LDFLAGS)
 
 clean:
-	rm -f $(C8_TARG) $(C8_OBJ) $(C8DIS_TARG) $(C8DIS_OBJ) $(C8AS_TARG) \
-	      $(C8AS_OBJ)
+	rm -rf $(C8_TARG) $(C8_OBJ) $(C8DIS_TARG) $(C8DIS_OBJ) $(C8AS_TARG) \
+	      $(C8AS_OBJ) build/
 
 install: $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG)
 	cp $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG) $(PREFIX)/bin
@@ -42,9 +45,16 @@ install: $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG)
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/$(C8AS_TARG)
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/$(C8DIS_TARG)
 
+
+test-util: $(UNITY_PATH)
+	@make -f mk/test-util.mk
+
+test: test-util
+
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/$(C8_TARG) \
 	      $(DESTDIR)$(PREFIX)/bin/$(C8DIS_TARG) \
 		  $(DESTDIR)$(PREFIX)/bin/
 
 .PHONY: all $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG) clean install uninstall
+.PHONY: test-util

@@ -3,11 +3,13 @@ VERSION = $(shell git rev-parse --short HEAD)
 # paths
 PREFIX = /usr/local
 MANPREFIX = $(PREFIX)/share/man
-SRCPREFIX = $(PWD)/src
-C8_SRCPREFIX = $(PWD)/src/c8
-C8AS_SRCPREFIX = $(PWD)/src/c8as
-C8DIS_SRCPREFIX = $(PWD)/src/c8dis
-UTILPREFIX = $(PWD)/src/util
+SRCPREFIX = src
+TESTPREFIX = test
+C8_SRCPREFIX = src/c8
+C8AS_SRCPREFIX = src/c8as
+C8DIS_SRCPREFIX = src/c8dis
+UTILPREFIX = src/util
+UNITY_PATH = Unity
 
 # flags
 CPPFLAGS    = -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L -DVERSION=\"$(VERSION)\"
