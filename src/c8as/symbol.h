@@ -192,15 +192,16 @@ typedef struct {
 
 extern const char *instructionStrings[];
 extern instruction_format_t formats[];
+
 uint16_t build_instruction(instruction_t *, symbol_list_t *, int);
-int is_comment(char *);
-int is_db(char *);
-int is_dw(char *);
-int is_instruction(char *);
-int is_label_definition(char *);
-int is_label(char *, label_list_t *);
-int is_register(char *);
-int is_reserved_identifier(char *);
+int is_comment(const char *);
+int is_db(const char *);
+int is_dw(const char *);
+int is_instruction(const char *);
+int is_label_definition(const char *);
+int is_label(const char *, label_list_t *);
+int is_register(const char *);
+int is_reserved_identifier(const char *);
 symbol_t *next_symbol(symbol_list_t *);
 int populate_labels(char **, int, label_list_t *);
 void resolve_labels(symbol_list_t *, label_list_t *);

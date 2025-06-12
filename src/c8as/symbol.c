@@ -172,7 +172,7 @@ uint16_t build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) 
  * @param s the string to check
  * @return 1 if true, 0 if false
  */
-int is_comment(char *s) {
+int is_comment(const char *s) {
 	int i = 0;
 	int len = strlen(s);
 
@@ -189,7 +189,7 @@ int is_comment(char *s) {
  * 
  * @return 1 if true, 0 if false
  */
-int is_db(char *s) {
+int is_db(const char *s) {
 	return !strcmp(s, S_DB);
 }
 
@@ -198,7 +198,7 @@ int is_db(char *s) {
  * 
  * @return 1 if true, 0 if false
  */
-int is_dw(char *s) {
+int is_dw(const char *s) {
 	return !strcmp(s, S_DW);
 }
 
@@ -206,10 +206,9 @@ int is_dw(char *s) {
  * @brief Check if the given string is an instruction
  * 
  * @param s the string to check
- * @param len length of the string
  * @return instruction enumerator if true, -1 if false
  */
-int is_instruction(char *s) {
+int is_instruction(const char *s) {
 	for (int i = 0; instructionStrings[i]; i++) {
 		if (!strcmp(s, instructionStrings[i])) {
 			return i;
@@ -225,7 +224,7 @@ int is_instruction(char *s) {
  * @param s the string to check
  * @return 1 if true, 0 if false
  */
-int is_label_definition(char *s) {
+int is_label_definition(const char *s) {
 	int len = strlen(s);
 	if (len < 2) {
 		return 0;
@@ -240,7 +239,7 @@ int is_label_definition(char *s) {
  * @param s string to check
  * @return label index if true, -1 otherwise
  */
-int is_label(char *s, label_list_t *labels) {
+int is_label(const char *s, label_list_t *labels) {
 	for (int i = 0; i < labels->len; i++) {
 		if (!strcmp(s, labels->l[i].identifier)) {
 			return i;
@@ -256,7 +255,7 @@ int is_label(char *s, label_list_t *labels) {
  * @param s string to check
  * @return V register number if true, -1 otherwise
  */
-int is_register(char *s) {
+int is_register(const char *s) {
 	if (*s == 'V' || *s == 'v') {
 		return parse_int(s);
 	}
@@ -270,7 +269,7 @@ int is_register(char *s) {
  * @param s string to check
  * @return type of identifier if true, -1 otherwise
  */
-int is_reserved_identifier(char *s) {
+int is_reserved_identifier(const char *s) {
 	for (int i = 0; identifierStrings[i]; i++) {
 		if (!strcmp(s, identifierStrings[i])) {
 			return i;
