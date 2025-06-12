@@ -264,6 +264,75 @@ void test_is_label_null_labellist(void) {
 	TEST_ASSERT_EQUAL_INT(-1, is_label(empty, NULL));
 }
 
+void test_is_register_register_uppercase(void) {
+	const char *s = "V1";
+	TEST_ASSERT_EQUAL_INT(1, is_register(s));
+}
+
+void test_is_register_register_lowercase(void) {
+	const char *s = "vf";
+	TEST_ASSERT_EQUAL_INT(0xF, is_register(s));
+}
+
+void test_is_register_not_register(void) {
+	const char *s = "x4";
+	TEST_ASSERT_EQUAL_INT(-1, is_register(s));
+}
+
+void test_is_reserved_identifier_reserved_identifier(void) {
+	int ic = 0;
+	for (ic = 0; identifierStrings[ic] != NULL; ic++);
+
+	int ident = rand() % ic;
+
+	char s[16];
+	strcpy(s, identifierStrings[ident]);
+
+	TEST_ASSERT_EQUAL_INT(ident, is_reserved_identifier(s));
+}
+
+void test_is_reserved_identifier_not_reserved_identifier(void) {
+	const char *s = "Not reserved";
+
+	TEST_ASSERT_EQUAL_INT(-1, is_reserved_identifier(s));
+}
+
+void test_next_symbol_empty_symbollist(void) {
+	memset(symbols.s, 0, SYMBOL_CEILING);
+	symbols.len = 0;
+	symbols.ceil = SYMBOL_CEILING;
+
+	TEST_ASSERT_EQUAL_PTR(&symbols.s[0], next_symbol(&symbols));
+}
+
+void test_next_symbol_normal_symbollist(void) {
+	memset(symbols.s, 0, SYMBOL_CEILING);
+
+	symbols.len = 2;
+	symbols.ceil = SYMBOL_CEILING;
+	symbols.s[0].type = SYM_INSTRUCTION;
+	symbols.s[1].type = SYM_IP;
+
+	TEST_ASSERT_EQUAL_PTR(&symbols.s[3], next_symbol(&symbols));
+}
+
+void test_next_symbol_full_symbollist(void) {
+	memset(symbols.s, SYM_INSTRUCTION, SYMBOL_CEILING);
+
+	symbols.len = SYMBOL_CEILING - 1;
+	symbols.ceil = SYMBOL_CEILING;
+
+	symbol_t *symbol = next_symbol(&symbols);
+
+	TEST_ASSERT_EQUAL_INT(SYMBOL_CEILING, symbols.len);
+	TEST_ASSERT_EQUAL_INT(SYMBOL_CEILING * 2, symbols.ceil);
+	TEST_ASSERT_EQUAL_PTR(&symbols.s[SYMBOL_CEILING], symbol);
+}
+
+void test_next_symbol_null_symbollist(void) {
+	TEST_ASSERT_EQUAL_PTR(NULL, next_symbol(NULL));
+}
+
 int main(void) {
     UNITY_BEGIN();
 
@@ -301,5 +370,18 @@ int main(void) {
 	RUN_TEST(test_is_label_not_label);
 	RUN_TEST(test_is_label_empty_string);
 	RUN_TEST(test_is_label_null_labellist);
+
+	RUN_TEST(test_is_register_register_uppercase);
+	RUN_TEST(test_is_register_register_lowercase);
+	RUN_TEST(test_is_register_not_register);
+
+	RUN_TEST(test_is_reserved_identifier_reserved_identifier);
+	RUN_TEST(test_is_reserved_identifier_not_reserved_identifier);
+
+	RUN_TEST(test_next_symbol_empty_symbollist);
+	RUN_TEST(test_next_symbol_full_symbollist);
+	RUN_TEST(test_next_symbol_normal_symbollist);
+	RUN_TEST(test_next_symbol_null_symbollist);
+
     return UNITY_END();
 }

@@ -15,7 +15,7 @@
 #include <ctype.h>
 #include <string.h>
 
-static const char *identifierStrings[] = {
+const char *identifierStrings[] = {
 	"",
 	S_DT,
 	S_ST,
@@ -284,8 +284,15 @@ int is_reserved_identifier(const char *s) {
  * @return first empty symbol in symbol table
  */
 symbol_t *next_symbol(symbol_list_t *symbols) {
+	if (symbols == NULL) {
+		return NULL;
+	}
+	if (symbols->len == 0 && symbols->s[0].ln == 0) {
+		return &symbols->s[0];
+	}
+
 	symbols->len++;
-	if (symbols->len == symbols->ceil) {
+	if (symbols->len >= symbols->ceil) {
 		reallocate_symbols(symbols);
 	}
 

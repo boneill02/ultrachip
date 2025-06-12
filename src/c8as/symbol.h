@@ -191,6 +191,7 @@ typedef struct {
 } symbol_list_t;
 
 extern const char *instructionStrings[];
+extern const char *identifierStrings[];
 extern instruction_format_t formats[];
 
 uint16_t build_instruction(instruction_t *, symbol_list_t *, int);
