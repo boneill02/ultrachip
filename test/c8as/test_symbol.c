@@ -51,6 +51,10 @@ void generate_valid_instruction_symbols(int idx, int ln) {
 void generate_invalid_instruction_symbols(int idx, int ln) {
 	instruction_format_t *fmt = &formats[rand() % fc];
 
+	while (fmt->pcount == 0) {
+		fmt = &formats[rand() % fc];
+	}
+
 	symbols.s[idx].ln = ln;
 	symbols.s[idx].type = SYM_INSTRUCTION;
 	symbols.s[idx].value = fmt->cmd;
@@ -61,16 +65,14 @@ void generate_invalid_instruction_symbols(int idx, int ln) {
 	symbols.len = idx + fmt->pcount;
 	for (int i = 0; i < count; i++) {
 		symbols.s[idx+i].ln = ln;
-		symbols.s[idx+i].type = fmt->ptype[i];
 		switch (fmt->ptype[i]) {
 			case SYM_V:
-				symbols.s[idx+i].value = rand() % 16;
-				break;
-			case SYM_INT:
+				symbols.s[idx+i].type = SYM_INT;
 				symbols.s[idx+i].value = rand() % 0x100;
 				break;
 			default:
-				symbols.s[idx+i].value = 0;
+				symbols.s[idx+i].type = SYM_V;
+				symbols.s[idx+i].value = rand() % 0x10;
 		}
 	}
 }
