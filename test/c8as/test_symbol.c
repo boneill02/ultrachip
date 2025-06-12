@@ -116,6 +116,12 @@ void test_is_comment_comment(void) {
 	TEST_ASSERT_EQUAL_INT(1, is_comment(s));
 }
 
+void test_is_comment_empty_string(void) {
+	const char *s = "\0";
+
+	TEST_ASSERT_EQUAL_INT(0, is_comment(s));
+}
+
 void test_is_comment_no_comment(void) {
 	const char *s = "This is not a comment";
 
@@ -179,13 +185,13 @@ void test_is_instruction_instruction(void) {
 	char s[16];
 	strcpy(s, instructionStrings[ins]);
 
-	TEST_ASSERT_EQUAL_INT(1, is_instruction(s));
+	TEST_ASSERT_EQUAL_INT(ins, is_instruction(s));
 }
 
 void test_is_instruction_not_instruction(void) {
 	const char *s = "Not an instruction";
 
-	TEST_ASSERT_EQUAL_INT(0, is_instruction(s));
+	TEST_ASSERT_EQUAL_INT(-1, is_instruction(s));
 }
 
 void test_is_label_definition_label_definition(void) {
@@ -197,7 +203,7 @@ void test_is_label_definition_label_definition(void) {
 void test_is_label_definition_not_label_definition(void) {
 	const char *s = "L";
 
-	TEST_ASSERT_EQUAL_INT(1, is_label_definition(s));
+	TEST_ASSERT_EQUAL_INT(0, is_label_definition(s));
 }
 
 void test_is_label_label(void) {
@@ -215,7 +221,7 @@ void test_is_label_label(void) {
 	labels.l[2].byte = rand();
 	strcpy(labels.l[2].identifier, "L");
 
-	TEST_ASSERT_EQUAL_INT(2, is_label_definition(s));
+	TEST_ASSERT_EQUAL_INT(2, is_label(s, &labels));
 }
 
 void test_is_label_not_label(void) {
@@ -233,7 +239,7 @@ void test_is_label_not_label(void) {
 	labels.l[2].byte = rand();
 	strcpy(labels.l[2].identifier, "L");
 
-	TEST_ASSERT_EQUAL_INT(2, is_label_definition("LABEL3"));
+	TEST_ASSERT_EQUAL_INT(-1, is_label("LABEL3", &labels));
 }
 
 int main(void) {
@@ -243,6 +249,7 @@ int main(void) {
 	RUN_TEST(test_build_instruction_valid_negative_idx);
 	RUN_TEST(test_build_instruction_valid_null_symbol_table);
 	RUN_TEST(test_is_comment_comment);
+	RUN_TEST(test_is_comment_empty_string);
 	RUN_TEST(test_is_comment_end_comment);
 	RUN_TEST(test_is_comment_no_comment);
 	RUN_TEST(test_is_db_db);

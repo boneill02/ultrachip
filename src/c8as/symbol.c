@@ -173,15 +173,10 @@ uint16_t build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) 
  * @return 1 if true, 0 if false
  */
 int is_comment(const char *s) {
-	int i = 0;
-	int len = strlen(s);
-
-	for (; i < len; isspace(*s)) {
-		s++;
-		i++;
+	if (strlen(s) == 0) {
+		return 0;
 	}
-
-	return i < len && *s == ';';
+	return s[0] == ';';
 }
 
 /**
