@@ -1,9 +1,17 @@
 #include "parse.h"
 
-#include "instruction.h"
+#ifdef TEST
+#ifndef TEST_INCLUDED
+#define TEST_INCLUDED
+#include "util/util.c"
+#include "symbol.c"
+#endif
+#endif
+
 #include "symbol.h"
-#include "util/util.h"
+
 #include "util/defs.h"
+#include "util/util.h"
 
 #include <ctype.h>
 #include <stdint.h>
@@ -17,7 +25,7 @@ static int parse_word(char *, char *, int, symbol_t *, label_list_t *);
 static inline void put16(FILE *, uint16_t);
 static int tokenize(char **, char *, const char *, int);
 static char *to_upper(char *);
-static char *trim_comma(char *);
+static char *remove_comma(char *);
 static void write(FILE *, symbol_list_t *, int);
 
 /**
@@ -72,12 +80,12 @@ void parse(char *s, FILE *f, int args) {
  * @param s string to trim
  * @return trimmed string
  */
-char *trim_comment(char *s) {
-	trim(s);
+char *remove_comment(char *s) {
 	for (int i = 0; i < strlen(s); i++) {
 		if (s[i] == ';') s[i] = '\0';
 	}
 
+	trim(s);
 	return s;
 }
 
@@ -102,7 +110,8 @@ static int line_count(char *s) {
  * @param labels label list
  */
 static void parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *labels) {
-	if (strlen(s) == 0 || strlen(trim_comment(s)) == 0) {
+	trim(s);
+	if (strlen(s) == 0 || strlen(remove_comment(s)) == 0) {
 		return;
 	}
 
@@ -134,7 +143,7 @@ static void parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *la
 static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *labels) {
 	int value;
 	sym->ln = ln;
-	s = trim_comma(s);
+	s = remove_comma(s);
 
 	if (is_label_definition(s)) {
 		sym->type = SYM_LABEL_DEFINITION;
@@ -215,7 +224,7 @@ static int tokenize(char **tok, char *s, const char *delim, int maxTokens) {
  * @param s string to trim
  * @return trimmed string
  */
-static char *trim_comma(char *s) {
+static char *remove_comma(char *s) {
 	trim(s);
 	if (s[strlen(s) - 1] == ',') {
 		s[strlen(s) - 1] = '\0';

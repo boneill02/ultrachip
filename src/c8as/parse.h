@@ -10,6 +10,6 @@
 #define MAX_LINES 100
 
 void parse(char *, FILE *, int);
-char *trim_comment(char *);
+char *remove_comment(char *);
 
 #endif

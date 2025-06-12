@@ -1,8 +1,10 @@
 #include "unity.h"
-#include "instruction.h"
-
+#include "symbol.h"
+#include "parse.h"
+#include "util/util.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 char buf[64];
@@ -20,16 +22,6 @@ void setUp(void) {
 
 void tearDown(void) {
 	free(symbols.s);
-}
-
-static int shift(uint16_t fmt) {
-	int shift = 0;
-	while ((fmt & 1) == 0) {
-		fmt >>= 1;
-		shift++;
-	}
-
-	return shift;
 }
 
 void generate_valid_instruction_symbols(int idx, int ln) {
@@ -81,9 +73,6 @@ void generate_invalid_instruction_symbols(int idx, int ln) {
 				symbols.s[idx+i].value = 0;
 		}
 	}
-
-	symbols.s[idx + count].ln = ln;
-	symbols.s[idx + count].type = SYM_NULL;
 }
 
 void test_build_instruction_valid(void) {
@@ -96,9 +85,8 @@ void test_build_instruction_valid(void) {
 void test_build_instruction_invalid(void) {
 	int idx = rand() % SYMBOL_CEILING - 5;
 	generate_invalid_instruction_symbols(idx, rand());
-	symbol_list_t symbols[SYMBOL_CEILING];	
 
-	TEST_ASSERT_EQUAL_INT(0, build_instruction(&ins, symbols, idx));
+	TEST_ASSERT_EQUAL_INT(0, build_instruction(&ins, &symbols, idx));
 }
 
 void test_build_instruction_valid_null_symbol_table(void) {

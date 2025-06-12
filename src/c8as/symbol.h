@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define INSTRUCTION_COUNT 64
 #define LABEL_CEILING 64
 #define LABEL_IDENTIFIER_SIZE 20
 #define SYMBOL_CEILING 64
@@ -46,32 +47,39 @@
 #define S_R "R"
 
 /**
- * @struct label_t
- * @brief Represents a label
+ * @enum Instruction
+ * @brief Represents instruction types
  * 
- * Represents a label with an identifier and byte value
- * 
- * @var identifier string identifier
- * @var byte location of the label
+ * This enumeration defines all possible CHIP-8 instructions.
  */
-typedef struct {
-	char identifier[LABEL_IDENTIFIER_SIZE];
-	int byte;
-} label_t;
-
-/**
- * @struct label_list_t
- * @brief Represents a list of labels
- * 
- * @var l pointer to first label
- * @var len length of the list
- * @var ceil maximum length of the list
- */
-typedef struct {
-	label_t *l;
-	int len;
-	int ceil;
-} label_list_t;
+typedef enum {
+	I_NULL = -1,
+	I_CLS,
+	I_RET,
+	I_JP,
+	I_CALL,
+	I_SE,
+	I_SNE,
+	I_LD,
+	I_ADD,
+	I_OR,
+	I_AND,
+	I_SUB,
+	I_SHR,
+	I_SUBN,
+	I_SHL,
+	I_RND,
+	I_DRW,
+	I_SKP,
+	I_SKNP,
+	I_XOR,
+	I_SCD,
+	I_SCR,
+	I_SCL,
+	I_EXIT,
+	I_LOW,
+	I_HIGH,
+} Instruction;
 
 /**
  * @enum Symbol
@@ -104,6 +112,65 @@ typedef enum {
 } Symbol;
 
 /**
+ * @struct instruction_format_t
+ * @brief Represents a valid instruction format
+ * 
+ * instruction_t's are checked against instruction_format_t's to verify
+ * that they will produce valid instructions.
+ */
+typedef struct {
+	Instruction cmd;
+	uint16_t base;
+	int pcount;
+	Symbol ptype[3];
+	uint16_t pmask[3];
+} instruction_format_t;
+
+/**
+ * @struct instruction_t
+ * @brief Represents an instruction
+ * 
+ * During the second pass, this structure is used to verify the instruction's
+ * validity and generate the bytecode.
+ */
+typedef struct {
+	int line;
+	Instruction cmd;
+	int pcount;
+	Symbol ptype[3];
+	int p[3];
+	instruction_format_t *format;
+} instruction_t;
+
+/**
+ * @struct label_t
+ * @brief Represents a label
+ * 
+ * Represents a label with an identifier and byte value
+ * 
+ * @var identifier string identifier
+ * @var byte location of the label
+ */
+typedef struct {
+	char identifier[LABEL_IDENTIFIER_SIZE];
+	int byte;
+} label_t;
+
+/**
+ * @struct label_list_t
+ * @brief Represents a list of labels
+ * 
+ * @var l pointer to first label
+ * @var len length of the list
+ * @var ceil maximum length of the list
+ */
+typedef struct {
+	label_t *l;
+	int len;
+	int ceil;
+} label_list_t;
+
+/**
  * @struct symbol_t
  * @brief Represents a symbol with a type, value, and line number
  */
@@ -123,6 +190,9 @@ typedef struct {
 	int ceil;
 } symbol_list_t;
 
+extern const char *instructionStrings[];
+extern instruction_format_t formats[];
+uint16_t build_instruction(instruction_t *, symbol_list_t *, int);
 int is_comment(char *);
 int is_db(char *);
 int is_dw(char *);
@@ -135,5 +205,4 @@ symbol_t *next_symbol(symbol_list_t *);
 int populate_labels(char **, int, label_list_t *);
 void resolve_labels(symbol_list_t *, label_list_t *);
 void substitute_labels(symbol_list_t *, label_list_t *);
-
 #endif

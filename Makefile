@@ -7,9 +7,8 @@ C8_SRC = $(C8_SRCPREFIX)/chip8.c $(C8_SRCPREFIX)/debug.c \
 C8_OBJ = $(patsubst %.c, %.o, $(C8_SRC))
 C8_TARG = c8
 
-C8AS_SRC = $(C8AS_SRCPREFIX)/instruction.c \
-           $(C8AS_SRCPREFIX)/main.c $(C8AS_SRCPREFIX)/parse.c \
-		   $(C8AS_SRCPREFIX)/symbol.c $(UTILPREFIX)/util.c
+C8AS_SRC = $(C8AS_SRCPREFIX)/main.c $(C8AS_SRCPREFIX)/parse.c \
+           $(C8AS_SRCPREFIX)/symbol.c $(UTILPREFIX)/util.c
 C8AS_OBJ = $(patsubst %.c, %.o, $(C8AS_SRC))
 C8AS_TARG = c8as
 
