@@ -22,25 +22,27 @@
 static int line_count(char *);
 static void parse_line(char *, int, symbol_list_t *, label_list_t *);
 static int parse_word(char *, char *, int, symbol_t *, label_list_t *);
-static inline void put16(FILE *, uint16_t);
+static inline void put16(uint8_t *, uint16_t, int);
 static int tokenize(char **, char *, const char *, int);
 static char *to_upper(char *);
 static char *remove_comma(char *);
-static void write(FILE *, symbol_list_t *, int);
+static int write(uint8_t *, symbol_list_t *, int);
 
 /**
  * @brief Parse the given string
  * 
  * This is the main assembler function.
  * 
- * This function generates bytecode from the given assembly code in s and writes
- * the output to f.
+ * This function generates bytecode from the given assembly code.
  * 
  * @param s string containing assembly code
  * @param f file to write to
  * @param a args
+ * 
+ * @return length of resulting bytecode.
  */
-void parse(char *s, FILE *f, int args) {
+int parse(char *s, uint8_t *out, int args) {
+	int bytes = 0;
 	int lineCount = line_count(s);
 
 	symbol_list_t symbols;
@@ -67,11 +69,12 @@ void parse(char *s, FILE *f, int args) {
 	resolve_labels(&symbols, &labels);
 	substitute_labels(&symbols, &labels);
 
-	write(f, &symbols, args);
+	bytes = write(out, &symbols, args);
 
 	free(symbols.s);
 	free(labels.l);
 	free(lines);
+	return bytes;
 }
 
 /**
@@ -185,12 +188,12 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
 /**
  * @brief Write 16 bit int to f
  * 
- * @param f file to write to
- * @param n int to write
+ * @param output where to write
+ * @param n index to write to
  */
-static inline void put16(FILE *f, uint16_t n) {
-	fputc((n >> 8) & 0xFF, f);
-	fputc(n & 0xFF, f);
+static inline void put16(uint8_t *output, uint16_t n, int idx) {
+	output[idx] = (n >> 8) & 0xFF;
+	output[idx+1] = n & 0xFF;
 }
 
 /**
@@ -250,23 +253,30 @@ static char *to_upper(char *s) {
 /**
  * @brief Convert symbols to bytes and write to output
  * 
- * @param output output file
+ * @param output output array
  * @param symbols symbol list
+ * @param args arguments given by user
+ * 
+ * @return length of bytecode
  */
-static void write(FILE *output, symbol_list_t *symbols, int args) {
+static int write(uint8_t *output, symbol_list_t *symbols, int args) {
 	int ret;
 	instruction_t ins;
-	int byte = PROG_START;
+	int byte = 0;
 
 	for (int i = 0; i < symbols->len; i++) {
+		if (byte >= MEMSIZE - PROG_START) {
+			return -1;
+		}
+
 		switch(symbols->s[i].type) {
 			case SYM_INSTRUCTION:
 				ret = build_instruction(&ins, symbols, i);
 				if (ret) {
-					put16(output, ret);
+					put16(output, ret, byte);
 					i += ins.pcount;
 					if (args & ARG_VERBOSE) {
-						printf("%03x: %04x\n", byte, ret);
+						printf("%03x: %04x\n", byte + PROG_START, ret);
 					}
 					byte += 2;
 				} else {
@@ -277,8 +287,8 @@ static void write(FILE *output, symbol_list_t *symbols, int args) {
 				if (symbols->s[i].value > UINT8_MAX) {
 					fprintf(stderr, "Error (line %d): DB value too big\n", symbols->s[i].ln);
 				} else {
-					fputc(symbols->s[i].value, output);
-					printf("%03x: %04x\n", byte, symbols->s[i].value);
+					output[byte] = symbols->s[i].value;
+					printf("%03x: %04x\n", byte + PROG_START, symbols->s[i].value);
 					byte++;
 				}
 				break;
@@ -286,8 +296,8 @@ static void write(FILE *output, symbol_list_t *symbols, int args) {
 				if (symbols->s[i].value > UINT16_MAX) {
 					fprintf(stderr, "Error (line %d): DW value too big\n", symbols->s[i].ln);
 				} else {
-					put16(output, symbols->s[i].value);
-					printf("%03x: %04x\n", byte, symbols->s[i].value);
+					put16(output, symbols->s[i].value, byte);
+					printf("%03x: %04x\n", byte + PROG_START, symbols->s[i].value);
 					byte += 2;
 				}
 				break;
@@ -296,5 +306,5 @@ static void write(FILE *output, symbol_list_t *symbols, int args) {
 		}
 	}
 
-	fclose(output);
+	return byte;
 }

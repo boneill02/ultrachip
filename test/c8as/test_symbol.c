@@ -333,6 +333,103 @@ void test_next_symbol_null_symbollist(void) {
 	TEST_ASSERT_EQUAL_PTR(NULL, next_symbol(NULL));
 }
 
+void test_populate_labels_empty_lines(void) {
+	int lc = 5;
+	char **lines = malloc(lc * sizeof(char *));
+	char lines[16][5];
+	sprintf(lines[0], "%s", "\0");
+	sprintf(lines[1], "%s", "\0");
+	sprintf(lines[2], "%s", "\0");
+	sprintf(lines[3], "%s", "\0");
+	sprintf(lines[4], "%s", "\0");
+
+	memset(labels.l, 0, LABEL_CEILING * sizeof(label_t));
+	int r = populate_labels(lines, lc, &labels);
+
+	TEST_ASSERT_EQUAL_INT(1, r);
+	TEST_ASSERT_EQUAL_INT(0, labels.len);
+	TEST_ASSERT_EQUAL_STRING("\0", labels.l[0].identifier);
+}
+
+void test_populate_labels_null_lines(void) {
+	int r = populate_labels(NULL, 5, &labels);
+	memset(labels.l, 0, LABEL_CEILING * sizeof(label_t));
+
+	TEST_ASSERT_EQUAL_INT(0, r);
+	TEST_ASSERT_EQUAL_INT(0, labels.len);
+	TEST_ASSERT_EQUAL_STRING("\0", labels.l[0].identifier);
+}
+
+void test_populate_labels_no_labels(void) {
+	int lc = 5;
+	char **lines = malloc(lc * sizeof(char *));
+	char lines[16][5];
+	sprintf(lines[0], "%s", "ADD V4, V5");
+	sprintf(lines[1], "%s", "\0");
+	sprintf(lines[2], "%s", "CLS");
+	sprintf(lines[3], "%s", "RET");
+	sprintf(lines[4], "%s", "SE V1, $55");
+
+	memset(labels.l, 0, LABEL_CEILING * sizeof(label_t));
+	int r = populate_labels(lines, lc, &labels);
+
+	TEST_ASSERT_EQUAL_INT(1, r);
+	TEST_ASSERT_EQUAL_INT(0, labels.len);
+	TEST_ASSERT_EQUAL_STRING("\0", labels.l[0].identifier);
+}
+
+void test_populate_labels_null_labellist(void) {
+	int lc = 5;
+	char **lines = malloc(lc * sizeof(char *));
+	char lines[16][5];
+	sprintf(lines[0], "%s", "ADD V4, V5");
+	sprintf(lines[1], "%s", "\0");
+	sprintf(lines[2], "%s", "CLS");
+	sprintf(lines[3], "%s", "RET");
+	sprintf(lines[4], "%s", "SE V1, $55");
+
+	int r = populate_labels(lines, lc, NULL);
+
+	TEST_ASSERT_EQUAL_INT(0, r);
+}
+
+void test_populate_labels_existing_labels(void) {
+	int lc = 6;
+	char **lines = malloc(lc * sizeof(char *));
+	char lines[16][6];
+	sprintf(lines[0], "%s", "ADD V4, V5");
+	sprintf(lines[1], "%s", "\0");
+	sprintf(lines[2], "%s", "label:");
+	sprintf(lines[3], "%s", "RET");
+	sprintf(lines[4], "%s", "otherlabel:");
+	sprintf(lines[5], "%s", "SE V1, $55");
+
+	memset(labels.l, 0, LABEL_CEILING * sizeof(label_t));
+	int r = populate_labels(lines, lc, NULL);
+
+	TEST_ASSERT_EQUAL_INT(1, r);
+	TEST_ASSERT_EQUAL_INT(2, labels.len);
+	TEST_ASSERT_EQUAL_STRING("label", labels.l[0].identifier);
+	TEST_ASSERT_EQUAL_STRING("otherlabel", labels.l[1].identifier);
+}
+
+void test_populate_labels_duplicate_labels(void) {
+	int lc = 6;
+	char **lines = malloc(lc * sizeof(char *));
+	char lines[16][6];
+	sprintf(lines[0], "%s", "ADD V4, V5");
+	sprintf(lines[1], "%s", "\0");
+	sprintf(lines[2], "%s", "label:");
+	sprintf(lines[3], "%s", "RET");
+	sprintf(lines[4], "%s", "label:");
+	sprintf(lines[5], "%s", "SE V1, $55");
+
+	memset(labels.l, 0, LABEL_CEILING * sizeof(label_t));
+	int r = populate_labels(lines, lc, NULL);
+
+	TEST_ASSERT_EQUAL_INT(0, r);
+}
+
 int main(void) {
     UNITY_BEGIN();
 

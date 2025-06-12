@@ -1,6 +1,7 @@
 #ifndef CHIP8_PARSE_H
 #define CHIP8_PARSE_H
 
+#include <stdint.h>
 #include <stdio.h>
 
 #define ARG_VERBOSE 1
@@ -9,7 +10,7 @@
 #define MAX_WORDS 100
 #define MAX_LINES 100
 
-void parse(char *, FILE *, int);
+int parse(char *, uint8_t *, int);
 char *remove_comment(char *);
 
 #endif

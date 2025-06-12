@@ -309,6 +309,10 @@ symbol_t *next_symbol(symbol_list_t *symbols) {
  * @return 1 if success, 0 if error caught
  */
 int populate_labels(char **lines, int lineCount, label_list_t *labels) {
+	if (lines == NULL || labels == NULL) {
+		return 0;
+	}
+
 	for (int i = 0; i < lineCount; i++) {
 		if (labels->len == labels->ceil) {
 			return 0;
