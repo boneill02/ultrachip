@@ -204,6 +204,8 @@ int is_dw(const char *s) {
  * @return instruction enumerator if true, -1 if false
  */
 int is_instruction(const char *s) {
+	if (strlen(s) == 0) return -1;
+
 	for (int i = 0; instructionStrings[i]; i++) {
 		if (!strcmp(s, instructionStrings[i])) {
 			return i;
@@ -235,6 +237,8 @@ int is_label_definition(const char *s) {
  * @return label index if true, -1 otherwise
  */
 int is_label(const char *s, label_list_t *labels) {
+	if (strlen(s) == 0 || labels == NULL) return -1;
+
 	for (int i = 0; i < labels->len; i++) {
 		if (!strcmp(s, labels->l[i].identifier)) {
 			return i;

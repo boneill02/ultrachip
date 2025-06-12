@@ -10,18 +10,24 @@
 char buf[64];
 instruction_t ins;
 symbol_list_t symbols;
+label_list_t labels;
+const char *empty = "\0";
 int fc = 0;
 
 void setUp(void) {
 	srand(time(NULL));
 
 	symbols.s = calloc(SYMBOL_CEILING, sizeof(symbol_t));
+	symbols.ceil = SYMBOL_CEILING;
+	labels.l = calloc(LABEL_CEILING, sizeof(label_t));
+	labels.ceil = LABEL_CEILING;
 
 	for(fc = 0; formats[fc].cmd != I_NULL; fc++);
 }
 
 void tearDown(void) {
 	free(symbols.s);
+	free(labels.l);
 }
 
 void generate_valid_instruction_symbols(int idx, int ln) {
@@ -119,9 +125,7 @@ void test_is_comment_comment(void) {
 }
 
 void test_is_comment_empty_string(void) {
-	const char *s = "\0";
-
-	TEST_ASSERT_EQUAL_INT(0, is_comment(s));
+	TEST_ASSERT_EQUAL_INT(0, is_comment(empty));
 }
 
 void test_is_comment_no_comment(void) {
@@ -154,6 +158,10 @@ void test_is_db_trailing_chars(void) {
 	TEST_ASSERT_EQUAL_INT(0, is_db(s));
 }
 
+void test_is_db_empty_string(void) {
+	TEST_ASSERT_EQUAL_INT(0, is_db(empty));
+}
+
 void test_is_dw_dw(void) {
 	const char *s = "DW";
 
@@ -178,6 +186,10 @@ void test_is_dw_trailing_chars(void) {
 	TEST_ASSERT_EQUAL_INT(0, is_dw(s));
 }
 
+void test_is_dw_empty_string(void) {
+	TEST_ASSERT_EQUAL_INT(0, is_dw(empty));
+}
+
 void test_is_instruction_instruction(void) {
 	int ic = 0;
 	for (ic = 0; instructionStrings[ic] != NULL; ic++);
@@ -196,6 +208,10 @@ void test_is_instruction_not_instruction(void) {
 	TEST_ASSERT_EQUAL_INT(-1, is_instruction(s));
 }
 
+void test_is_instruction_empty_string(void) {
+	TEST_ASSERT_EQUAL_INT(-1, is_instruction(empty));
+}
+
 void test_is_label_definition_label_definition(void) {
 	const char *s = "L:";
 
@@ -208,14 +224,14 @@ void test_is_label_definition_not_label_definition(void) {
 	TEST_ASSERT_EQUAL_INT(0, is_label_definition(s));
 }
 
+void test_is_label_definition_empty_string(void) {
+	TEST_ASSERT_EQUAL_INT(0, is_label_definition(empty));
+}
+
 void test_is_label_label(void) {
 	const char *s = "L";
 
-	label_list_t labels;
-	labels.l = calloc(LABEL_CEILING, sizeof(label_t));
-	labels.ceil = LABEL_CEILING;
 	labels.len = 3;
-
 	labels.l[0].byte = rand();
 	strcpy(labels.l[0].identifier, "LABEL");
 	labels.l[1].byte = rand();
@@ -229,11 +245,7 @@ void test_is_label_label(void) {
 void test_is_label_not_label(void) {
 	const char *s = "L";
 
-	label_list_t labels;
-	labels.l = calloc(LABEL_CEILING, sizeof(label_t));
-	labels.ceil = LABEL_CEILING;
 	labels.len = 3;
-
 	labels.l[0].byte = rand();
 	strcpy(labels.l[0].identifier, "LABEL");
 	labels.l[1].byte = rand();
@@ -244,29 +256,50 @@ void test_is_label_not_label(void) {
 	TEST_ASSERT_EQUAL_INT(-1, is_label("LABEL3", &labels));
 }
 
+void test_is_label_empty_string(void) {
+	TEST_ASSERT_EQUAL_INT(-1, is_label(empty, &labels));
+}
+
+void test_is_label_null_labellist(void) {
+	TEST_ASSERT_EQUAL_INT(-1, is_label(empty, NULL));
+}
+
 int main(void) {
     UNITY_BEGIN();
+
 	RUN_TEST(test_build_instruction_valid);
 	RUN_TEST(test_build_instruction_invalid);
 	RUN_TEST(test_build_instruction_valid_negative_idx);
 	RUN_TEST(test_build_instruction_valid_null_symbol_table);
+
 	RUN_TEST(test_is_comment_comment);
-	RUN_TEST(test_is_comment_empty_string);
 	RUN_TEST(test_is_comment_end_comment);
 	RUN_TEST(test_is_comment_no_comment);
+	RUN_TEST(test_is_comment_empty_string);
+
 	RUN_TEST(test_is_db_db);
 	RUN_TEST(test_is_db_not_db);
 	RUN_TEST(test_is_db_contains_db);
 	RUN_TEST(test_is_db_trailing_chars);
+	RUN_TEST(test_is_db_empty_string);
+
 	RUN_TEST(test_is_dw_dw);
 	RUN_TEST(test_is_dw_not_dw);
 	RUN_TEST(test_is_dw_contains_dw);
 	RUN_TEST(test_is_dw_trailing_chars);
+	RUN_TEST(test_is_dw_empty_string);
+
 	RUN_TEST(test_is_instruction_instruction);
 	RUN_TEST(test_is_instruction_not_instruction);
+	RUN_TEST(test_is_instruction_empty_string);
+
 	RUN_TEST(test_is_label_definition_label_definition);
 	RUN_TEST(test_is_label_definition_not_label_definition);
+	RUN_TEST(test_is_label_definition_empty_string);
+
 	RUN_TEST(test_is_label_label);
 	RUN_TEST(test_is_label_not_label);
+	RUN_TEST(test_is_label_empty_string);
+	RUN_TEST(test_is_label_null_labellist);
     return UNITY_END();
 }
