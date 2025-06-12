@@ -104,11 +104,160 @@ void test_build_instruction_valid_negative_idx(void) {
 	TEST_ASSERT_EQUAL_INT(0, build_instruction(&ins, symbols, idx));
 }
 
+void test_is_comment_end_comment(void) {
+	const char *s = "Hello ; This is a comment";
+
+	TEST_ASSERT_EQUAL_INT(0, is_comment(s));
+}
+
+void test_is_comment_comment(void) {
+	const char *s = "; This is a comment";
+
+	TEST_ASSERT_EQUAL_INT(1, is_comment(s));
+}
+
+void test_is_comment_no_comment(void) {
+	const char *s = "This is not a comment";
+
+	TEST_ASSERT_EQUAL_INT(0, is_comment(s));
+}
+
+void test_is_db_db(void) {
+	const char *s = "DB";
+
+	TEST_ASSERT_EQUAL_INT(1, is_db(s));
+}
+
+void test_is_db_not_db(void) {
+	const char *s = "DW";
+
+	TEST_ASSERT_EQUAL_INT(0, is_db(s));
+}
+
+void test_is_db_contains_db(void) {
+	const char *s = "Foo DB";
+
+	TEST_ASSERT_EQUAL_INT(0, is_db(s));
+}
+
+void test_is_db_trailing_chars(void) {
+	const char *s = "DB foo";
+
+	TEST_ASSERT_EQUAL_INT(0, is_db(s));
+}
+
+void test_is_dw_dw(void) {
+	const char *s = "DW";
+
+	TEST_ASSERT_EQUAL_INT(1, is_dw(s));
+}
+
+void test_is_dw_not_dw(void) {
+	const char *s = "DB";
+
+	TEST_ASSERT_EQUAL_INT(0, is_dw(s));
+}
+
+void test_is_dw_contains_dw(void) {
+	const char *s = "Foo DW";
+
+	TEST_ASSERT_EQUAL_INT(0, is_db(s));
+}
+
+void test_is_dw_trailing_chars(void) {
+	const char *s = "DW foo";
+
+	TEST_ASSERT_EQUAL_INT(0, is_dw(s));
+}
+
+void test_is_instruction_instruction(void) {
+	int ic = 0;
+	for (ic = 0; instructionStrings[ic] != NULL; ic++);
+
+	int ins = rand() % ic;
+
+	char s[16];
+	strcpy(s, instructionStrings[ins]);
+
+	TEST_ASSERT_EQUAL_INT(1, is_instruction(s));
+}
+
+void test_is_instruction_not_instruction(void) {
+	const char *s = "Not an instruction";
+
+	TEST_ASSERT_EQUAL_INT(0, is_instruction(s));
+}
+
+void test_is_label_definition_label_definition(void) {
+	const char *s = "L:";
+
+	TEST_ASSERT_EQUAL_INT(1, is_label_definition(s));
+}
+
+void test_is_label_definition_not_label_definition(void) {
+	const char *s = "L";
+
+	TEST_ASSERT_EQUAL_INT(1, is_label_definition(s));
+}
+
+void test_is_label_label(void) {
+	const char *s = "L";
+
+	label_list_t labels;
+	labels.l = calloc(LABEL_CEILING, sizeof(label_t));
+	labels.ceil = LABEL_CEILING;
+	labels.len = 3;
+
+	labels.l[0].byte = rand();
+	strcpy(labels.l[0].identifier, "LABEL");
+	labels.l[1].byte = rand();
+	strcpy(labels.l[1].identifier, "ANOTHERLABEL");
+	labels.l[2].byte = rand();
+	strcpy(labels.l[2].identifier, "L");
+
+	TEST_ASSERT_EQUAL_INT(2, is_label_definition(s));
+}
+
+void test_is_label_not_label(void) {
+	const char *s = "L";
+
+	label_list_t labels;
+	labels.l = calloc(LABEL_CEILING, sizeof(label_t));
+	labels.ceil = LABEL_CEILING;
+	labels.len = 3;
+
+	labels.l[0].byte = rand();
+	strcpy(labels.l[0].identifier, "LABEL");
+	labels.l[1].byte = rand();
+	strcpy(labels.l[1].identifier, "ANOTHERLABEL");
+	labels.l[2].byte = rand();
+	strcpy(labels.l[2].identifier, "L");
+
+	TEST_ASSERT_EQUAL_INT(2, is_label_definition("LABEL3"));
+}
+
 int main(void) {
     UNITY_BEGIN();
 	RUN_TEST(test_build_instruction_valid);
 	RUN_TEST(test_build_instruction_invalid);
 	RUN_TEST(test_build_instruction_valid_negative_idx);
 	RUN_TEST(test_build_instruction_valid_null_symbol_table);
+	RUN_TEST(test_is_comment_comment);
+	RUN_TEST(test_is_comment_end_comment);
+	RUN_TEST(test_is_comment_no_comment);
+	RUN_TEST(test_is_db_db);
+	RUN_TEST(test_is_db_not_db);
+	RUN_TEST(test_is_db_contains_db);
+	RUN_TEST(test_is_db_trailing_chars);
+	RUN_TEST(test_is_dw_dw);
+	RUN_TEST(test_is_dw_not_dw);
+	RUN_TEST(test_is_dw_contains_dw);
+	RUN_TEST(test_is_dw_trailing_chars);
+	RUN_TEST(test_is_instruction_instruction);
+	RUN_TEST(test_is_instruction_not_instruction);
+	RUN_TEST(test_is_label_definition_label_definition);
+	RUN_TEST(test_is_label_definition_not_label_definition);
+	RUN_TEST(test_is_label_label);
+	RUN_TEST(test_is_label_not_label);
     return UNITY_END();
 }
