@@ -1,11 +1,20 @@
 #include "unity.h"
 #include "symbol.h"
 #include "parse.h"
+#include "util/defs.h"
 #include "util/util.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+#define MAX_LINE_COUNT 10
+#define MAX_LINE_LEN 32
+#define CLEAR_LINES memset(lines[0], 0, MAX_LINE_LEN * MAX_LINE_COUNT)
+#define CLEAR_LABELS \
+	memset(labels.l, 0, LABEL_CEILING * sizeof(label_t)); \
+	labels.len = 0; \
+	labels.ceil = LABEL_CEILING;
 
 char buf[64];
 instruction_t ins;
@@ -13,6 +22,7 @@ symbol_list_t symbols;
 label_list_t labels;
 const char *empty = "\0";
 int fc = 0;
+char **lines;
 
 void setUp(void) {
 	srand(time(NULL));
@@ -23,11 +33,22 @@ void setUp(void) {
 	labels.ceil = LABEL_CEILING;
 
 	for(fc = 0; formats[fc].cmd != I_NULL; fc++);
+
+	lines = malloc(MAX_LINE_COUNT * sizeof(char *));
+	char *line0 = calloc(MAX_LINE_LEN, MAX_LINE_COUNT);
+	for (int i = 0; i < MAX_LINE_COUNT; i++) {
+		lines[i] = line0;
+		line0 += MAX_LINE_LEN;
+	}
+
 }
 
 void tearDown(void) {
 	free(symbols.s);
 	free(labels.l);
+	
+	free(lines[0]);
+	free(lines);
 }
 
 void generate_valid_instruction_symbols(int idx, int ln) {
@@ -148,13 +169,11 @@ void test_is_db_not_db(void) {
 
 void test_is_db_contains_db(void) {
 	const char *s = "Foo DB";
-
 	TEST_ASSERT_EQUAL_INT(0, is_db(s));
 }
 
 void test_is_db_trailing_chars(void) {
 	const char *s = "DB foo";
-
 	TEST_ASSERT_EQUAL_INT(0, is_db(s));
 }
 
@@ -164,25 +183,21 @@ void test_is_db_empty_string(void) {
 
 void test_is_dw_dw(void) {
 	const char *s = "DW";
-
 	TEST_ASSERT_EQUAL_INT(1, is_dw(s));
 }
 
 void test_is_dw_not_dw(void) {
 	const char *s = "DB";
-
 	TEST_ASSERT_EQUAL_INT(0, is_dw(s));
 }
 
 void test_is_dw_contains_dw(void) {
 	const char *s = "Foo DW";
-
 	TEST_ASSERT_EQUAL_INT(0, is_db(s));
 }
 
 void test_is_dw_trailing_chars(void) {
 	const char *s = "DW foo";
-
 	TEST_ASSERT_EQUAL_INT(0, is_dw(s));
 }
 
@@ -261,7 +276,7 @@ void test_is_label_empty_string(void) {
 }
 
 void test_is_label_null_labellist(void) {
-	TEST_ASSERT_EQUAL_INT(-1, is_label(empty, NULL));
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, is_label(empty, NULL));
 }
 
 void test_is_register_register_uppercase(void) {
@@ -334,17 +349,10 @@ void test_next_symbol_null_symbollist(void) {
 }
 
 void test_populate_labels_empty_lines(void) {
-	int lc = 5;
-	char **lines = malloc(lc * sizeof(char *));
-	char lines[16][5];
-	sprintf(lines[0], "%s", "\0");
-	sprintf(lines[1], "%s", "\0");
-	sprintf(lines[2], "%s", "\0");
-	sprintf(lines[3], "%s", "\0");
-	sprintf(lines[4], "%s", "\0");
+	CLEAR_LINES;
+	CLEAR_LABELS;
 
-	memset(labels.l, 0, LABEL_CEILING * sizeof(label_t));
-	int r = populate_labels(lines, lc, &labels);
+	int r = populate_labels(lines, MAX_LINE_COUNT, &labels);
 
 	TEST_ASSERT_EQUAL_INT(1, r);
 	TEST_ASSERT_EQUAL_INT(0, labels.len);
@@ -352,60 +360,55 @@ void test_populate_labels_empty_lines(void) {
 }
 
 void test_populate_labels_null_lines(void) {
+	CLEAR_LABELS;
 	int r = populate_labels(NULL, 5, &labels);
-	memset(labels.l, 0, LABEL_CEILING * sizeof(label_t));
 
-	TEST_ASSERT_EQUAL_INT(0, r);
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, r);
 	TEST_ASSERT_EQUAL_INT(0, labels.len);
 	TEST_ASSERT_EQUAL_STRING("\0", labels.l[0].identifier);
 }
 
 void test_populate_labels_no_labels(void) {
-	int lc = 5;
-	char **lines = malloc(lc * sizeof(char *));
-	char lines[16][5];
+	CLEAR_LABELS;
+	CLEAR_LINES;
+
 	sprintf(lines[0], "%s", "ADD V4, V5");
 	sprintf(lines[1], "%s", "\0");
 	sprintf(lines[2], "%s", "CLS");
 	sprintf(lines[3], "%s", "RET");
 	sprintf(lines[4], "%s", "SE V1, $55");
 
-	memset(labels.l, 0, LABEL_CEILING * sizeof(label_t));
-	int r = populate_labels(lines, lc, &labels);
-
+	int r = populate_labels(lines, 5, &labels);
 	TEST_ASSERT_EQUAL_INT(1, r);
 	TEST_ASSERT_EQUAL_INT(0, labels.len);
 	TEST_ASSERT_EQUAL_STRING("\0", labels.l[0].identifier);
 }
 
 void test_populate_labels_null_labellist(void) {
-	int lc = 5;
-	char **lines = malloc(lc * sizeof(char *));
-	char lines[16][5];
+	CLEAR_LINES;
+
 	sprintf(lines[0], "%s", "ADD V4, V5");
 	sprintf(lines[1], "%s", "\0");
 	sprintf(lines[2], "%s", "CLS");
 	sprintf(lines[3], "%s", "RET");
 	sprintf(lines[4], "%s", "SE V1, $55");
 
-	int r = populate_labels(lines, lc, NULL);
+	int r = populate_labels(lines, 5, NULL);
 
-	TEST_ASSERT_EQUAL_INT(0, r);
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, r);
 }
 
 void test_populate_labels_existing_labels(void) {
-	int lc = 6;
-	char **lines = malloc(lc * sizeof(char *));
-	char lines[16][6];
-	sprintf(lines[0], "%s", "ADD V4, V5");
-	sprintf(lines[1], "%s", "\0");
-	sprintf(lines[2], "%s", "label:");
-	sprintf(lines[3], "%s", "RET");
-	sprintf(lines[4], "%s", "otherlabel:");
-	sprintf(lines[5], "%s", "SE V1, $55");
+	CLEAR_LABELS;
+	CLEAR_LINES;
 
-	memset(labels.l, 0, LABEL_CEILING * sizeof(label_t));
-	int r = populate_labels(lines, lc, NULL);
+	sprintf(lines[0], "%s", "ADD V4, V5");
+	sprintf(lines[1], "%s", "label:");
+	sprintf(lines[2], "%s", "RET");
+	sprintf(lines[3], "%s", "otherlabel:");
+	sprintf(lines[4], "%s", "SE V1, $55");
+
+	int r = populate_labels(lines, MAX_LINE_COUNT, &labels);
 
 	TEST_ASSERT_EQUAL_INT(1, r);
 	TEST_ASSERT_EQUAL_INT(2, labels.len);
@@ -414,21 +417,34 @@ void test_populate_labels_existing_labels(void) {
 }
 
 void test_populate_labels_duplicate_labels(void) {
-	int lc = 6;
-	char **lines = malloc(lc * sizeof(char *));
-	char lines[16][6];
+	CLEAR_LABELS;
+	CLEAR_LINES;
+
 	sprintf(lines[0], "%s", "ADD V4, V5");
-	sprintf(lines[1], "%s", "\0");
-	sprintf(lines[2], "%s", "label:");
-	sprintf(lines[3], "%s", "RET");
-	sprintf(lines[4], "%s", "label:");
-	sprintf(lines[5], "%s", "SE V1, $55");
+	sprintf(lines[1], "%s", "label:");
+	sprintf(lines[2], "%s", "RET");
+	sprintf(lines[3], "%s", "label:");
+	sprintf(lines[4], "%s", "SE V1, $55");
 
-	memset(labels.l, 0, LABEL_CEILING * sizeof(label_t));
-	int r = populate_labels(lines, lc, NULL);
+	int r = populate_labels(lines, MAX_LINE_COUNT, &labels);
 
-	TEST_ASSERT_EQUAL_INT(0, r);
+	TEST_ASSERT_EQUAL_INT(DUPLICATE_LABEL_EXCEPTION, r);
 }
+
+void test_resolve_labels_one_label(void) { }
+
+void test_resolve_labels_multiple_labels(void) { }
+
+void test_resolve_labels_empty_symbollist(void) { }
+void test_resolve_labels_null_symbollist(void) { }
+void test_resolve_labels_empty_labellist(void) { }
+void test_resolve_labels_null_labellist(void) { }
+
+void test_substitute_labels_normal(void) { }
+void test_substitute_labels_empty_symbollist(void) { }
+void test_substitute_labels_null_symbollist(void) { }
+void test_substitute_labels_empty_labellist(void) { }
+void test_substitute_labels_null_labellist(void) { }
 
 int main(void) {
     UNITY_BEGIN();
@@ -479,6 +495,13 @@ int main(void) {
 	RUN_TEST(test_next_symbol_full_symbollist);
 	RUN_TEST(test_next_symbol_normal_symbollist);
 	RUN_TEST(test_next_symbol_null_symbollist);
+
+	RUN_TEST(test_populate_labels_duplicate_labels);
+	RUN_TEST(test_populate_labels_empty_lines);
+	RUN_TEST(test_populate_labels_existing_labels);
+	RUN_TEST(test_populate_labels_no_labels);
+	RUN_TEST(test_populate_labels_null_labellist);
+	RUN_TEST(test_populate_labels_null_lines);
 
     return UNITY_END();
 }

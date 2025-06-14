@@ -64,6 +64,15 @@ void test_parse_valid_instruction(void) {
 	TEST_ASSERT_EQUAL_INT(0x34, bytecode[1]);
 }
 
+void test_parse_empty_string(void) { }
+void test_parse_null_string(void) { }
+void test_parse_null_out(void) { }
+void test_parse_multiple_lines(void) { }
+void test_parse_invalid_instruction(void) { }
+void test_parse_invalid_symbol(void) { }
+void test_parse_too_many_bytes(void) { }
+void test_parse_too_many_labels(void) { }
+
 int main(void) {
     UNITY_BEGIN();
 	RUN_TEST(test_remove_comment_no_comment);

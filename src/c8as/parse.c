@@ -57,7 +57,6 @@ int parse(char *s, uint8_t *out, int args) {
 
 	char **lines = malloc(lineCount * sizeof(char *));
 
-	s = trim(s);
 	lineCount = tokenize(lines, s, "\n", lineCount); // lineCount updated to remove empty lines
 
 	populate_labels(lines, lineCount, &labels);
@@ -113,7 +112,6 @@ static int line_count(char *s) {
  * @param labels label list
  */
 static void parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *labels) {
-	trim(s);
 	if (strlen(s) == 0 || strlen(remove_comment(s)) == 0) {
 		return;
 	}
@@ -213,6 +211,7 @@ static int tokenize(char **tok, char *s, const char *delim, int maxTokens) {
 
 	int tokenCount = 0;
 	char *token = strtok(s, delim);
+	token = trim(token);
 	while (token && tokenCount < maxTokens) {
 		tok[tokenCount++] = trim(token);
 		token = strtok(NULL, delim);

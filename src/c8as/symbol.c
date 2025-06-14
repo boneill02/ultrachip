@@ -173,6 +173,10 @@ uint16_t build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) 
  * @return 1 if true, 0 if false
  */
 int is_comment(const char *s) {
+	if (s == NULL) {
+		return NULL_ARGUMENT_EXCEPTION;
+	}
+
 	if (strlen(s) == 0) {
 		return 0;
 	}
@@ -185,6 +189,10 @@ int is_comment(const char *s) {
  * @return 1 if true, 0 if false
  */
 int is_db(const char *s) {
+	if (s == NULL) {
+		return NULL_ARGUMENT_EXCEPTION;
+	}
+
 	return !strcmp(s, S_DB);
 }
 
@@ -194,6 +202,10 @@ int is_db(const char *s) {
  * @return 1 if true, 0 if false
  */
 int is_dw(const char *s) {
+	if (s == NULL) {
+		return NULL_ARGUMENT_EXCEPTION;
+	}
+
 	return !strcmp(s, S_DW);
 }
 
@@ -204,6 +216,10 @@ int is_dw(const char *s) {
  * @return instruction enumerator if true, -1 if false
  */
 int is_instruction(const char *s) {
+	if (s == NULL) {
+		return NULL_ARGUMENT_EXCEPTION;
+	}
+
 	if (strlen(s) == 0) return -1;
 
 	for (int i = 0; instructionStrings[i]; i++) {
@@ -222,6 +238,10 @@ int is_instruction(const char *s) {
  * @return 1 if true, 0 if false
  */
 int is_label_definition(const char *s) {
+	if (s == NULL) {
+		return NULL_ARGUMENT_EXCEPTION;
+	}
+
 	int len = strlen(s);
 	if (len < 2) {
 		return 0;
@@ -237,7 +257,13 @@ int is_label_definition(const char *s) {
  * @return label index if true, -1 otherwise
  */
 int is_label(const char *s, label_list_t *labels) {
-	if (strlen(s) == 0 || labels == NULL) return -1;
+	if (s == NULL || labels == NULL) {
+		return NULL_ARGUMENT_EXCEPTION;
+	}
+
+	if (strlen(s) == 0) {
+		return -1;
+	}
 
 	for (int i = 0; i < labels->len; i++) {
 		if (!strcmp(s, labels->l[i].identifier)) {
@@ -255,11 +281,11 @@ int is_label(const char *s, label_list_t *labels) {
  * @return V register number if true, -1 otherwise
  */
 int is_register(const char *s) {
-	if (*s == 'V' || *s == 'v') {
-		return parse_int(s);
+	if (s == NULL) {
+		return NULL_ARGUMENT_EXCEPTION;
 	}
 
-	return -1;
+	return (*s == 'V' || *s == 'v') ? parse_int(s) : -1;
 }
 
 /**
@@ -269,6 +295,10 @@ int is_register(const char *s) {
  * @return type of identifier if true, -1 otherwise
  */
 int is_reserved_identifier(const char *s) {
+	if (s == NULL) {
+		return NULL_ARGUMENT_EXCEPTION;
+	}
+
 	for (int i = 0; identifierStrings[i]; i++) {
 		if (!strcmp(s, identifierStrings[i])) {
 			return i;
@@ -287,6 +317,7 @@ symbol_t *next_symbol(symbol_list_t *symbols) {
 	if (symbols == NULL) {
 		return NULL;
 	}
+
 	if (symbols->len == 0 && symbols->s[0].ln == 0) {
 		return &symbols->s[0];
 	}
@@ -310,27 +341,34 @@ symbol_t *next_symbol(symbol_list_t *symbols) {
  */
 int populate_labels(char **lines, int lineCount, label_list_t *labels) {
 	if (lines == NULL || labels == NULL) {
-		return 0;
+		return NULL_ARGUMENT_EXCEPTION;
 	}
 
 	for (int i = 0; i < lineCount; i++) {
 		if (labels->len == labels->ceil) {
-			return 0;
+			return TOO_MANY_LABELS_EXCEPTION;
 		}
 
 		if (strlen(lines[i]) == 0) {
 			continue;
 		}
-		lines[i] = trim(lines[i]);
+
 		lines[i] = remove_comment(lines[i]);
+		trim(lines[i]);
 		if (strlen(remove_comment(lines[i])) == 0) {
 			continue;
 		}
 
 		if (is_label_definition(lines[i])) {
-			int l = strlen(lines[i]) - 1;
+			for (int j = 0; j < labels->len; j++) {
+				if (!strncmp(labels->l[j].identifier, lines[i], strlen(labels->l[j].identifier))) {
+					return DUPLICATE_LABEL_EXCEPTION;
+				}
+			}
+
+			int labellen = strlen(lines[i]) - 1;
 			strncpy(labels->l[labels->len].identifier, lines[i], LABEL_IDENTIFIER_SIZE);
-			labels->l[labels->len].identifier[l] = '\0';
+			labels->l[labels->len].identifier[labellen] = '\0';
 			labels->len++;
 		}
 	}
@@ -345,6 +383,10 @@ int populate_labels(char **lines, int lineCount, label_list_t *labels) {
  * @param labels list of labels
  */
 void resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
+	if (symbols == NULL || labels == NULL) {
+		return;
+	}
+
 	int byte = PROG_START;
 	int labelIdx = 0;
 	for (int i = 0; i < symbols->len; i++) {
@@ -375,6 +417,10 @@ void resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
  * @param labels labels to search
  */
 void substitute_labels(symbol_list_t *symbols, label_list_t *labels) {
+	if (symbols == NULL || labels == NULL) {
+		return;
+	}
+
 	for (int i = 0; i < symbols->len; i++) {
 		if (symbols->s[i].type == SYM_LABEL) {
 			symbols->s[i].type = SYM_INT;
