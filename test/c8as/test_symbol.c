@@ -10,12 +10,13 @@
 
 #define MAX_LINE_COUNT 10
 #define MAX_LINE_LEN 32
-#define CLEAR_LINES memset(lines[0], 0, MAX_LINE_LEN * MAX_LINE_COUNT)
+#define CLEAR_LINES memset(lines[0],0,MAX_LINE_LEN*MAX_LINE_COUNT)
 #define CLEAR_LABELS \
-	memset(labels.l, 0, LABEL_CEILING * sizeof(label_t)); \
-	labels.len = 0; \
-	labels.ceil = LABEL_CEILING;
-#define CLEAR_BUF for (int i = 0; i < 64; i++) { buf[i] = '\0'; }
+	memset(labels.l,0,LABEL_CEILING*sizeof(label_t)); \
+	labels.len=0; \
+	labels.ceil=LABEL_CEILING;
+#define CLEAR_BUF for (int i=0;i<64;i++) {buf[i]='\0';}
+#define RESET CLEAR_LINES; CLEAR_LABELS; CLEAR_BUF;
 
 char buf[64];
 instruction_t ins;
@@ -106,107 +107,141 @@ void generate_invalid_instruction_symbols(int idx, int ln) {
 }
 
 void test_build_instruction_WhereInstructionIsValid(void) {
+	RESET;
+
 	int idx = rand() % SYMBOL_CEILING - 5;
 	generate_valid_instruction_symbols(idx, rand());
-
 	TEST_ASSERT_NOT_EQUAL_INT(0, build_instruction(&ins, &symbols, idx));
 }
 
 void test_build_instruction_WhereInstructionIsInvalid(void) {
+	RESET;
+
 	int idx = rand() % SYMBOL_CEILING - 5;
 	generate_invalid_instruction_symbols(idx, rand());
-
 	TEST_ASSERT_EQUAL_INT(0, build_instruction(&ins, &symbols, idx));
 }
 
 void test_build_instruction_WhereInstructioIsValid_WhereSymbolTableIsNull(void) {
+	RESET;
+
 	generate_invalid_instruction_symbols(0, 0);
 	int idx = rand() % SYMBOL_CEILING - 5;
-
 	TEST_ASSERT_EQUAL_INT(0, build_instruction(&ins, NULL, idx));
 }
 
 void test_build_instruction_WhereInstructionIsValid_WhereIdxIsNegative(void) {
+	RESET;
+
 	generate_valid_instruction_symbols(0, 0);
 	int idx = (rand() % SYMBOL_CEILING) * -1;
 	symbol_list_t symbols[SYMBOL_CEILING];	
-
 	TEST_ASSERT_EQUAL_INT(0, build_instruction(&ins, symbols, idx));
 }
 
 void test_is_comment_WhereCommentIsAtEndOfString(void) {
-	const char *s = "Hello ; This is a comment";
+	RESET;
 
+	const char *s = "Hello ; This is a comment";
 	TEST_ASSERT_EQUAL_INT(0, is_comment(s));
 }
 
 void test_is_comment_WhereCommentIsEntireString(void) {
-	const char *s = "; This is a comment";
+	RESET;
 
+	const char *s = "; This is a comment";
 	TEST_ASSERT_EQUAL_INT(1, is_comment(s));
 }
 
 void test_is_comment_WhereStringIsEmpty(void) {
+	RESET;
+
 	TEST_ASSERT_EQUAL_INT(0, is_comment(empty));
 }
 
 void test_is_comment_WhereNoCommentIsInString(void) {
-	const char *s = "This is not a comment";
+	RESET;
 
+	const char *s = "This is not a comment";
 	TEST_ASSERT_EQUAL_INT(0, is_comment(s));
 }
 
 void test_is_db_WhereStringIsDB(void) {
-	const char *s = "DB";
+	RESET;
 
+	const char *s = "DB";
 	TEST_ASSERT_EQUAL_INT(1, is_db(s));
 }
 
 void test_is_db_WhereStringIsNotDB(void) {
-	const char *s = "DW";
+	RESET;
 
+	const char *s = "DW";
 	TEST_ASSERT_EQUAL_INT(0, is_db(s));
 }
 
 void test_is_db_WhereStringContainsDB(void) {
+	RESET;
+
 	const char *s = "Foo DB";
 	TEST_ASSERT_EQUAL_INT(0, is_db(s));
 }
 
 void test_is_db_WithTrailingChars(void) {
+	RESET;
+
 	const char *s = "DB foo";
 	TEST_ASSERT_EQUAL_INT(0, is_db(s));
 }
 
 void test_is_db_WhereStringIsEmpty(void) {
+	RESET;
+
 	TEST_ASSERT_EQUAL_INT(0, is_db(empty));
 }
 
+void test_is_db_WhereStringIsNull(void) {
+	RESET;
+
+	TEST_ASSERT_EQUAL_INT(0, is_db(NULL));
+}
+
 void test_is_dw_WhereStringIsDW(void) {
+	RESET;
 	const char *s = "DW";
 	TEST_ASSERT_EQUAL_INT(1, is_dw(s));
 }
 
 void test_is_dw_WhereStringIsNotDW(void) {
+	RESET;
 	const char *s = "DB";
 	TEST_ASSERT_EQUAL_INT(0, is_dw(s));
 }
 
 void test_is_dw_WhereStringContainsDW(void) {
+	RESET;
 	const char *s = "Foo DW";
 	TEST_ASSERT_EQUAL_INT(0, is_db(s));
 }
 
 void test_is_dw_WithTrailingChars(void) {
+	RESET;
 	const char *s = "DW foo";
 	TEST_ASSERT_EQUAL_INT(0, is_dw(s));
 }
 
 void test_is_dw_WhereStringIsEmpty(void) {
+	RESET;
 	TEST_ASSERT_EQUAL_INT(0, is_dw(empty));
 }
 
+void test_is_dw_WhereStringIsNull(void) {
+	RESET;
+	TEST_ASSERT_EQUAL_INT(0, is_dw(NULL));
+}
+
 void test_is_instruction_WhereStringIsInstruction(void) {
+	RESET;
 	int ic = 0;
 	for (ic = 0; instructionStrings[ic] != NULL; ic++);
 
@@ -219,32 +254,48 @@ void test_is_instruction_WhereStringIsInstruction(void) {
 }
 
 void test_is_instruction_WhereStringIsNotInstruction(void) {
+	RESET;
 	const char *s = "Not an instruction";
 
 	TEST_ASSERT_EQUAL_INT(-1, is_instruction(s));
 }
 
 void test_is_instruction_WhereStringIsEmpty(void) {
+	RESET;
 	TEST_ASSERT_EQUAL_INT(-1, is_instruction(empty));
 }
 
+void test_is_instruction_WhereStringIsNull(void) {
+	RESET;
+	TEST_ASSERT_EQUAL_INT(0, is_instruction(NULL));
+}
+
 void test_is_label_definition_WhereStringIsLabelDefinition(void) {
+	RESET;
 	const char *s = "L:";
 
 	TEST_ASSERT_EQUAL_INT(1, is_label_definition(s));
 }
 
 void test_is_label_definition_WhereStringIsNotLabelDefinition(void) {
+	RESET;
 	const char *s = "L";
 
 	TEST_ASSERT_EQUAL_INT(0, is_label_definition(s));
 }
 
 void test_is_label_definition_WhereStringIsEmpty(void) {
+	RESET;
 	TEST_ASSERT_EQUAL_INT(0, is_label_definition(empty));
 }
 
+void test_is_label_definition_WhereStringIsNull(void) {
+	RESET;
+	TEST_ASSERT_EQUAL_INT(0, is_label_definition(NULL));
+}
+
 void test_is_label_WhereStringIsLabel(void) {
+	RESET;
 	const char *s = "L";
 
 	labels.len = 3;
@@ -259,6 +310,7 @@ void test_is_label_WhereStringIsLabel(void) {
 }
 
 void test_is_label_WhereStringIsNotLabel(void) {
+	RESET;
 	const char *s = "L";
 
 	labels.len = 3;
@@ -273,29 +325,60 @@ void test_is_label_WhereStringIsNotLabel(void) {
 }
 
 void test_is_label_WhereStringIsEmpty(void) {
+	RESET;
 	TEST_ASSERT_EQUAL_INT(-1, is_label(empty, &labels));
 }
 
+void test_is_label_WhereStringIsNull(void) {
+	RESET;
+	RESET;
+
+	labels.len = 3;
+	labels.l[0].byte = rand();
+	strcpy(labels.l[0].identifier, "LABEL");
+	labels.l[1].byte = rand();
+	strcpy(labels.l[1].identifier, "ANOTHERLABEL");
+	labels.l[2].byte = rand();
+	strcpy(labels.l[2].identifier, "L");
+
+	TEST_ASSERT_EQUAL_INT(-1, is_label(NULL, &labels));
+}
+
 void test_is_label_WhereLabelListIsNull(void) {
+	RESET;
 	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, is_label(empty, NULL));
 }
 
 void test_is_register_WhereStringIsRegister_WhereRegisterIsUppercase(void) {
+	RESET;
 	const char *s = "V1";
 	TEST_ASSERT_EQUAL_INT(1, is_register(s));
 }
 
 void test_is_register_WhereStringIsRegister_RegisterIsLowercase(void) {
+	RESET;
 	const char *s = "vf";
 	TEST_ASSERT_EQUAL_INT(0xF, is_register(s));
 }
 
 void test_is_register_WhereStringIsNotRegister(void) {
+	RESET;
 	const char *s = "x4";
 	TEST_ASSERT_EQUAL_INT(-1, is_register(s));
 }
 
+void test_is_register_WhereStringIsEmpty(void) {
+	RESET;
+	TEST_ASSERT_EQUAL_INT(-1, is_register(empty));
+}
+
+void test_is_register_WhereStringIsNull(void) {
+	RESET;
+	TEST_ASSERT_EQUAL_INT(-1, is_register(NULL));
+}
+
 void test_is_reserved_identifier_WhereStringIsReservedIdentifier(void) {
+	RESET;
 	int ic = 0;
 	for (ic = 0; identifierStrings[ic] != NULL; ic++);
 
@@ -308,12 +391,24 @@ void test_is_reserved_identifier_WhereStringIsReservedIdentifier(void) {
 }
 
 void test_is_reserved_identifier_WhereStringIsNotReservedIdentifier(void) {
+	RESET;
 	const char *s = "Not reserved";
 
 	TEST_ASSERT_EQUAL_INT(-1, is_reserved_identifier(s));
 }
 
+void test_is_reserved_identifier_WhereStringIsEmpty(void) {
+	RESET;
+	TEST_ASSERT_EQUAL_INT(-1, is_reserved_identifier(empty));
+}
+
+void test_is_reserved_identifier_WhereStringIsNull(void) {
+	RESET;
+	TEST_ASSERT_EQUAL_INT(-1, is_reserved_identifier(NULL));
+}
+
 void test_next_symbol_WhereSymbolListIsEmpty(void) {
+	RESET;
 	memset(symbols.s, 0, SYMBOL_CEILING);
 	symbols.len = 0;
 	symbols.ceil = SYMBOL_CEILING;
@@ -322,6 +417,7 @@ void test_next_symbol_WhereSymbolListIsEmpty(void) {
 }
 
 void test_next_symbol_WhereSymbolListIsNotEmptyOrFull(void) {
+	RESET;
 	memset(symbols.s, 0, SYMBOL_CEILING);
 
 	symbols.len = 2;
@@ -333,6 +429,7 @@ void test_next_symbol_WhereSymbolListIsNotEmptyOrFull(void) {
 }
 
 void test_next_symbol_WhereSymbolListIsFull(void) {
+	RESET;
 	memset(symbols.s, SYM_INSTRUCTION, SYMBOL_CEILING);
 
 	symbols.len = SYMBOL_CEILING;
@@ -346,10 +443,12 @@ void test_next_symbol_WhereSymbolListIsFull(void) {
 }
 
 void test_next_symbol_WhereSymbolListIsNull(void) {
+	RESET;
 	TEST_ASSERT_EQUAL_PTR(NULL, next_symbol(NULL));
 }
 
 void test_populate_labels_WhereLinesIsEmpty(void) {
+	RESET;
 	CLEAR_LINES;
 	CLEAR_LABELS;
 
@@ -361,6 +460,7 @@ void test_populate_labels_WhereLinesIsEmpty(void) {
 }
 
 void test_populate_labels_WhereLinesIsNull(void) {
+	RESET;
 	CLEAR_LABELS;
 	int r = populate_labels(NULL, 5, &labels);
 
@@ -370,6 +470,7 @@ void test_populate_labels_WhereLinesIsNull(void) {
 }
 
 void test_populate_labels_WhereLabelListIsEmpty(void) {
+	RESET;
 	CLEAR_LABELS;
 	CLEAR_LINES;
 
@@ -386,6 +487,7 @@ void test_populate_labels_WhereLabelListIsEmpty(void) {
 }
 
 void test_populate_labels_WhereLabelListIsNull(void) {
+	RESET;
 	CLEAR_LINES;
 
 	sprintf(lines[0], "%s", "ADD V4, V5");
@@ -400,6 +502,7 @@ void test_populate_labels_WhereLabelListIsNull(void) {
 }
 
 void test_populate_labels_WhereLinesHasMultipleLabelDefinitions(void) {
+	RESET;
 	CLEAR_LABELS;
 	CLEAR_LINES;
 
@@ -418,6 +521,7 @@ void test_populate_labels_WhereLinesHasMultipleLabelDefinitions(void) {
 }
 
 void test_populate_labels_WhereLinesHasDuplicateLabelDefinitions(void) {
+	RESET;
 	CLEAR_LABELS;
 	CLEAR_LINES;
 
@@ -432,24 +536,57 @@ void test_populate_labels_WhereLinesHasDuplicateLabelDefinitions(void) {
 	TEST_ASSERT_EQUAL_INT(DUPLICATE_LABEL_EXCEPTION, r);
 }
 
-void test_resolve_labels_WhereLabelListHasOneLabel(void) { }
+void test_resolve_labels_WhereLabelListHasOneLabel(void) {
+	RESET;
+}
 
-void test_resolve_labels_WhereLabelListHasMultipleLabels(void) { }
+void test_resolve_labels_WhereLabelListHasMultipleLabels(void) {
+	RESET;
+}
 
-void test_resolve_labels_WhereSymbolListIsEmpty(void) { }
-void test_resolve_labels_WhereSymbolListIsNull(void) { }
-void test_resolve_labels_WhereLabelListIsEmpty(void) { }
-void test_resolve_labels_WhereLabelListIsNull(void) { }
+void test_resolve_labels_WhereSymbolListIsEmpty(void) {
+	RESET;
+}
 
-void test_substitute_labels_WhereLabelListContainsAllLabels(void) { }
-void test_substitute_labels_WhereLabelListIsMissingLabels(void) { }
-void test_substitute_labels_WhereSymbolListIsEmpty(void) { }
-void test_substitute_labels_WhereSymbolListIsNull(void) { }
-void test_substitute_labels_WhereLabelListIsEmpty(void) { }
-void test_substitute_labels_WhereLabelListIsNull(void) { }
+void test_resolve_labels_WhereSymbolListIsNull(void) {
+	RESET;
+}
+
+void test_resolve_labels_WhereLabelListIsEmpty(void) {
+	RESET;
+}
+
+void test_resolve_labels_WhereLabelListIsNull(void) {
+	RESET;
+}
+
+void test_substitute_labels_WhereLabelListContainsAllLabels(void) {
+	RESET;
+}
+
+void test_substitute_labels_WhereLabelListIsMissingLabels(void) {
+	RESET;
+}
+
+void test_substitute_labels_WhereSymbolListIsEmpty(void) {
+	RESET;
+}
+
+void test_substitute_labels_WhereSymbolListIsNull(void) {
+	RESET;
+}
+
+void test_substitute_labels_WhereLabelListIsEmpty(void) {
+	RESET;
+}
+
+void test_substitute_labels_WhereLabelListIsNull(void) {
+	RESET;
+}
 
 int main(void) {
-    UNITY_BEGIN();
+	RESET;
+	UNITY_BEGIN();
 
 	RUN_TEST(test_build_instruction_WhereInstructionIsValid);
 	RUN_TEST(test_build_instruction_WhereInstructionIsInvalid);
@@ -466,32 +603,41 @@ int main(void) {
 	RUN_TEST(test_is_db_WhereStringContainsDB);
 	RUN_TEST(test_is_db_WithTrailingChars);
 	RUN_TEST(test_is_db_WhereStringIsEmpty);
+	RUN_TEST(test_is_db_WhereStringIsNull);
 
 	RUN_TEST(test_is_dw_WhereStringIsDW);
 	RUN_TEST(test_is_dw_WhereStringIsNotDW);
 	RUN_TEST(test_is_dw_WhereStringContainsDW);
 	RUN_TEST(test_is_dw_WithTrailingChars);
 	RUN_TEST(test_is_dw_WhereStringIsEmpty);
+	RUN_TEST(test_is_dw_WhereStringIsNull);
 
 	RUN_TEST(test_is_instruction_WhereStringIsInstruction);
 	RUN_TEST(test_is_instruction_WhereStringIsNotInstruction);
 	RUN_TEST(test_is_instruction_WhereStringIsEmpty);
+	RUN_TEST(test_is_instruction_WhereStringIsNull);
 
 	RUN_TEST(test_is_label_definition_WhereStringIsLabelDefinition);
 	RUN_TEST(test_is_label_definition_WhereStringIsNotLabelDefinition);
 	RUN_TEST(test_is_label_definition_WhereStringIsEmpty);
+	RUN_TEST(test_is_label_definition_WhereStringIsNull);
 
 	RUN_TEST(test_is_label_WhereStringIsLabel);
 	RUN_TEST(test_is_label_WhereStringIsNotLabel);
 	RUN_TEST(test_is_label_WhereStringIsEmpty);
+	RUN_TEST(test_is_label_WhereStringIsNull);
 	RUN_TEST(test_is_label_WhereLabelListIsNull);
 
 	RUN_TEST(test_is_register_WhereStringIsRegister_WhereRegisterIsUppercase);
 	RUN_TEST(test_is_register_WhereStringIsRegister_RegisterIsLowercase);
 	RUN_TEST(test_is_register_WhereStringIsNotRegister);
+	RUN_TEST(test_is_register_WhereStringIsEmpty);
+	RUN_TEST(test_is_register_WhereStringIsNull);
 
 	RUN_TEST(test_is_reserved_identifier_WhereStringIsReservedIdentifier);
 	RUN_TEST(test_is_reserved_identifier_WhereStringIsNotReservedIdentifier);
+	RUN_TEST(test_is_register_WhereStringIsEmpty);
+	RUN_TEST(test_is_register_WhereStringIsNull);
 
 	RUN_TEST(test_next_symbol_WhereSymbolListIsEmpty);
 	RUN_TEST(test_next_symbol_WhereSymbolListIsFull);
@@ -505,5 +651,18 @@ int main(void) {
 	RUN_TEST(test_populate_labels_WhereLabelListIsNull);
 	RUN_TEST(test_populate_labels_WhereLinesIsNull);
 
-    return UNITY_END();
+	RUN_TEST(test_resolve_labels_WhereLabelListHasOneLabel);
+	RUN_TEST(test_resolve_labels_WhereLabelListHasMultipleLabels);
+	RUN_TEST(test_resolve_labels_WhereSymbolListIsEmpty);
+	RUN_TEST(test_resolve_labels_WhereSymbolListIsNull);
+	RUN_TEST(test_resolve_labels_WhereLabelListIsEmpty);
+	RUN_TEST(test_resolve_labels_WhereLabelListIsNull);
+
+	RUN_TEST(test_substitute_labels_WhereLabelListContainsAllLabels);
+	RUN_TEST(test_substitute_labels_WhereLabelListIsMissingLabels);
+	RUN_TEST(test_substitute_labels_WhereSymbolListIsEmpty);
+	RUN_TEST(test_substitute_labels_WhereSymbolListIsNull);
+	RUN_TEST(test_substitute_labels_WhereLabelListIsEmpty);
+	RUN_TEST(test_substitute_labels_WhereLabelListIsNull);
+	return UNITY_END();
 }
