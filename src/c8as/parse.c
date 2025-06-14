@@ -24,7 +24,7 @@ static void parse_line(char *, int, symbol_list_t *, label_list_t *);
 static int parse_word(char *, char *, int, symbol_t *, label_list_t *);
 static inline void put16(uint8_t *, uint16_t, int);
 static int tokenize(char **, char *, const char *, int);
-static char *to_upper(char *);
+static void to_upper(char *);
 static char *remove_comma(char *);
 static int write(uint8_t *, symbol_list_t *, int);
 
@@ -87,8 +87,7 @@ char *remove_comment(char *s) {
 		if (s[i] == ';') s[i] = '\0';
 	}
 
-	trim(s);
-	return s;
+	return trim(s);
 }
 
 
@@ -116,7 +115,7 @@ static void parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *la
 		return;
 	}
 
-	symbol_t *sym = &symbols->s[symbols->len];
+	symbol_t *sym = next_symbol(symbols);
 	char *words[MAX_WORDS];
 	int wc = tokenize(words, s, " ", MAX_WORDS);
 
@@ -145,6 +144,7 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
 	int value;
 	sym->ln = ln;
 	s = remove_comma(s);
+	to_upper(s);
 
 	if (is_label_definition(s)) {
 		sym->type = SYM_LABEL_DEFINITION;
@@ -153,21 +153,21 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
 				sym->value = j;
 			}
 		}
-	} else if ((value = is_instruction(to_upper(s))) != I_NULL) {
+	} else if ((value = is_instruction(s)) != -1) {
 		sym->type = SYM_INSTRUCTION;
 		sym->value = value;
-	} else if (is_db(to_upper(s))) {
+	} else if (is_db(s)) {
 		sym->type = SYM_DB;
 		sym->value = parse_int(next);
 		return 1;
-	} else if (is_dw(to_upper(s))) {
+	} else if (is_dw(s)) {
 		sym->type = SYM_DW;
 		sym->value = parse_int(next);
 		return 1;
-	} else if ((value = is_register(to_upper(s))) != -1) {
+	} else if ((value = is_register(s)) != -1) {
 		sym->type = SYM_V;
 		sym->value = value;
-	} else if ((value = is_reserved_identifier(to_upper(s))) != -1) {
+	} else if ((value = is_reserved_identifier(s)) != -1) {
 		sym->type = value;
 	} else if ((value = parse_int(s)) != -1) {
 		sym->type = SYM_INT;
@@ -240,13 +240,11 @@ static char *remove_comma(char *s) {
  * 
  * @param s string to convert
  */
-static char *to_upper(char *s) {
+static void to_upper(char *s) {
 	while (*s) {
 		*s = toupper(*s);
 		s++;
 	}
-
-	return s;
 }
 
 /**
@@ -267,6 +265,7 @@ static int write(uint8_t *output, symbol_list_t *symbols, int args) {
 		if (byte >= MEMSIZE - PROG_START) {
 			return -1;
 		}
+		printf("%d\n", symbols->s[i].type);
 
 		switch(symbols->s[i].type) {
 			case SYM_INSTRUCTION:

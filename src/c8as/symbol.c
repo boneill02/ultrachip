@@ -220,10 +220,12 @@ int is_instruction(const char *s) {
 		return NULL_ARGUMENT_EXCEPTION;
 	}
 
-	if (strlen(s) == 0) return -1;
+	if (strlen(s) == 0) {
+		return -1;
+	}
 
 	for (int i = 0; instructionStrings[i]; i++) {
-		if (!strcmp(s, instructionStrings[i])) {
+		if (!strncmp(s, instructionStrings[i], strlen(s))) {
 			return i;
 		}
 	}
@@ -319,6 +321,7 @@ symbol_t *next_symbol(symbol_list_t *symbols) {
 	}
 
 	if (symbols->len == 0 && symbols->s[0].ln == 0) {
+		symbols->len++;
 		return &symbols->s[0];
 	}
 
@@ -327,7 +330,7 @@ symbol_t *next_symbol(symbol_list_t *symbols) {
 		reallocate_symbols(symbols);
 	}
 
-	return &symbols->s[symbols->len];
+	return &symbols->s[symbols->len - 1];
 }
 
 /**

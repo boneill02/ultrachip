@@ -15,6 +15,7 @@
 	memset(labels.l, 0, LABEL_CEILING * sizeof(label_t)); \
 	labels.len = 0; \
 	labels.ceil = LABEL_CEILING;
+#define CLEAR_BUF for (int i = 0; i < 64; i++) { buf[i] = '\0'; }
 
 char buf[64];
 instruction_t ins;
