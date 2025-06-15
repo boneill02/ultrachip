@@ -201,7 +201,7 @@ char *trim(char *s) {
     }
 
 	if (startIdx == len) {
-		return &s[len]; // empty string
+		return &s[len+1]; // empty string
 	}
 	while (endIdx > 0 && isspace(s[endIdx])) {
 		endIdx--;

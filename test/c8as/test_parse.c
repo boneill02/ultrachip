@@ -11,7 +11,9 @@
 #define BYTECODE_SIZE (MEMSIZE - PROG_START)
 #define CLEAR_BYTECODE for(int i=0;i<BYTECODE_SIZE;i++){bytecode[i]=0;}
 #define CLEAR_BUF for(int i=0;i<BUFSIZ;i++){buf[i]='\0';}
-#define RESET CLEAR_BUF; CLEAR_BYTECODE;
+#define CLEAR_EXCEPTION for(int i=0;i<EXCEPTION_MESSAGE_SIZE;i++){exception[i]='\0';}
+
+#define RESET CLEAR_BUF; CLEAR_BYTECODE; CLEAR_EXCEPTION;
 
 char buf[BUFSIZ];
 uint8_t *bytecode;
@@ -117,7 +119,7 @@ void test_parse_WhereOneValidInstructionExists(void) {
 	RESET;
 	generate_valid_instruction_string();
 	r = parse(buf, bytecode, 1);
-	TEST_ASSERT_EQUAL_INT(2, r);
+	TEST_ASSERT_EQUAL_INT(2, r); // FAILING
 	int bc = bytecode[0] || bytecode[1];
 	TEST_ASSERT_GREATER_THAN_INT(0, bc);
 	TEST_ASSERT_EQUAL_INT(0, strlen(exception));
@@ -133,7 +135,7 @@ void test_parse_WhereMultipleValidInstructionsExist(void) {
 	generate_valid_instruction_string();
 	char *s = "AND VF, $31\nOR V1, V9\nDRW V1, V9, $8";
 	int r = parse(buf, bytecode, 1);
-	TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, r);
+	TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, r); // FAILING
 }
 
 void test_parse_WhereInvalidInstructionsExist(void) {
@@ -145,7 +147,7 @@ void test_parse_WhereInvalidInstructionsExist(void) {
 	generate_invalid_instruction_string();
 	generate_valid_instruction_string();
 	int r = parse(buf, bytecode, 1);
-	TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, r);
+	TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, r); // FAILING
 }
 
 void test_parse_WhereInvalidSymbolsExist(void) {

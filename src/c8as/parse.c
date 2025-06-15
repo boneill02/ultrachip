@@ -61,24 +61,24 @@ int parse(const char *s, uint8_t *out, int args) {
 	labels.ceil = LABEL_CEILING;
 
 	/* copy string and ensure newline at end */
-	if (s[len - 1] != '\n') {
+	if (s[len - 1] == '\n') {
+		scpy = safe_malloc(len + 1);
+		scpy[len] = '\0';
+	} else {
 		scpy = safe_malloc(len + 2);
 		scpy[len] = '\n';
 		scpy[len + 1] = '\0';
-	} else {
-		scpy = safe_malloc(len + 1);
-		scpy[len] = '\0';
 	}
 
-	for (int i = 0; i < strlen(s); i++) {
+	for (int i = 0; i < len; i++) {
 		scpy[i] = s[i];
 	}
 
+	lines = safe_malloc(lineCount * sizeof(char *));
 	if ((lineCount = tokenize(lines, scpy, "\n", lineCount)) < 1) {
 		return lineCount;
 	}
 
-	lines = safe_malloc(lineCount * sizeof(char *));
 
 	VERBOSE_PRINT("Populating identifiers in label map");
 	if (ret = populate_labels(lines, lineCount, &labels) < 1) {
@@ -106,7 +106,7 @@ int parse(const char *s, uint8_t *out, int args) {
 	VERBOSE_PRINT("Writing output");
 	bytes = write(out, &symbols, args);
 
-	free(scpy);
+	safe_free(scpy);
 	safe_free(symbols.s);
 	safe_free(labels.l);
 	safe_free(lines);
@@ -337,7 +337,7 @@ static int write(uint8_t *output, symbol_list_t *symbols, int args) {
 
 	for (int i = 0; i < symbols->len; i++) {
 		if (byte >= MEMSIZE - PROG_START) {
-			return -1;
+			return TOO_MANY_SYMBOLS_EXCEPTION;
 		}
 
 		switch(symbols->s[i].type) {
