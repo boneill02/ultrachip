@@ -18,6 +18,7 @@ sudo make install
 
 ```
 make test
+make test-c8as
 make test-util
 ```
 
