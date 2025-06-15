@@ -19,10 +19,10 @@
 	memset(labels.l, 0, SYMBOL_CEILING*sizeof(symbol_t)); \
 	labels.len=0; \
 	labels.ceil = LABEL_CEILING;
-#define CLEAR_BUF for (int i=0;i<64;i++) {buf[i]='\0';}
+#define CLEAR_BUF for (int i=0;i<BUFSIZ;i++) {buf[i]='\0';}
 #define RESET CLEAR_LINES; CLEAR_SYMBOLS; CLEAR_LABELS; CLEAR_BUF;
 
-char buf[64];
+char buf[BUFSIZ];
 instruction_t ins;
 symbol_list_t symbols;
 label_list_t labels;
@@ -656,9 +656,9 @@ void test_substitute_labels_WhereLabelListContainsAllLabels(void) {
 	int r = substitute_labels(&symbols, &labels);
 
 	TEST_ASSERT_EQUAL_INT(1, r);
-	TEST_ASSERT_EQUAL_INT(SYM_INT, symbols.s[1].type);
+	TEST_ASSERT_EQUAL_INT(SYM_INT12, symbols.s[1].type);
 	TEST_ASSERT_EQUAL_INT(0x204, symbols.s[1].value);
-	TEST_ASSERT_EQUAL_INT(SYM_INT, symbols.s[6].type);
+	TEST_ASSERT_EQUAL_INT(SYM_INT12, symbols.s[6].type);
 	TEST_ASSERT_EQUAL_INT(0x202, symbols.s[6].value);
 }
 

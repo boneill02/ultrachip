@@ -61,50 +61,50 @@ const char *instructionStrings[] = {
 };
 
 instruction_format_t formats[] = {
-	{ I_SCD,  0x00C0, 1, {SYM_INT},               {0x000F}},
-	{ I_CLS,  0x00E0, 0, {SYM_NULL},              {0} },
-	{ I_RET,  0x00EE, 0, {SYM_NULL},              {0} },
-	{ I_SCR,  0x00FB, 0, {SYM_NULL},              {0}},
-	{ I_SCL,  0x00FC, 0, {SYM_NULL},              {0}},
-	{ I_EXIT, 0x00FD, 0, {SYM_NULL},              {0}},
-	{ I_LOW,  0x00FE, 0, {SYM_NULL},              {0}},
-	{ I_HIGH, 0x00FF, 0, {SYM_NULL},              {0}},
-	{ I_JP,   0x1000, 1, {SYM_INT},               {0x0FFF} },
-	{ I_CALL, 0x2000, 1, {SYM_INT},               {0x0FFF} },
-	{ I_SE,   0x3000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
-	{ I_SNE,  0x4000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
-	{ I_SE,   0x5000, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
-	{ I_LD,   0x6000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
-	{ I_ADD,  0x7000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
-	{ I_LD,   0x8000, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
-	{ I_OR,   0x8001, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
-	{ I_AND,  0x8002, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
-	{ I_XOR,  0x8003, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
-	{ I_ADD,  0x8004, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
-	{ I_SUB,  0x8005, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
-	{ I_SHR,  0x8006, 1, {SYM_V},                 {0x0F00} },
-	{ I_SUBN, 0x8007, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
-	{ I_SHL,  0x800E, 1, {SYM_V},                 {0x0F00} },
-	{ I_SNE,  0x9000, 2, {SYM_V, SYM_V},          {0x0F00, 0x00F0} },
-	{ I_LD,   0xA000, 2, {SYM_I, SYM_INT},        {0x0000, 0x0FFF} },
-	{ I_JP,   0xB000, 2, {SYM_V, SYM_INT},        {0x0000, 0x0FFF} },
-	{ I_RND,  0xC000, 2, {SYM_V, SYM_INT},        {0x0F00, 0x00FF} },
-	{ I_DRW,  0xD000, 3, {SYM_V, SYM_V, SYM_INT}, {0x0F00, 0x00F0, 0x000F} },
-	{ I_SKP,  0xE09E, 1, {SYM_V},                 {0x0F00} },
-	{ I_SKNP, 0xE0A1, 1, {SYM_V},                 {0x0F00} },
-	{ I_LD,   0xF007, 2, {SYM_V, SYM_DT},         {0x0F00, 0x0000} },
-	{ I_LD,   0xF00A, 2, {SYM_V, SYM_K},          {0x0F00, 0x0000} },
-	{ I_LD,   0xF015, 2, {SYM_DT, SYM_V},         {0x0000, 0x0F00} },
-	{ I_LD,   0xF018, 2, {SYM_ST, SYM_V},         {0x0000, 0x0F00} },
-	{ I_ADD,  0xF01E, 2, {SYM_I, SYM_V},          {0x0000, 0x0F00} },
-	{ I_LD,   0xF029, 2, {SYM_F, SYM_V},          {0x0000, 0x0F00} },
-	{ I_LD,   0xF030, 2, {SYM_HF, SYM_V},         {0x0000, 0x0F00} },
-	{ I_LD,   0xF033, 2, {SYM_B, SYM_V},          {0x0000, 0x0F00} },
-	{ I_LD,   0xF055, 2, {SYM_IP, SYM_V},         {0x0000, 0x0F00} },
-	{ I_LD,   0xF065, 2, {SYM_V, SYM_IP},         {0x0F00, 0x0000} },
-	{ I_LD,   0xF075, 2, {SYM_R, SYM_V},          {0x0000, 0x0F00} },
-	{ I_LD,   0xF085, 2, {SYM_V, SYM_R},          {0x0F00, 0x0000} },
-	{ I_NULL, 0,      0, {SYM_NULL},              {0} },
+	{ I_SCD,  0x00C0, 1, {SYM_INT4},               {0x000F}},
+	{ I_CLS,  0x00E0, 0, {SYM_NULL},               {0} },
+	{ I_RET,  0x00EE, 0, {SYM_NULL},               {0} },
+	{ I_SCR,  0x00FB, 0, {SYM_NULL},               {0}},
+	{ I_SCL,  0x00FC, 0, {SYM_NULL},               {0}},
+	{ I_EXIT, 0x00FD, 0, {SYM_NULL},               {0}},
+	{ I_LOW,  0x00FE, 0, {SYM_NULL},               {0}},
+	{ I_HIGH, 0x00FF, 0, {SYM_NULL},               {0}},
+	{ I_JP,   0x1000, 1, {SYM_INT12},              {0x0FFF} },
+	{ I_CALL, 0x2000, 1, {SYM_INT12},              {0x0FFF} },
+	{ I_SE,   0x3000, 2, {SYM_V, SYM_INT8},        {0x0F00, 0x00FF} },
+	{ I_SNE,  0x4000, 2, {SYM_V, SYM_INT8},        {0x0F00, 0x00FF} },
+	{ I_SE,   0x5000, 2, {SYM_V, SYM_V},           {0x0F00, 0x00F0} },
+	{ I_LD,   0x6000, 2, {SYM_V, SYM_INT8},        {0x0F00, 0x00FF} },
+	{ I_ADD,  0x7000, 2, {SYM_V, SYM_INT8},        {0x0F00, 0x00FF} },
+	{ I_LD,   0x8000, 2, {SYM_V, SYM_V},           {0x0F00, 0x00F0} },
+	{ I_OR,   0x8001, 2, {SYM_V, SYM_V},           {0x0F00, 0x00F0} },
+	{ I_AND,  0x8002, 2, {SYM_V, SYM_V},           {0x0F00, 0x00F0} },
+	{ I_XOR,  0x8003, 2, {SYM_V, SYM_V},           {0x0F00, 0x00F0} },
+	{ I_ADD,  0x8004, 2, {SYM_V, SYM_V},           {0x0F00, 0x00F0} },
+	{ I_SUB,  0x8005, 2, {SYM_V, SYM_V},           {0x0F00, 0x00F0} },
+	{ I_SHR,  0x8006, 1, {SYM_V},                  {0x0F00} },
+	{ I_SUBN, 0x8007, 2, {SYM_V, SYM_V},           {0x0F00, 0x00F0} },
+	{ I_SHL,  0x800E, 1, {SYM_V},                  {0x0F00} },
+	{ I_SNE,  0x9000, 2, {SYM_V, SYM_V},           {0x0F00, 0x00F0} },
+	{ I_LD,   0xA000, 2, {SYM_I, SYM_INT12},       {0x0000, 0x0FFF} },
+	{ I_JP,   0xB000, 2, {SYM_V, SYM_INT12},       {0x0000, 0x0FFF} },
+	{ I_RND,  0xC000, 2, {SYM_V, SYM_INT8},        {0x0F00, 0x00FF} },
+	{ I_DRW,  0xD000, 3, {SYM_V, SYM_V, SYM_INT4}, {0x0F00, 0x00F0, 0x000F} },
+	{ I_SKP,  0xE09E, 1, {SYM_V},                  {0x0F00} },
+	{ I_SKNP, 0xE0A1, 1, {SYM_V},                  {0x0F00} },
+	{ I_LD,   0xF007, 2, {SYM_V, SYM_DT},          {0x0F00, 0x0000} },
+	{ I_LD,   0xF00A, 2, {SYM_V, SYM_K},           {0x0F00, 0x0000} },
+	{ I_LD,   0xF015, 2, {SYM_DT, SYM_V},          {0x0000, 0x0F00} },
+	{ I_LD,   0xF018, 2, {SYM_ST, SYM_V},          {0x0000, 0x0F00} },
+	{ I_ADD,  0xF01E, 2, {SYM_I, SYM_V},           {0x0000, 0x0F00} },
+	{ I_LD,   0xF029, 2, {SYM_F, SYM_V},           {0x0000, 0x0F00} },
+	{ I_LD,   0xF030, 2, {SYM_HF, SYM_V},          {0x0000, 0x0F00} },
+	{ I_LD,   0xF033, 2, {SYM_B, SYM_V},           {0x0000, 0x0F00} },
+	{ I_LD,   0xF055, 2, {SYM_IP, SYM_V},          {0x0000, 0x0F00} },
+	{ I_LD,   0xF065, 2, {SYM_V, SYM_IP},          {0x0F00, 0x0000} },
+	{ I_LD,   0xF075, 2, {SYM_R, SYM_V},           {0x0000, 0x0F00} },
+	{ I_LD,   0xF085, 2, {SYM_V, SYM_R},           {0x0F00, 0x0000} },
+	{ I_NULL, 0,      0, {SYM_NULL},               {0} },
 };
 
 static int parse_instruction(instruction_t *);
@@ -137,10 +137,20 @@ int build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) {
 	/* parse instruction args */
 	idx++;
 	int j = 0;
+	int max = 0;
 	for (int i = idx; i < symbols->len; i++) {
 		switch (symbols->s[i].type) {
 			case SYM_V:
-			case SYM_INT:
+			case SYM_INT12:
+				max = 0xFFF;
+			case SYM_INT8:
+				max = max == 0 ? 0xFF : max;
+			case SYM_INT4:
+				max = max == 0 ? 0xF : max;
+				if (symbols->s[i].value > max) {
+					sprintf(exception, "Line %d: Integer argument too big", symbols->s[i].ln);
+					return INVALID_INSTRUCTION_EXCEPTION;
+				}
 				ins->p[j] = symbols->s[i].value;
 			case SYM_B:
 			case SYM_DT:
@@ -413,7 +423,7 @@ int substitute_labels(symbol_list_t *symbols, label_list_t *labels) {
 				sprintf(exception, "Line: %d\n", symbols->s[i].ln);
 				return INVALID_SYMBOL_EXCEPTION;
 			}
-			symbols->s[i].type = SYM_INT;
+			symbols->s[i].type = SYM_INT12;
 			symbols->s[i].value = labels->l[symbols->s[i].value].byte;
 		}
 	}
@@ -458,6 +468,16 @@ static int validate_instruction(instruction_t *ins) {
 		if (ins->pcount == f->pcount && ins->cmd == f->cmd) {
 			match = 1;
 			for (int j = 0; j < ins->pcount; j++) {
+				if (ins->ptype[j] == SYM_INT) {
+					if (f->ptype[j] == SYM_INT12 && ins->p[j] < 0x1000) {
+						f->ptype[j] = SYM_INT12;
+					} else if (f->ptype[j] == SYM_INT8 && ins->p[j] < 0x100) {
+						ins->ptype[j] = SYM_INT8;
+					} else if (f->ptype[j] == SYM_INT4 && ins->p[j] < 0x10) {
+						ins->ptype[j] = SYM_INT4;
+					}
+				}
+
 				if (ins->ptype[j] != f->ptype[j]) {
 					match = 0;
 					break;
@@ -471,7 +491,7 @@ static int validate_instruction(instruction_t *ins) {
 		}
 	}
 
-	return 0;
+	return INVALID_INSTRUCTION_EXCEPTION;
 }
 
 /**

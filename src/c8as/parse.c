@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int line_count(char *);
+static int line_count(const char *);
 static int parse_line(char *, int, symbol_list_t *, label_list_t *);
 static int parse_word(char *, char *, int, symbol_t *, label_list_t *);
 static inline int put16(uint8_t *, uint16_t, int);
@@ -41,28 +41,44 @@ static int write(uint8_t *, symbol_list_t *, int);
  * 
  * @return length of resulting bytecode.
  */
-int parse(char *s, uint8_t *out, int args) {
+int parse(const char *s, uint8_t *out, int args) {
 	NULLCHECK_ARGS2(s, out);
-
+	char *scpy;
+	int len = strlen(s);
 	int bytes = 0;
 	int lineCount = line_count(s);
 	int ret;
+	char **lines;
 
 	symbol_list_t symbols;
-	symbols.s = safe_malloc(sizeof(symbol_t) * SYMBOL_CEILING);
+	symbols.s = safe_calloc(sizeof(symbol_t), SYMBOL_CEILING);
 	symbols.len = 0;
 	symbols.ceil = SYMBOL_CEILING;
 
 	label_list_t labels;
-	labels.l = safe_malloc(sizeof(label_t) * LABEL_CEILING);
+	labels.l = safe_calloc(sizeof(label_t), LABEL_CEILING);
 	labels.len = 0;
 	labels.ceil = LABEL_CEILING;
 
-	char **lines = safe_malloc(lineCount * sizeof(char *));
+	/* copy string and ensure newline at end */
+	if (s[len - 1] != '\n') {
+		scpy = safe_malloc(len + 2);
+		scpy[len] = '\n';
+		scpy[len + 1] = '\0';
+	} else {
+		scpy = safe_malloc(len + 1);
+		scpy[len] = '\0';
+	}
 
-	if ((lineCount = tokenize(lines, s, "\n", lineCount)) < 1) {
+	for (int i = 0; i < strlen(s); i++) {
+		scpy[i] = s[i];
+	}
+
+	if ((lineCount = tokenize(lines, scpy, "\n", lineCount)) < 1) {
 		return lineCount;
 	}
+
+	lines = safe_malloc(lineCount * sizeof(char *));
 
 	VERBOSE_PRINT("Populating identifiers in label map");
 	if (ret = populate_labels(lines, lineCount, &labels) < 1) {
@@ -90,6 +106,7 @@ int parse(char *s, uint8_t *out, int args) {
 	VERBOSE_PRINT("Writing output");
 	bytes = write(out, &symbols, args);
 
+	free(scpy);
 	safe_free(symbols.s);
 	safe_free(labels.l);
 	safe_free(lines);
@@ -111,7 +128,7 @@ char *remove_comment(char *s) {
 }
 
 
-static int line_count(char *s) {
+static int line_count(const char *s) {
 	int ln = 0;
 	while (*s) {
 		if (*s == '\n') {
@@ -135,7 +152,8 @@ static int line_count(char *s) {
 static int parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *labels) {
 	NULLCHECK_ARGS3(s, symbols, labels);
 
-	if (strlen(s) == 0 || strlen(remove_comment(s)) == 0) {
+	if (strlen(s) == 0 || strlen(remove_comment(s)) == 0 ||
+		strlen(trim(s)) == 0) {
 		return 1;
 	}
 
@@ -259,7 +277,6 @@ static int tokenize(char **tok, char *s, const char *delim, int maxTokens) {
 
 	int tokenCount = 0;
 	char *token = strtok(s, delim);
-	token = trim(token);
 	while (token && tokenCount < maxTokens) {
 		tok[tokenCount++] = trim(token);
 		token = strtok(NULL, delim);

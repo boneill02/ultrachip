@@ -185,20 +185,30 @@ void safe_exit(int status) {
  * returns a pointer to the first non-whitespace character.
  * 
  * @param s string to trim
- * @return pointer to first non-whitespace character after `s`
+ * @return pointer to first non-whitespace character after `s`.
  */
 char *trim(char *s) {
-    char *end;
+	if (s == NULL) {
+		return NULL;
+	}
 
-    while (isspace(*s)) {
-        s++;
+    int len = strlen(s);
+	int startIdx = 0;
+	int endIdx = len - 1;
+
+    while (startIdx < len && isspace(s[startIdx])) {
+        startIdx++;
     }
 
-    end = s + strlen(s) - 1;
-    while (end > s && isspace(*end)) {
-        end--;
-    }
+	if (startIdx == len) {
+		return &s[len]; // empty string
+	}
+	while (endIdx > 0 && isspace(s[endIdx])) {
+		endIdx--;
+	}
 
-    *(end + 1) = '\0';
-	return s;
+	if (endIdx < len) {
+		s[endIdx + 1] = '\0';
+	}
+	return &s[startIdx];
 }

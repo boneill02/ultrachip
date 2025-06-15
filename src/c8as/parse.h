@@ -10,7 +10,7 @@
 #define MAX_WORDS 100
 #define MAX_LINES 100
 
-int parse(char *, uint8_t *, int);
+int parse(const char *, uint8_t *, int);
 char *remove_comment(char *);
 
 #endif
