@@ -119,6 +119,7 @@ void test_build_instruction_WhereInstructionIsValid(void) {
 }
 
 void test_build_instruction_WhereInstructionIsInvalid(void) {
+	/* FIXME: INTERMITTENTLY FAILING */
 	RESET;
 
 	int idx = rand() % SYMBOL_CEILING - 5;

@@ -136,11 +136,12 @@ int build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) {
 
 	/* parse instruction args */
 	idx++;
-	for (int i = 0; i < symbols->len - idx; i++) {
-		switch (symbols->s[idx + i].type) {
+	int j = 0;
+	for (int i = idx; i < symbols->len; i++) {
+		switch (symbols->s[i].type) {
 			case SYM_V:
 			case SYM_INT:
-				ins->p[i] = symbols->s[idx+i].value;
+				ins->p[j] = symbols->s[i].value;
 			case SYM_B:
 			case SYM_DT:
 			case SYM_F:
@@ -150,13 +151,14 @@ int build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) {
 			case SYM_ST:
 			case SYM_HF:
 			case SYM_R:
-				ins->ptype[i] = symbols->s[idx+i].type;
+				ins->ptype[j] = symbols->s[i].type;
 				ins->pcount++;
 				break;
 			default:
 				i = symbols->len;
 				break;
 		}
+		j++;
 	}
 
 	ret = validate_instruction(ins);
@@ -451,7 +453,7 @@ static int validate_instruction(instruction_t *ins) {
 	NULLCHECK_ARGS1(ins);
 
 	int match;
-	for (int i = 0; formats[i].cmd != -1; i++) {
+	for (int i = 0; formats[i].cmd != I_NULL; i++) {
 		instruction_format_t *f = &formats[i];
 		if (ins->pcount == f->pcount && ins->cmd == f->cmd) {
 			match = 1;

@@ -60,6 +60,7 @@ void test_parse_WhereStringIsOnlyComment(void) {
 }
 
 void test_parse_WhereOneValidInstructionExists(void) {
+	/* FIXME: INTERMITTENTLY FAILING */
 	RESET;
 
 	char *s = "ADD V5, V3\n\n";
@@ -112,18 +113,18 @@ void test_parse_WhereOutIsNull(void) {
 
 int main(void) {
     UNITY_BEGIN();
-/*	RUN_TEST(test_remove_comment_WhereStringHasNoComment);
+	RUN_TEST(test_remove_comment_WhereStringHasNoComment);
 	RUN_TEST(test_remove_comment_WhereStringHasCommentAtEnd);
 	RUN_TEST(test_remove_comment_WhereStringIsOnlyComment);
-	RUN_TEST(test_parse_WhereStringIsOnlyComment); */
+	RUN_TEST(test_parse_WhereStringIsOnlyComment);
 	RUN_TEST(test_parse_WhereOneValidInstructionExists);
-/*	RUN_TEST(test_parse_WhereMultipleValidInstructionsExist);
+	RUN_TEST(test_parse_WhereMultipleValidInstructionsExist);
 	RUN_TEST(test_parse_WhereInvalidInstructionsExist);
 	RUN_TEST(test_parse_WhereInvalidSymbolsExist);
 	RUN_TEST(test_parse_WhereResultingBytecodeIsTooBig);
 	RUN_TEST(test_parse_WhereTooManyLabelsAreDefined);
 	RUN_TEST(test_parse_WhereStringIsEmpty);
 	RUN_TEST(test_parse_WhereStringIsNull);
-	RUN_TEST(test_parse_WhereOutIsNull); */
+	RUN_TEST(test_parse_WhereOutIsNull);
 	return UNITY_END();
 }
