@@ -107,8 +107,8 @@ instruction_format_t formats[] = {
 	{ I_NULL, 0,      0, {SYM_NULL},              {0} },
 };
 
-static uint16_t parse_instruction(instruction_t *);
-static void reallocate_symbols(symbol_list_t *symbols);
+static int parse_instruction(instruction_t *);
+static int reallocate_symbols(symbol_list_t *symbols);
 static int shift(uint16_t fmt);
 static int validate_instruction(instruction_t *);
 
@@ -123,11 +123,13 @@ static int validate_instruction(instruction_t *);
  * @param idx symbols index of start of instruction
  * @return instruction bytecode
  */
-uint16_t build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) {
-	if (symbols == NULL || idx < 0) {
-		return 0;
+int build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) {
+	NULLCHECK_ARGS2(ins, symbols);
+	if (idx < 0) {
+		return INVALID_ARGUMENT_EXCEPTION_INTERNAL;
 	}
 
+	int ret;
 	ins->cmd = (Instruction) symbols->s[idx].value;
 	ins->line = symbols->s[idx].ln;
 	ins->pcount = 0;
@@ -157,12 +159,17 @@ uint16_t build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) 
 		}
 	}
 
-	/* validate instruction */
-	if (validate_instruction(ins)) {
-		return parse_instruction(ins);
+	ret = validate_instruction(ins);
+	if (ret < 1) {
+		return ret;
 	}
 
-	return 0;
+	ret = parse_instruction(ins);
+	if (ret < 1) {
+		sprintf(exception, "Line: %d\n", ins->line);
+	}
+
+	return ret;
 }
 
 
@@ -173,13 +180,7 @@ uint16_t build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) 
  * @return 1 if true, 0 if false
  */
 int is_comment(const char *s) {
-	if (s == NULL) {
-		return NULL_ARGUMENT_EXCEPTION;
-	}
-
-	if (strlen(s) == 0) {
-		return 0;
-	}
+	NULLCHECK_ARGS1(s);
 	return s[0] == ';';
 }
 
@@ -189,10 +190,7 @@ int is_comment(const char *s) {
  * @return 1 if true, 0 if false
  */
 int is_db(const char *s) {
-	if (s == NULL) {
-		return NULL_ARGUMENT_EXCEPTION;
-	}
-
+	NULLCHECK_ARGS1(s);
 	return !strcmp(s, S_DB);
 }
 
@@ -202,10 +200,7 @@ int is_db(const char *s) {
  * @return 1 if true, 0 if false
  */
 int is_dw(const char *s) {
-	if (s == NULL) {
-		return NULL_ARGUMENT_EXCEPTION;
-	}
-
+	NULLCHECK_ARGS1(s);
 	return !strcmp(s, S_DW);
 }
 
@@ -216,16 +211,10 @@ int is_dw(const char *s) {
  * @return instruction enumerator if true, -1 if false
  */
 int is_instruction(const char *s) {
-	if (s == NULL) {
-		return NULL_ARGUMENT_EXCEPTION;
-	}
-
-	if (strlen(s) == 0) {
-		return -1;
-	}
+	NULLCHECK_ARGS1(s);
 
 	for (int i = 0; instructionStrings[i]; i++) {
-		if (!strncmp(s, instructionStrings[i], strlen(s))) {
+		if (!strcmp(s, instructionStrings[i])) {
 			return i;
 		}
 	}
@@ -240,9 +229,7 @@ int is_instruction(const char *s) {
  * @return 1 if true, 0 if false
  */
 int is_label_definition(const char *s) {
-	if (s == NULL) {
-		return NULL_ARGUMENT_EXCEPTION;
-	}
+	NULLCHECK_ARGS1(s);
 
 	int len = strlen(s);
 	if (len < 2) {
@@ -259,9 +246,7 @@ int is_label_definition(const char *s) {
  * @return label index if true, -1 otherwise
  */
 int is_label(const char *s, label_list_t *labels) {
-	if (s == NULL || labels == NULL) {
-		return NULL_ARGUMENT_EXCEPTION;
-	}
+	NULLCHECK_ARGS2(s, labels);
 
 	if (strlen(s) == 0) {
 		return -1;
@@ -283,9 +268,7 @@ int is_label(const char *s, label_list_t *labels) {
  * @return V register number if true, -1 otherwise
  */
 int is_register(const char *s) {
-	if (s == NULL) {
-		return NULL_ARGUMENT_EXCEPTION;
-	}
+	NULLCHECK_ARGS1(s);
 
 	return (*s == 'V' || *s == 'v') ? parse_int(s) : -1;
 }
@@ -297,9 +280,7 @@ int is_register(const char *s) {
  * @return type of identifier if true, -1 otherwise
  */
 int is_reserved_identifier(const char *s) {
-	if (s == NULL) {
-		return NULL_ARGUMENT_EXCEPTION;
-	}
+	NULLCHECK_ARGS1(s);
 
 	for (int i = 0; identifierStrings[i]; i++) {
 		if (!strcmp(s, identifierStrings[i])) {
@@ -316,11 +297,11 @@ int is_reserved_identifier(const char *s) {
  * @return first empty symbol in symbol table
  */
 symbol_t *next_symbol(symbol_list_t *symbols) {
-	if (symbols == NULL) {
+	if (!symbols || !symbols->s) {
 		return NULL;
 	}
 
-	if (symbols->len == 0 && symbols->s[0].ln == 0) {
+	if (symbols->len == 0) {
 		symbols->len++;
 		return &symbols->s[0];
 	}
@@ -343,12 +324,11 @@ symbol_t *next_symbol(symbol_list_t *symbols) {
  * @return 1 if success, 0 if error caught
  */
 int populate_labels(char **lines, int lineCount, label_list_t *labels) {
-	if (lines == NULL || labels == NULL) {
-		return NULL_ARGUMENT_EXCEPTION;
-	}
+	NULLCHECK_ARGS2(lines, labels);
 
 	for (int i = 0; i < lineCount; i++) {
 		if (labels->len == labels->ceil) {
+			sprintf(exception, "Line: %d\n", i+1);
 			return TOO_MANY_LABELS_EXCEPTION;
 		}
 
@@ -365,6 +345,7 @@ int populate_labels(char **lines, int lineCount, label_list_t *labels) {
 		if (is_label_definition(lines[i])) {
 			for (int j = 0; j < labels->len; j++) {
 				if (!strncmp(labels->l[j].identifier, lines[i], strlen(labels->l[j].identifier))) {
+					sprintf(exception, "Line: %d\n", i+1);
 					return DUPLICATE_LABEL_EXCEPTION;
 				}
 			}
@@ -384,17 +365,17 @@ int populate_labels(char **lines, int lineCount, label_list_t *labels) {
  * 
  * @param symbols list of symbols
  * @param labels list of labels
+ * 
+ * @return 1 if success, 0 if failure
  */
-void resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
-	if (symbols == NULL || labels == NULL) {
-		return;
-	}
+int resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
+	NULLCHECK_ARGS2(symbols, labels);
 
 	int byte = PROG_START;
 	int labelIdx = 0;
 	for (int i = 0; i < symbols->len; i++) {
 		if (labelIdx == labels->len) {
-			return;
+			return 1;
 		}
 
 		switch (symbols->s[i].type) {
@@ -411,6 +392,8 @@ void resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
 				break;
 		}
 	}
+
+	return labelIdx == labels->len;
 }
 
 /**
@@ -419,17 +402,21 @@ void resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
  * @param symbols symbols to search
  * @param labels labels to search
  */
-void substitute_labels(symbol_list_t *symbols, label_list_t *labels) {
-	if (symbols == NULL || labels == NULL) {
-		return;
-	}
+int substitute_labels(symbol_list_t *symbols, label_list_t *labels) {
+	NULLCHECK_ARGS2(symbols, labels);
 
 	for (int i = 0; i < symbols->len; i++) {
 		if (symbols->s[i].type == SYM_LABEL) {
+			if (symbols->s[i].value >= labels->len) {
+				sprintf(exception, "Line: %d\n", symbols->s[i].ln);
+				return INVALID_SYMBOL_EXCEPTION;
+			}
 			symbols->s[i].type = SYM_INT;
 			symbols->s[i].value = labels->l[symbols->s[i].value].byte;
 		}
 	}
+
+	return 1;
 }
 
 /**
@@ -439,7 +426,9 @@ void substitute_labels(symbol_list_t *symbols, label_list_t *labels) {
  * 
  * @return bytecode of instruction ins
  */
-static uint16_t parse_instruction(instruction_t *ins) {
+static int parse_instruction(instruction_t *ins) {
+	NULLCHECK_ARGS1(ins);
+	
 	uint16_t result = ins->format->base;
 	for (int j = 0; j < ins->pcount; j++) {
 		if (ins->format->pmask[j]) {
@@ -459,8 +448,9 @@ static uint16_t parse_instruction(instruction_t *ins) {
  * @return 1 if success, 0 if failure
  */
 static int validate_instruction(instruction_t *ins) {
-	int match;
+	NULLCHECK_ARGS1(ins);
 
+	int match;
 	for (int i = 0; formats[i].cmd != -1; i++) {
 		instruction_format_t *f = &formats[i];
 		if (ins->pcount == f->pcount && ins->cmd == f->cmd) {
@@ -487,13 +477,15 @@ static int validate_instruction(instruction_t *ins) {
  * 
  * @param symbols symbol list
  */
-static void reallocate_symbols(symbol_list_t *symbols) {
+static int reallocate_symbols(symbol_list_t *symbols) {
+	NULLCHECK_ARGS1(symbols);
+
 	int newCeiling = symbols->ceil + SYMBOL_CEILING;
 	symbol_t *oldsym = symbols->s;
 	symbols->s = (symbol_t *) malloc(sizeof(symbol_t) * newCeiling);
 	memcpy(symbols->s, oldsym, symbols->ceil * sizeof(symbol_t));
 	symbols->ceil = newCeiling;
-	free(oldsym);
+	safe_free(oldsym);
 }
 
 /**

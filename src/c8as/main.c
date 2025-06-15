@@ -33,7 +33,9 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	return assemble(argv[optind], outpath, args);
+	int ret = assemble(argv[optind], outpath, args);
+	safe_exit(ret);
+	return 0;
 }
 
 static int assemble(char *inpath, char *outpath, int args) {
@@ -44,21 +46,25 @@ static int assemble(char *inpath, char *outpath, int args) {
 	int len;
 	int romSize = MEMSIZE - PROG_START;
 
-	if (!(in = fopen(inpath, "r"))) {
+	if (!(in = safe_fopen(inpath, "r"))) {
 		fprintf(stderr, "Failed to load input file\n");
 		return 0;
 	}
 
-	if (!outpath || !(out = fopen(outpath, "wb"))) {
+	if (!outpath || !(out = safe_fopen(outpath, "wb"))) {
 		fprintf(stderr, "Failed to load output file\n");
 		fclose(in);
 		return 0;
 	}
 
 	input = dynamic_load(in);
-	output = calloc(MEMSIZE - PROG_START, sizeof(uint8_t));
+	output = safe_calloc(MEMSIZE - PROG_START, sizeof(uint8_t));
 
 	len = parse(input, output, args);
+
+	if (len < 0) {
+		safe_exit(len);
+	}
 
 	for (int i = 0; i < len; i++) {
 		fputc(output[i], out);
@@ -66,14 +72,14 @@ static int assemble(char *inpath, char *outpath, int args) {
 
 	fclose(in);
 	fclose(out);
-	free(input);
-	free(output);
+	safe_free(input);
+	safe_free(output);
 	return 1;
 }
 
 static char *dynamic_load(FILE *f) {
 	int capacity = BUFSIZ;
-	char *buf = (char *) malloc(capacity);
+	char *buf = (char *) safe_malloc(capacity);
 	char *newbuf;
 	char ch;
 	int len = 0;

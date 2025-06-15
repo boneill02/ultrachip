@@ -15,8 +15,12 @@
 	memset(labels.l,0,LABEL_CEILING*sizeof(label_t)); \
 	labels.len=0; \
 	labels.ceil=LABEL_CEILING;
+#define CLEAR_SYMBOLS \
+	memset(labels.l, 0, SYMBOL_CEILING*sizeof(symbol_t)); \
+	labels.len=0; \
+	labels.ceil = LABEL_CEILING;
 #define CLEAR_BUF for (int i=0;i<64;i++) {buf[i]='\0';}
-#define RESET CLEAR_LINES; CLEAR_LABELS; CLEAR_BUF;
+#define RESET CLEAR_LINES; CLEAR_SYMBOLS; CLEAR_LABELS; CLEAR_BUF;
 
 char buf[64];
 instruction_t ins;
@@ -119,7 +123,7 @@ void test_build_instruction_WhereInstructionIsInvalid(void) {
 
 	int idx = rand() % SYMBOL_CEILING - 5;
 	generate_invalid_instruction_symbols(idx, rand());
-	TEST_ASSERT_EQUAL_INT(0, build_instruction(&ins, &symbols, idx));
+	TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, build_instruction(&ins, &symbols, idx));
 }
 
 void test_build_instruction_WhereInstructioIsValid_WhereSymbolTableIsNull(void) {
@@ -127,7 +131,7 @@ void test_build_instruction_WhereInstructioIsValid_WhereSymbolTableIsNull(void) 
 
 	generate_invalid_instruction_symbols(0, 0);
 	int idx = rand() % SYMBOL_CEILING - 5;
-	TEST_ASSERT_EQUAL_INT(0, build_instruction(&ins, NULL, idx));
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, build_instruction(&ins, NULL, idx));
 }
 
 void test_build_instruction_WhereInstructionIsValid_WhereIdxIsNegative(void) {
@@ -135,8 +139,7 @@ void test_build_instruction_WhereInstructionIsValid_WhereIdxIsNegative(void) {
 
 	generate_valid_instruction_symbols(0, 0);
 	int idx = (rand() % SYMBOL_CEILING) * -1;
-	symbol_list_t symbols[SYMBOL_CEILING];	
-	TEST_ASSERT_EQUAL_INT(0, build_instruction(&ins, symbols, idx));
+	TEST_ASSERT_EQUAL_INT(INVALID_ARGUMENT_EXCEPTION_INTERNAL, build_instruction(&ins, &symbols, idx));
 }
 
 void test_is_comment_WhereCommentIsAtEndOfString(void) {
@@ -203,7 +206,7 @@ void test_is_db_WhereStringIsEmpty(void) {
 void test_is_db_WhereStringIsNull(void) {
 	RESET;
 
-	TEST_ASSERT_EQUAL_INT(0, is_db(NULL));
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, is_db(NULL));
 }
 
 void test_is_dw_WhereStringIsDW(void) {
@@ -237,7 +240,7 @@ void test_is_dw_WhereStringIsEmpty(void) {
 
 void test_is_dw_WhereStringIsNull(void) {
 	RESET;
-	TEST_ASSERT_EQUAL_INT(0, is_dw(NULL));
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, is_dw(NULL));
 }
 
 void test_is_instruction_WhereStringIsInstruction(void) {
@@ -267,7 +270,7 @@ void test_is_instruction_WhereStringIsEmpty(void) {
 
 void test_is_instruction_WhereStringIsNull(void) {
 	RESET;
-	TEST_ASSERT_EQUAL_INT(0, is_instruction(NULL));
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, is_instruction(NULL));
 }
 
 void test_is_label_definition_WhereStringIsLabelDefinition(void) {
@@ -291,7 +294,7 @@ void test_is_label_definition_WhereStringIsEmpty(void) {
 
 void test_is_label_definition_WhereStringIsNull(void) {
 	RESET;
-	TEST_ASSERT_EQUAL_INT(0, is_label_definition(NULL));
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, is_label_definition(NULL));
 }
 
 void test_is_label_WhereStringIsLabel(void) {
@@ -341,7 +344,7 @@ void test_is_label_WhereStringIsNull(void) {
 	labels.l[2].byte = rand();
 	strcpy(labels.l[2].identifier, "L");
 
-	TEST_ASSERT_EQUAL_INT(-1, is_label(NULL, &labels));
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, is_label(NULL, &labels));
 }
 
 void test_is_label_WhereLabelListIsNull(void) {
@@ -374,7 +377,7 @@ void test_is_register_WhereStringIsEmpty(void) {
 
 void test_is_register_WhereStringIsNull(void) {
 	RESET;
-	TEST_ASSERT_EQUAL_INT(-1, is_register(NULL));
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, is_register(NULL));
 }
 
 void test_is_reserved_identifier_WhereStringIsReservedIdentifier(void) {
@@ -536,56 +539,194 @@ void test_populate_labels_WhereLinesHasDuplicateLabelDefinitions(void) {
 	TEST_ASSERT_EQUAL_INT(DUPLICATE_LABEL_EXCEPTION, r);
 }
 
-void test_resolve_labels_WhereLabelListHasOneLabel(void) {
+void test_resolve_labels_WhereLabelListHasOneLabel_WhereSymbolListHasLabelDefinition(void) {
 	RESET;
+
+	symbols.len = 3;
+	symbols.s[0].type = SYM_INSTRUCTION;
+	symbols.s[1].type = SYM_LABEL;
+	symbols.s[1].value = 0;
+	symbols.s[2].type = SYM_LABEL_DEFINITION;
+	symbols.s[2].value = 0;
+	symbols.s[3].type = SYM_INSTRUCTION;
+
+	labels.len = 1;
+	sprintf(labels.l[0].identifier, "%s", "LABEL");
+
+	int r = resolve_labels(&symbols, &labels);
+	TEST_ASSERT_EQUAL_INT(1, r);
+	TEST_ASSERT_EQUAL_INT(0x202, labels.l[0].byte);
 }
 
-void test_resolve_labels_WhereLabelListHasMultipleLabels(void) {
+void test_resolve_labels_WhereLabelListHasOneLabel_WhereSymbolListDoesNotHaveLabelDefinition(void) {
 	RESET;
+
+	symbols.len = 2;
+	symbols.s[0].type = SYM_INSTRUCTION;
+	symbols.s[1].type = SYM_LABEL;
+	symbols.s[1].value = 0;
+
+	labels.len = 1;
+	sprintf(labels.l[0].identifier, "%s", "LABEL");
+
+	int r = resolve_labels(&symbols, &labels);
+	TEST_ASSERT_EQUAL_INT(1, r);
+	TEST_ASSERT_EQUAL_INT(0, labels.l[0].byte);
+}
+
+void test_resolve_labels_WhereLabelListHasMultipleLabels_WhereSymbolListHasLabelDefinitions(void) {
+	RESET;
+
+	symbols.len = 5;
+	symbols.s[0].type = SYM_INSTRUCTION;
+	symbols.s[1].type = SYM_LABEL_DEFINITION;
+	symbols.s[1].value = 0;
+	symbols.s[2].type = SYM_INSTRUCTION;
+	symbols.s[3].type = SYM_LABEL_DEFINITION;
+	symbols.s[3].value = 1;
+	symbols.s[4].type = SYM_INSTRUCTION;
+
+	labels.len = 2;
+	sprintf(labels.l[0].identifier, "%s", "LABEL");
+	sprintf(labels.l[1].identifier, "%s", "OTHERLABEL");
+
+	int r = resolve_labels(&symbols, &labels);
+	TEST_ASSERT_EQUAL_INT(1, r);
+	TEST_ASSERT_EQUAL_INT(0x202, labels.l[0].byte);
+	TEST_ASSERT_EQUAL_INT(0x204, labels.l[1].byte);
 }
 
 void test_resolve_labels_WhereSymbolListIsEmpty(void) {
 	RESET;
+
+	labels.len = 1;
+	sprintf(labels.l[0].identifier, "%s", "LABEL");
+
+	TEST_ASSERT_EQUAL_INT(0, resolve_labels(&symbols, &labels));
 }
 
 void test_resolve_labels_WhereSymbolListIsNull(void) {
 	RESET;
+
+	labels.len = 1;
+	sprintf(labels.l[0].identifier, "%s", "LABEL");
+
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, resolve_labels(NULL, &labels));
 }
 
 void test_resolve_labels_WhereLabelListIsEmpty(void) {
 	RESET;
+
+	symbols.len = 1;
+	symbols.s[0].type = SYM_DB;
+
+	TEST_ASSERT_EQUAL_INT(1, resolve_labels(&symbols, &labels));
 }
 
 void test_resolve_labels_WhereLabelListIsNull(void) {
 	RESET;
+
+	symbols.len = 1;
+	symbols.s[0].type = SYM_DB;
+
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, resolve_labels(&symbols, NULL));
 }
 
 void test_substitute_labels_WhereLabelListContainsAllLabels(void) {
 	RESET;
+
+	symbols.len = 7;
+	symbols.s[0].type = SYM_INSTRUCTION;
+	symbols.s[1].type = SYM_LABEL;
+	symbols.s[1].value = 1;
+	symbols.s[2].type = SYM_LABEL_DEFINITION;
+	symbols.s[2].value = 0;
+	symbols.s[3].type = SYM_INSTRUCTION;
+	symbols.s[4].type = SYM_LABEL_DEFINITION;
+	symbols.s[4].value = 1;
+	symbols.s[5].type = SYM_INSTRUCTION;
+	symbols.s[6].type = SYM_LABEL;
+	symbols.s[6].value = 0;
+
+	labels.len = 2;
+	labels.l[0].byte = 0x202;
+	labels.l[1].byte = 0x204;
+
+	int r = substitute_labels(&symbols, &labels);
+
+	TEST_ASSERT_EQUAL_INT(1, r);
+	TEST_ASSERT_EQUAL_INT(SYM_INT, symbols.s[1].type);
+	TEST_ASSERT_EQUAL_INT(0x204, symbols.s[1].value);
+	TEST_ASSERT_EQUAL_INT(SYM_INT, symbols.s[6].type);
+	TEST_ASSERT_EQUAL_INT(0x202, symbols.s[6].value);
 }
 
 void test_substitute_labels_WhereLabelListIsMissingLabels(void) {
 	RESET;
+
+	symbols.len = 7;
+	symbols.s[0].type = SYM_INSTRUCTION;
+	symbols.s[1].type = SYM_LABEL;
+	symbols.s[1].value = 1;
+	symbols.s[2].type = SYM_LABEL_DEFINITION;
+	symbols.s[2].value = 0;
+	symbols.s[3].type = SYM_INSTRUCTION;
+	symbols.s[4].type = SYM_LABEL_DEFINITION;
+	symbols.s[4].value = 1;
+	symbols.s[5].type = SYM_INSTRUCTION;
+	symbols.s[6].type = SYM_LABEL;
+	symbols.s[6].value = 0;
+
+	labels.len = 1;
+	labels.l[0].byte = 0x202;
+
+	int r = substitute_labels(&symbols, &labels);
+
+	TEST_ASSERT_EQUAL_INT(INVALID_SYMBOL_EXCEPTION, r);
 }
 
 void test_substitute_labels_WhereSymbolListIsEmpty(void) {
 	RESET;
+
+	labels.len = 1;
+	labels.l[0].byte = 0x202;
+
+	int r = substitute_labels(&symbols, &labels);
+
+	TEST_ASSERT_EQUAL_INT(1, r);
 }
 
 void test_substitute_labels_WhereSymbolListIsNull(void) {
 	RESET;
+
+	int r = substitute_labels(NULL, &labels);
+
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, r);
 }
 
-void test_substitute_labels_WhereLabelListIsEmpty(void) {
+void test_substitute_labels_WhereSymbolListContainsNoLabels_WhereLabelListIsEmpty(void) {
 	RESET;
+
+	symbols.len = 4;
+	symbols.s[0].type = SYM_INSTRUCTION;
+	symbols.s[1].type = SYM_INSTRUCTION;
+	symbols.s[2].type = SYM_INSTRUCTION;
+	symbols.s[3].type = SYM_DB;
+
+	int r = substitute_labels(&symbols, &labels);
+
+	TEST_ASSERT_EQUAL_INT(1, r);
 }
 
 void test_substitute_labels_WhereLabelListIsNull(void) {
 	RESET;
+
+	int r = substitute_labels(&symbols, NULL);
+
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, r);
 }
 
 int main(void) {
-	RESET;
 	UNITY_BEGIN();
 
 	RUN_TEST(test_build_instruction_WhereInstructionIsValid);
@@ -651,8 +792,8 @@ int main(void) {
 	RUN_TEST(test_populate_labels_WhereLabelListIsNull);
 	RUN_TEST(test_populate_labels_WhereLinesIsNull);
 
-	RUN_TEST(test_resolve_labels_WhereLabelListHasOneLabel);
-	RUN_TEST(test_resolve_labels_WhereLabelListHasMultipleLabels);
+	RUN_TEST(test_resolve_labels_WhereLabelListHasOneLabel_WhereSymbolListHasLabelDefinition);
+	RUN_TEST(test_resolve_labels_WhereLabelListHasMultipleLabels_WhereSymbolListHasLabelDefinitions);
 	RUN_TEST(test_resolve_labels_WhereSymbolListIsEmpty);
 	RUN_TEST(test_resolve_labels_WhereSymbolListIsNull);
 	RUN_TEST(test_resolve_labels_WhereLabelListIsEmpty);
@@ -662,7 +803,7 @@ int main(void) {
 	RUN_TEST(test_substitute_labels_WhereLabelListIsMissingLabels);
 	RUN_TEST(test_substitute_labels_WhereSymbolListIsEmpty);
 	RUN_TEST(test_substitute_labels_WhereSymbolListIsNull);
-	RUN_TEST(test_substitute_labels_WhereLabelListIsEmpty);
+	RUN_TEST(test_substitute_labels_WhereSymbolListContainsNoLabels_WhereLabelListIsEmpty);
 	RUN_TEST(test_substitute_labels_WhereLabelListIsNull);
 	return UNITY_END();
 }

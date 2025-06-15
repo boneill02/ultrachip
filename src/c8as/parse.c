@@ -20,11 +20,11 @@
 #include <string.h>
 
 static int line_count(char *);
-static void parse_line(char *, int, symbol_list_t *, label_list_t *);
+static int parse_line(char *, int, symbol_list_t *, label_list_t *);
 static int parse_word(char *, char *, int, symbol_t *, label_list_t *);
-static inline void put16(uint8_t *, uint16_t, int);
+static inline int put16(uint8_t *, uint16_t, int);
 static int tokenize(char **, char *, const char *, int);
-static void to_upper(char *);
+static int to_upper(char *);
 static char *remove_comma(char *);
 static int write(uint8_t *, symbol_list_t *, int);
 
@@ -42,37 +42,57 @@ static int write(uint8_t *, symbol_list_t *, int);
  * @return length of resulting bytecode.
  */
 int parse(char *s, uint8_t *out, int args) {
+	NULLCHECK_ARGS2(s, out);
+
 	int bytes = 0;
 	int lineCount = line_count(s);
+	int ret;
 
 	symbol_list_t symbols;
-	symbols.s = malloc(sizeof(symbol_t) * SYMBOL_CEILING);
+	symbols.s = safe_malloc(sizeof(symbol_t) * SYMBOL_CEILING);
 	symbols.len = 0;
 	symbols.ceil = SYMBOL_CEILING;
 
 	label_list_t labels;
-	labels.l = malloc(sizeof(label_t) * LABEL_CEILING);
+	labels.l = safe_malloc(sizeof(label_t) * LABEL_CEILING);
 	labels.len = 0;
 	labels.ceil = LABEL_CEILING;
 
-	char **lines = malloc(lineCount * sizeof(char *));
+	char **lines = safe_malloc(lineCount * sizeof(char *));
 
-	lineCount = tokenize(lines, s, "\n", lineCount); // lineCount updated to remove empty lines
-
-	populate_labels(lines, lineCount, &labels);
-
-	for (int i = 0; i < lineCount; i++) {
-		parse_line(lines[i], i+1, &symbols, &labels);
+	if ((lineCount = tokenize(lines, s, "\n", lineCount)) < 1) {
+		return lineCount;
 	}
 
-	resolve_labels(&symbols, &labels);
-	substitute_labels(&symbols, &labels);
+	VERBOSE_PRINT("Populating identifiers in label map");
+	if (ret = populate_labels(lines, lineCount, &labels) < 1) {
+		return ret;
+	}
 
+	VERBOSE_PRINT("Building symbol table");
+	for (int i = 0; i < lineCount; i++) {
+		ret = parse_line(lines[i], i+1, &symbols, &labels);
+		if (ret < 1) {
+			return ret;
+		}
+	}
+
+	VERBOSE_PRINT("Resolving label addresses");
+	if ((ret = resolve_labels(&symbols, &labels)) < 1) {
+		return ret;
+	}
+
+	VERBOSE_PRINT("Substituting label addresses in symbol table");
+	if ((ret = substitute_labels(&symbols, &labels)) < 1) {
+		return ret;
+	}
+
+	VERBOSE_PRINT("Writing output");
 	bytes = write(out, &symbols, args);
 
-	free(symbols.s);
-	free(labels.l);
-	free(lines);
+	safe_free(symbols.s);
+	safe_free(labels.l);
+	safe_free(lines);
 	return bytes;
 }
 
@@ -109,23 +129,38 @@ static int line_count(char *s) {
  * @param ln line number
  * @param symbols symbol list
  * @param labels label list
+ * 
+ * @return 1 if success, exception code otherwise
  */
-static void parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *labels) {
+static int parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *labels) {
+	NULLCHECK_ARGS3(s, symbols, labels);
+
 	if (strlen(s) == 0 || strlen(remove_comment(s)) == 0) {
-		return;
+		return 1;
 	}
 
 	symbol_t *sym = next_symbol(symbols);
 	char *words[MAX_WORDS];
 	int wc = tokenize(words, s, " ", MAX_WORDS);
+	int ret;
 
 	for (int i = 0; i < wc; i++) {
-		if (i == wc-1) {
-			i += parse_word(words[i], NULL, ln, sym, labels);
+		if (i == wc - 1) {
+			ret = parse_word(words[i], NULL, ln, sym, labels);
+			if (ret < 0) {
+				return ret;
+			}
+			i += ret;
 		} else {
-			i += parse_word(words[i], words[i+1], ln, sym, labels);
+			ret = parse_word(words[i], words[i+1], ln, sym, labels);
+			if (ret < 0) {
+				return ret;
+			}
+			i += ret;
 		}
-		sym = next_symbol(symbols);
+		if (!(sym = next_symbol(symbols))) {
+			return UNKNOWN_EXCEPTION;
+		}
 	}
 }
 
@@ -141,11 +176,15 @@ static void parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *la
  * @return number of words to skip
  */
 static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *labels) {
+	NULLCHECK_ARGS3(s, sym, labels);
+
 	int value;
 	sym->ln = ln;
 	s = remove_comma(s);
+	s = trim(s);
 	to_upper(s);
 
+	value = is_label_definition(s);
 	if (is_label_definition(s)) {
 		sym->type = SYM_LABEL_DEFINITION;
 		for (int j = 0; j < labels->len; j++) {
@@ -153,9 +192,11 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
 				sym->value = j;
 			}
 		}
-	} else if ((value = is_instruction(s)) != -1) {
+		return 0;
+	} else if ((value = is_instruction(s)) >= 0) {
 		sym->type = SYM_INSTRUCTION;
 		sym->value = value;
+		return 0;
 	} else if (is_db(s)) {
 		sym->type = SYM_DB;
 		sym->value = parse_int(next);
@@ -164,22 +205,25 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
 		sym->type = SYM_DW;
 		sym->value = parse_int(next);
 		return 1;
-	} else if ((value = is_register(s)) != -1) {
+	} else if ((value = is_register(s)) >= 0) {
 		sym->type = SYM_V;
 		sym->value = value;
-	} else if ((value = is_reserved_identifier(s)) != -1) {
+		return 0;
+	} else if ((value = is_reserved_identifier(s)) >= 0) {
 		sym->type = value;
+		return 0;
 	} else if ((value = parse_int(s)) != -1) {
 		sym->type = SYM_INT;
 		sym->value = value;
-	} else if ((value = is_label(s, labels)) != -1) {
+		return 1;
+	} else if ((value = is_label(s, labels)) >= 0) {
 		sym->type = SYM_LABEL;
 		sym->value = value;
-	} else {
-		fprintf(stderr, "Error (line %d): Unknown symbol \"%s\"\n", ln, s);
+		return 0;
 	}
 
-	return 0;
+	sprintf(exception, "(line %d): %s\n", ln, s);
+	return INVALID_SYMBOL_EXCEPTION;
 }
 
 
@@ -189,7 +233,9 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
  * @param output where to write
  * @param n index to write to
  */
-static inline void put16(uint8_t *output, uint16_t n, int idx) {
+static inline int put16(uint8_t *output, uint16_t n, int idx) {
+	NULLCHECK_ARGS1(output);
+
 	output[idx] = (n >> 8) & 0xFF;
 	output[idx+1] = n & 0xFF;
 }
@@ -205,8 +251,10 @@ static inline void put16(uint8_t *output, uint16_t n, int idx) {
  * @return number of tokens
  */
 static int tokenize(char **tok, char *s, const char *delim, int maxTokens) {
-	if (maxTokens <= 0 || !s || !tok) {
-		return 0;
+	NULLCHECK_ARGS3(tok, s, delim);
+
+	if (maxTokens <= 0) {
+		return INVALID_ARGUMENT_EXCEPTION_INTERNAL;
 	}
 
 	int tokenCount = 0;
@@ -227,6 +275,10 @@ static int tokenize(char **tok, char *s, const char *delim, int maxTokens) {
  * @return trimmed string
  */
 static char *remove_comma(char *s) {
+	if (!s) {
+		return NULL;
+	}
+
 	trim(s);
 	if (s[strlen(s) - 1] == ',') {
 		s[strlen(s) - 1] = '\0';
@@ -236,15 +288,18 @@ static char *remove_comma(char *s) {
 }
 
 /**
- * @brief Convert all characters in s to uppercase
+ * @brief Convert all characters in null-terminated stirng s to uppercase
  * 
  * @param s string to convert
  */
-static void to_upper(char *s) {
+static int to_upper(char *s) {
+	NULLCHECK_ARGS1(s);
+
 	while (*s) {
 		*s = toupper(*s);
 		s++;
 	}
+	return 1;
 }
 
 /**
@@ -257,6 +312,8 @@ static void to_upper(char *s) {
  * @return length of bytecode
  */
 static int write(uint8_t *output, symbol_list_t *symbols, int args) {
+	NULLCHECK_ARGS2(output, symbols);
+
 	int ret;
 	instruction_t ins;
 	int byte = 0;
@@ -265,12 +322,11 @@ static int write(uint8_t *output, symbol_list_t *symbols, int args) {
 		if (byte >= MEMSIZE - PROG_START) {
 			return -1;
 		}
-		printf("%d\n", symbols->s[i].type);
 
 		switch(symbols->s[i].type) {
 			case SYM_INSTRUCTION:
 				ret = build_instruction(&ins, symbols, i);
-				if (ret) {
+				if (ret > 0) {
 					put16(output, ret, byte);
 					i += ins.pcount;
 					if (args & ARG_VERBOSE) {
@@ -278,24 +334,33 @@ static int write(uint8_t *output, symbol_list_t *symbols, int args) {
 					}
 					byte += 2;
 				} else {
-					fprintf(stderr, "Error (line %d): Invalid instruction\n", symbols->s[i].ln);
+					sprintf(exception, "(line %d)\n", ins.line);
+					return ret;
 				}
 				break;
 			case SYM_DB:
 				if (symbols->s[i].value > UINT8_MAX) {
-					fprintf(stderr, "Error (line %d): DB value too big\n", symbols->s[i].ln);
+					sprintf(exception, "(line %d): DB value too big\n", symbols->s[i].ln);
+					return INVALID_ARGUMENT_EXCEPTION;
 				} else {
 					output[byte] = symbols->s[i].value;
-					printf("%03x: %04x\n", byte + PROG_START, symbols->s[i].value);
+
+					if (args & ARG_VERBOSE) {
+						printf("%03x: %04x\n", byte + PROG_START, symbols->s[i].value);
+					}
+
 					byte++;
 				}
 				break;
 			case SYM_DW:
 				if (symbols->s[i].value > UINT16_MAX) {
-					fprintf(stderr, "Error (line %d): DW value too big\n", symbols->s[i].ln);
+					fprintf(stderr, "(line %d): DW value too big\n", symbols->s[i].ln);
+					return INVALID_ARGUMENT_EXCEPTION;
 				} else {
 					put16(output, symbols->s[i].value, byte);
-					printf("%03x: %04x\n", byte + PROG_START, symbols->s[i].value);
+					if (args & ARG_VERBOSE) {
+						printf("%03x: %04x\n", byte + PROG_START, symbols->s[i].value);
+					}
 					byte += 2;
 				}
 				break;

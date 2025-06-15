@@ -194,7 +194,7 @@ extern const char *instructionStrings[];
 extern const char *identifierStrings[];
 extern instruction_format_t formats[];
 
-uint16_t build_instruction(instruction_t *, symbol_list_t *, int);
+int build_instruction(instruction_t *, symbol_list_t *, int);
 int is_comment(const char *);
 int is_db(const char *);
 int is_dw(const char *);
@@ -205,6 +205,6 @@ int is_register(const char *);
 int is_reserved_identifier(const char *);
 symbol_t *next_symbol(symbol_list_t *);
 int populate_labels(char **, int, label_list_t *);
-void resolve_labels(symbol_list_t *, label_list_t *);
-void substitute_labels(symbol_list_t *, label_list_t *);
+int resolve_labels(symbol_list_t *, label_list_t *);
+int substitute_labels(symbol_list_t *, label_list_t *);
 #endif

@@ -8,6 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+char exception[EXCEPTION_MESSAGE_SIZE];
+void *mallocs[MAX_MALLOCS];
+FILE *files[MAX_FILES];
+
 /**
  * @brief Get the integer value of hexadecimal ASCII representation
  * 
@@ -57,6 +61,121 @@ int parse_int(const char *s) {
 
 void print_version(const char *argv0) {
     printf("%s %s\n", argv0, VERSION);
+}
+
+void safe_fclose(FILE *f) {
+	for (int i = 0; i < MAX_FILES; i++) {
+		if (files[i] == f) {
+			files[i] = NULL;
+		}
+	}
+
+	fclose(f);
+}
+
+void *safe_fopen(const char *p, const char *m) {
+	FILE *f = fopen(p, m);
+
+	for (int i = 0; i < MAX_FILES; i++) {
+		if (!files[i]) {
+			files[i] = fopen(p, m);
+			return files[i];
+		}
+	}
+
+	safe_exit(0);
+	return NULL;
+}
+
+void safe_free(void *m) {
+	for (int i = 0; i < MAX_MALLOCS; i++) {
+		if (m == mallocs[i]) {
+			mallocs[i] = NULL;
+		}
+	}
+
+	free(m);
+}
+
+void *safe_malloc(size_t size) {
+	void *m;
+
+	for (int i = 0; i < MAX_MALLOCS; i++) {
+		if (!mallocs[i]) {
+			mallocs[i] = malloc(size);
+			return mallocs[i];
+		}
+	}
+
+	safe_exit(TOO_MANY_MALLOCS_EXCEPTION);
+
+	return NULL;
+}
+
+void *safe_calloc(size_t nmemb, size_t size) {
+	void *m;
+
+	for (int i = 0; i < MAX_MALLOCS; i++) {
+		if (!mallocs[i]) {
+			mallocs[i] = calloc(nmemb, size);
+			return mallocs[i];
+		}
+	}
+
+	safe_exit(TOO_MANY_MALLOCS_EXCEPTION);
+
+	return NULL;
+}
+
+void safe_exit(int status) {
+	if (status != 1) {
+		switch (status) {
+			case NULL_ARGUMENT_EXCEPTION:
+				fprintf(stderr, "%s\n", NULL_ARGUMENT_EXCEPTION_MESSAGE);
+				break;
+			case INVALID_ARGUMENT_EXCEPTION:
+				fprintf(stderr, "%s\n", INVALID_ARGUMENT_EXCEPTION_INTERNAL);
+				break;
+			case TOO_MANY_LABELS_EXCEPTION:
+				fprintf(stderr, "%s\n", TOO_MANY_LABELS_EXCEPTION_MESSAGE);
+				break;
+			case STACK_OVERFLOW_EXCEPTION:
+				fprintf(stderr, "%s\n", STACK_OVERFLOW_EXCEPTION_MESSAGE);
+				break;
+			case INVALID_ARGUMENT_EXCEPTION_INTERNAL:
+				fprintf(stderr, "%s\n", INVALID_ARGUMENT_EXCEPTION_INTERNAL_MESSAGE);
+				break;
+			case DUPLICATE_LABEL_EXCEPTION:
+				fprintf(stderr, "%s\n", DUPLICATE_LABEL_EXCEPTION_MESSAGE);
+				break;
+			case INVALID_SYMBOL_EXCEPTION:
+				fprintf(stderr, "%s\n", INVALID_SYMBOL_EXCEPTION_MESSAGE);
+				break;
+			case TOO_MANY_MALLOCS_EXCEPTION:
+				fprintf(stderr, "%s\n", TOO_MANY_MALLOCS_EXCEPTION_MESSAGE);
+				break;
+			default:
+				fprintf(stderr, "%s\n", UNKNOWN_EXCEPTION_MESSAGE);
+		}
+		
+		if (strlen(exception)) {
+			fprintf(stderr, "%s\n", exception);
+		}
+	}
+
+	for (int i = 0; i < MAX_MALLOCS; i++) {
+		if (mallocs[i]) {
+			free(mallocs[i]);
+		}
+	}
+
+	for (int i = 0; i < MAX_FILES; i++) {
+		if (files[i]) {
+			fclose(files[i]);
+		}
+	}
+
+	exit(status);
 }
 
 /**
