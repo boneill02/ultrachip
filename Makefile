@@ -19,9 +19,6 @@ C8DIS_TARG = c8dis
 
 all: $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG)
 
-$(UNITY_PATH):
-	git clone https://github.com/ThrowTheSwitch/Unity
-
 .c.o:
 	$(CC) $(CFLAGS) -o $@ -c $<
 
