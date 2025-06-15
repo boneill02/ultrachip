@@ -1,5 +1,6 @@
 #include "symbol.h"
 
+
 #ifdef TEST
 #ifndef TEST_INCLUDED
 #define TEST_INCLUDED
@@ -124,7 +125,7 @@ static int validate_instruction(instruction_t *);
  * @return instruction bytecode
  */
 int build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) {
-	NULLCHECK_ARGS2(ins, symbols);
+	NULLCHECK2(ins, symbols);
 	if (idx < 0) {
 		return INVALID_ARGUMENT_EXCEPTION_INTERNAL;
 	}
@@ -192,7 +193,7 @@ int build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) {
  * @return 1 if true, 0 if false
  */
 int is_comment(const char *s) {
-	NULLCHECK_ARGS1(s);
+	NULLCHECK1(s);
 	return s[0] == ';';
 }
 
@@ -202,7 +203,7 @@ int is_comment(const char *s) {
  * @return 1 if true, 0 if false
  */
 int is_db(const char *s) {
-	NULLCHECK_ARGS1(s);
+	NULLCHECK1(s);
 	return !strcmp(s, S_DB);
 }
 
@@ -212,7 +213,7 @@ int is_db(const char *s) {
  * @return 1 if true, 0 if false
  */
 int is_dw(const char *s) {
-	NULLCHECK_ARGS1(s);
+	NULLCHECK1(s);
 	return !strcmp(s, S_DW);
 }
 
@@ -223,7 +224,7 @@ int is_dw(const char *s) {
  * @return instruction enumerator if true, -1 if false
  */
 int is_instruction(const char *s) {
-	NULLCHECK_ARGS1(s);
+	NULLCHECK1(s);
 
 	for (int i = 0; instructionStrings[i]; i++) {
 		if (!strcmp(s, instructionStrings[i])) {
@@ -241,7 +242,7 @@ int is_instruction(const char *s) {
  * @return 1 if true, 0 if false
  */
 int is_label_definition(const char *s) {
-	NULLCHECK_ARGS1(s);
+	NULLCHECK1(s);
 
 	int len = strlen(s);
 	if (len < 2) {
@@ -258,7 +259,7 @@ int is_label_definition(const char *s) {
  * @return label index if true, -1 otherwise
  */
 int is_label(const char *s, label_list_t *labels) {
-	NULLCHECK_ARGS2(s, labels);
+	NULLCHECK2(s, labels);
 
 	if (strlen(s) == 0) {
 		return -1;
@@ -280,7 +281,7 @@ int is_label(const char *s, label_list_t *labels) {
  * @return V register number if true, -1 otherwise
  */
 int is_register(const char *s) {
-	NULLCHECK_ARGS1(s);
+	NULLCHECK1(s);
 
 	return (*s == 'V' || *s == 'v') ? parse_int(s) : -1;
 }
@@ -292,7 +293,7 @@ int is_register(const char *s) {
  * @return type of identifier if true, -1 otherwise
  */
 int is_reserved_identifier(const char *s) {
-	NULLCHECK_ARGS1(s);
+	NULLCHECK1(s);
 
 	for (int i = 0; identifierStrings[i]; i++) {
 		if (!strcmp(s, identifierStrings[i])) {
@@ -336,7 +337,7 @@ symbol_t *next_symbol(symbol_list_t *symbols) {
  * @return 1 if success, 0 if error caught
  */
 int populate_labels(char **lines, int lineCount, label_list_t *labels) {
-	NULLCHECK_ARGS2(lines, labels);
+	NULLCHECK2(lines, labels);
 
 	for (int i = 0; i < lineCount; i++) {
 		if (labels->len == labels->ceil) {
@@ -381,7 +382,7 @@ int populate_labels(char **lines, int lineCount, label_list_t *labels) {
  * @return 1 if success, 0 if failure
  */
 int resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
-	NULLCHECK_ARGS2(symbols, labels);
+	NULLCHECK2(symbols, labels);
 
 	int byte = PROG_START;
 	int labelIdx = 0;
@@ -415,7 +416,7 @@ int resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
  * @param labels labels to search
  */
 int substitute_labels(symbol_list_t *symbols, label_list_t *labels) {
-	NULLCHECK_ARGS2(symbols, labels);
+	NULLCHECK2(symbols, labels);
 
 	for (int i = 0; i < symbols->len; i++) {
 		if (symbols->s[i].type == SYM_LABEL) {
@@ -439,7 +440,7 @@ int substitute_labels(symbol_list_t *symbols, label_list_t *labels) {
  * @return bytecode of instruction ins
  */
 static int parse_instruction(instruction_t *ins) {
-	NULLCHECK_ARGS1(ins);
+	NULLCHECK1(ins);
 	
 	uint16_t result = ins->format->base;
 	for (int j = 0; j < ins->pcount; j++) {
@@ -460,7 +461,7 @@ static int parse_instruction(instruction_t *ins) {
  * @return 1 if success, 0 if failure
  */
 static int validate_instruction(instruction_t *ins) {
-	NULLCHECK_ARGS1(ins);
+	NULLCHECK1(ins);
 
 	int match;
 	for (int i = 0; formats[i].cmd != I_NULL; i++) {
@@ -500,7 +501,7 @@ static int validate_instruction(instruction_t *ins) {
  * @param symbols symbol list
  */
 static int reallocate_symbols(symbol_list_t *symbols) {
-	NULLCHECK_ARGS1(symbols);
+	NULLCHECK1(symbols);
 
 	int newCeiling = symbols->ceil + SYMBOL_CEILING;
 	symbol_t *oldsym = symbols->s;

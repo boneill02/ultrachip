@@ -1,7 +1,6 @@
 #include "unity.h"
 
-#include "parse.h"
-#include "symbol.h"
+#include "parse.c"
 #include "util/defs.h"
 #include <stdint.h>
 #include <stdlib.h>
@@ -9,13 +8,14 @@
 #include <time.h>
 
 #define BYTECODE_SIZE (MEMSIZE - PROG_START)
+#define BUF_SIZE (BYTECODE_SIZE * MAX_LINE_LENGTH)
 #define CLEAR_BYTECODE for(int i=0;i<BYTECODE_SIZE;i++){bytecode[i]=0;}
-#define CLEAR_BUF for(int i=0;i<BUFSIZ;i++){buf[i]='\0';}
+#define CLEAR_BUF for(int i=0;i<BUF_SIZE;i++){buf[i]='\0';}
 #define CLEAR_EXCEPTION for(int i=0;i<EXCEPTION_MESSAGE_SIZE;i++){exception[i]='\0';}
 
 #define RESET CLEAR_BUF; CLEAR_BYTECODE; CLEAR_EXCEPTION;
 
-char buf[BUFSIZ];
+char buf[BUF_SIZE];
 uint8_t *bytecode;
 extern char exception[EXCEPTION_MESSAGE_SIZE];
 int fmtCount;
@@ -127,7 +127,7 @@ void test_parse_WhereOneValidInstructionExists(void) {
 
 void test_parse_WhereMultipleValidInstructionsExist(void) {
 	RESET;
-	// TODO Implement
+
 	generate_valid_instruction_string();
 	generate_valid_instruction_string();
 	generate_valid_instruction_string();
@@ -140,7 +140,7 @@ void test_parse_WhereMultipleValidInstructionsExist(void) {
 
 void test_parse_WhereInvalidInstructionsExist(void) {
 	RESET;
-	// TODO Implement
+
 	generate_valid_instruction_string();
 	generate_valid_instruction_string();
 	generate_valid_instruction_string();
@@ -152,31 +152,52 @@ void test_parse_WhereInvalidInstructionsExist(void) {
 
 void test_parse_WhereInvalidSymbolsExist(void) {
 	RESET;
-	// TODO Implement
+
+	sprintf(buf, "invalid\n");
+	int r = parse(buf, bytecode, 1);
+	TEST_ASSERT_EQUAL_INT(INVALID_SYMBOL_EXCEPTION, r);
 }
 
 void test_parse_WhereResultingBytecodeIsTooBig(void) {
 	RESET;
-	// TODO Implement
+
+	for (int i = 0; i < ((MEMSIZE - PROG_START) / 2) + 1; i++) {
+		generate_valid_instruction_string();
+	}
+	int r = parse(buf, bytecode, 1);
+	TEST_ASSERT_EQUAL_INT(TOO_MANY_SYMBOLS_EXCEPTION, r);
 }
 void test_parse_WhereTooManyLabelsAreDefined(void) {
 	RESET;
-	// TODO Implement
+	
+	for (int i = 0; i < LABEL_CEILING; i++) {
+		sprintf(buf, "label%d:\n", i);
+	}
+	sprintf(buf, "ADD V1 V2\n");
+
+	int r = parse(buf, bytecode, ARG_VERBOSE);
+	TEST_ASSERT_EQUAL_INT(TOO_MANY_LABELS_EXCEPTION, r);
 }
 
 void test_parse_WhereStringIsEmpty(void) {
 	RESET;
-	// TODO Implement
+
+	int r = parse(buf, bytecode, ARG_VERBOSE);
+	TEST_ASSERT_EQUAL_INT(0, r);
 }
 
 void test_parse_WhereStringIsNull(void) {
 	RESET;
-	// TODO Implement
+
+	int r = parse(NULL, bytecode, ARG_VERBOSE);
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, r);
 }
 
 void test_parse_WhereOutIsNull(void) {
 	RESET;
-	// TODO Implement
+
+	int r = parse(buf, NULL, ARG_VERBOSE);
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, r);
 }
 
 int main(void) {

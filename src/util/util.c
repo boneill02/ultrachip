@@ -4,7 +4,6 @@
 
 #include <ctype.h>
 #include <errno.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -73,7 +72,7 @@ void safe_fclose(FILE *f) {
 	fclose(f);
 }
 
-void *safe_fopen(const char *p, const char *m) {
+FILE *safe_fopen(const char *p, const char *m) {
 	FILE *f = fopen(p, m);
 
 	for (int i = 0; i < MAX_FILES; i++) {

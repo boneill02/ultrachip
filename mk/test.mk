@@ -27,7 +27,7 @@ test: $(BUILD_SRC_PATH) $(RESULTS)
 $(RESULTS_PATH)/%.txt: $(BUILD_PATH)/%
 	-./$< > $@ 2>&1
 
-$(BUILD_PATH)/test_%: $(OBJ_PATH)/test_%.o $(OBJ_PATH)/%.o $(OBJ_PATH)/unity.o
+$(BUILD_PATH)/test_%: $(OBJ_PATH)/test_%.o $(OBJ_PATH)/unity.o
 	$(LINK) -o $@ $^
 
 $(OBJ_PATH)/%.o:: $(TEST_PATH)/%.c

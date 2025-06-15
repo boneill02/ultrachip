@@ -3,11 +3,14 @@
 
 #include "util/defs.h"
 
+#include <stdio.h>
+
 int hex_to_int(char);
 int parse_int(const char *);
 void print_version(const char *);
 void *safe_calloc(size_t, size_t);
 void safe_free(void *);
+FILE *safe_fopen(const char *, const char *);
 void *safe_malloc(size_t);
 void safe_exit(int);
 char *trim(char *);

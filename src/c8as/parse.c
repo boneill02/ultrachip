@@ -42,7 +42,7 @@ static int write(uint8_t *, symbol_list_t *, int);
  * @return length of resulting bytecode.
  */
 int parse(const char *s, uint8_t *out, int args) {
-	NULLCHECK_ARGS2(s, out);
+	NULLCHECK2(s, out);
 	char *scpy;
 	int len = strlen(s);
 	int bytes = 0;
@@ -120,11 +120,22 @@ int parse(const char *s, uint8_t *out, int args) {
  * @return trimmed string
  */
 char *remove_comment(char *s) {
-	for (int i = 0; i < strlen(s); i++) {
-		if (s[i] == ';') s[i] = '\0';
+	if (!s) {
+		return NULL;
 	}
 
-	return trim(s);
+	if (s[0] == ';') {
+		s[0] = '\0';
+		return s;
+	}
+
+	for (int i = 1; i < strlen(s); i++) {
+		if (s[i] == ';' && isspace(s[i-1])) {
+			s[i-1] = '\0';
+		}
+	}
+
+	return s;
 }
 
 
@@ -150,7 +161,7 @@ static int line_count(const char *s) {
  * @return 1 if success, exception code otherwise
  */
 static int parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *labels) {
-	NULLCHECK_ARGS3(s, symbols, labels);
+	NULLCHECK3(s, symbols, labels);
 
 	if (strlen(s) == 0 || strlen(remove_comment(s)) == 0 ||
 		strlen(trim(s)) == 0) {
@@ -194,7 +205,7 @@ static int parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *lab
  * @return number of words to skip
  */
 static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *labels) {
-	NULLCHECK_ARGS3(s, sym, labels);
+	NULLCHECK3(s, sym, labels);
 
 	int value;
 	sym->ln = ln;
@@ -252,7 +263,7 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
  * @param n index to write to
  */
 static inline int put16(uint8_t *output, uint16_t n, int idx) {
-	NULLCHECK_ARGS1(output);
+	NULLCHECK1(output);
 
 	output[idx] = (n >> 8) & 0xFF;
 	output[idx+1] = n & 0xFF;
@@ -269,7 +280,7 @@ static inline int put16(uint8_t *output, uint16_t n, int idx) {
  * @return number of tokens
  */
 static int tokenize(char **tok, char *s, const char *delim, int maxTokens) {
-	NULLCHECK_ARGS3(tok, s, delim);
+	NULLCHECK3(tok, s, delim);
 
 	if (maxTokens <= 0) {
 		return INVALID_ARGUMENT_EXCEPTION_INTERNAL;
@@ -310,7 +321,7 @@ static char *remove_comma(char *s) {
  * @param s string to convert
  */
 static int to_upper(char *s) {
-	NULLCHECK_ARGS1(s);
+	NULLCHECK1(s);
 
 	while (*s) {
 		*s = toupper(*s);
@@ -329,7 +340,7 @@ static int to_upper(char *s) {
  * @return length of bytecode
  */
 static int write(uint8_t *output, symbol_list_t *symbols, int args) {
-	NULLCHECK_ARGS2(output, symbols);
+	NULLCHECK2(output, symbols);
 
 	int ret;
 	instruction_t ins;

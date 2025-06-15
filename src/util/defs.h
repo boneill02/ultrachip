@@ -7,7 +7,6 @@
 #define A(i) ((i & 0xF000) >> 12)
 #define B(i) (i & 0x000F)
 #define KK(i) (i & 0x00FF)
-
 #define EXPAND(i) \
 	int x = X(i); \
 	int y = Y(i); \
@@ -42,9 +41,11 @@
 #define UNKNOWN_EXCEPTION (-12)
 #define TOO_MANY_SYMBOLS_EXCEPTION (-13)
 
-#define NULLCHECK_ARGS1(a) if (!(a)) { return NULL_ARGUMENT_EXCEPTION; }
-#define NULLCHECK_ARGS2(a,b) if (!(a) || !(b)) { return NULL_ARGUMENT_EXCEPTION; }
-#define NULLCHECK_ARGS3(a,b,c) if (!(a) || !(b) || !(c)) { return NULL_ARGUMENT_EXCEPTION; }
+
+#define NULLCHECK1(a) if (!(a)) { return NULL_ARGUMENT_EXCEPTION; }
+#define NULLCHECK2(a,b) if (!(a) || !(b)) { return NULL_ARGUMENT_EXCEPTION; }
+#define NULLCHECK3(a,b,c) if (!(a) || !(b) || !(c)) { return NULL_ARGUMENT_EXCEPTION; }
+#define NULLCHECK_PTR1(a) if (!(a)) { return NULL; }
 #define VERBOSE_PRINT(s) if (args & ARG_VERBOSE) { printf("%s\n", s); }
 
 #define UNKNOWN_EXCEPTION_MESSAGE "An unknown error has occurred."
