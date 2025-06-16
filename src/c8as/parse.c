@@ -81,7 +81,7 @@ int parse(const char *s, uint8_t *out, int args) {
 
 
 	VERBOSE_PRINT("Populating identifiers in label map");
-	if (ret = populate_labels(lines, lineCount, &labels) < 1) {
+	if ((ret = populate_labels(lines, lineCount, &labels)) < 1) {
 		return ret;
 	}
 
@@ -171,17 +171,20 @@ static int parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *lab
 	symbol_t *sym = next_symbol(symbols);
 	char *words[MAX_WORDS];
 	int wc = tokenize(words, s, " ", MAX_WORDS);
-	int ret;
+	printf("wc: %d\n", wc);
+	int ret = 0;
 
 	for (int i = 0; i < wc; i++) {
 		if (i == wc - 1) {
 			ret = parse_word(words[i], NULL, ln, sym, labels);
+			printf("last parse word ret: %d\n", ret);
 			if (ret < 0) {
 				return ret;
 			}
 			i += ret;
 		} else {
 			ret = parse_word(words[i], words[i+1], ln, sym, labels);
+			printf("parse word ret: %d\n", ret);
 			if (ret < 0) {
 				return ret;
 			}
@@ -191,6 +194,8 @@ static int parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *lab
 			return UNKNOWN_EXCEPTION;
 		}
 	}
+
+	return 1;
 }
 
 /**

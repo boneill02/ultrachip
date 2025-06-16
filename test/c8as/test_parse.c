@@ -166,10 +166,14 @@ void test_parse_WhereResultingBytecodeIsTooBig(void) {
 	RESET;
 
 	const char *s = "AND V1, V9\n";
-	int len = strlen(s);
+	int len = 0;
+	int slen = strlen(s);
 
 	for (int i = 0; i < ((MEMSIZE - PROG_START) / 2) + 1; i++) {
 		sprintf(buf + len, "%s", s);
+		len += slen;
+		
+		
 	}
 	int r = parse(buf, bytecode, 1);
 	TEST_ASSERT_EQUAL_INT(TOO_MANY_SYMBOLS_EXCEPTION, r);
@@ -179,11 +183,11 @@ void test_parse_WhereTooManyLabelsAreDefined(void) {
 	RESET;
 	int len = 0;
 	const char *s = "l";
-	int slen = strlen(s);
+	int slen = 5;
 	
-	for (int i = 0; i < LABEL_CEILING; i++) {
+	for (int i = 0; i < LABEL_CEILING + 3; i++) {
 		sprintf(&buf[len], "%s%02d:\n", s, i);
-		len += slen + 4;
+		len += slen;
 	}
 
 	sprintf(buf + len, "ADD V1 V2\n");

@@ -334,7 +334,7 @@ symbol_t *next_symbol(symbol_list_t *symbols) {
  * @param lineCount number of lines to search
  * @param labels label list to populate
  * 
- * @return 1 if success, 0 if error caught
+ * @return 1 if success, 0 if failure
  */
 int populate_labels(char **lines, int lineCount, label_list_t *labels) {
 	NULLCHECK2(lines, labels);
@@ -363,13 +363,15 @@ int populate_labels(char **lines, int lineCount, label_list_t *labels) {
 				}
 			}
 
-			int labellen = strlen(lines[i]) - 1;
 			strncpy(labels->l[labels->len].identifier, lines[i], LABEL_IDENTIFIER_SIZE);
+
+			/* remove : */
+			int labellen = strlen(lines[i]) - 1;
 			labels->l[labels->len].identifier[labellen] = '\0';
+
 			labels->len++;
 		}
 	}
-
 	return 1;
 }
 
