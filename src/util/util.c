@@ -42,6 +42,11 @@ int hex_to_int(char c) {
  * @return -1 if failed, otherwise whatever the value is
  */
 int parse_int(const char *s) {
+	NULLCHECK1(s);
+	if (strlen(s) == 0) {
+		return -1;
+	}
+
     int result = -1;
 	char *endptr = NULL;
     errno = 0;
