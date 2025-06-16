@@ -77,7 +77,7 @@ FILE *safe_fopen(const char *p, const char *m) {
 
 	for (int i = 0; i < MAX_FILES; i++) {
 		if (!files[i]) {
-			files[i] = fopen(p, m);
+			files[i] = f;
 			return files[i];
 		}
 	}
@@ -132,14 +132,17 @@ void safe_exit(int status) {
 			case NULL_ARGUMENT_EXCEPTION:
 				fprintf(stderr, "%s\n", NULL_ARGUMENT_EXCEPTION_MESSAGE);
 				break;
-			case INVALID_ARGUMENT_EXCEPTION:
-				fprintf(stderr, "%s\n", INVALID_ARGUMENT_EXCEPTION_INTERNAL);
+			case INVALID_INSTRUCTION_EXCEPTION:
+				fprintf(stderr, "%s\n", INVALID_INSTRUCTION_EXCEPTION_MESSAGE);
 				break;
 			case TOO_MANY_LABELS_EXCEPTION:
 				fprintf(stderr, "%s\n", TOO_MANY_LABELS_EXCEPTION_MESSAGE);
 				break;
 			case STACK_OVERFLOW_EXCEPTION:
 				fprintf(stderr, "%s\n", STACK_OVERFLOW_EXCEPTION_MESSAGE);
+				break;
+			case INVALID_ARGUMENT_EXCEPTION:
+				fprintf(stderr, "%s\n", INVALID_ARGUMENT_EXCEPTION_INTERNAL);
 				break;
 			case INVALID_ARGUMENT_EXCEPTION_INTERNAL:
 				fprintf(stderr, "%s\n", INVALID_ARGUMENT_EXCEPTION_INTERNAL_MESSAGE);
@@ -154,7 +157,7 @@ void safe_exit(int status) {
 				fprintf(stderr, "%s\n", TOO_MANY_MALLOCS_EXCEPTION_MESSAGE);
 				break;
 			default:
-				fprintf(stderr, "%s\n", UNKNOWN_EXCEPTION_MESSAGE);
+				fprintf(stderr, "(code %d): %s\n", status, UNKNOWN_EXCEPTION_MESSAGE);
 		}
 		
 		if (strlen(exception)) {

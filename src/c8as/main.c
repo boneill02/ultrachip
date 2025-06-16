@@ -70,8 +70,8 @@ static int assemble(char *inpath, char *outpath, int args) {
 		fputc(output[i], out);
 	}
 
-	fclose(in);
-	fclose(out);
+	safe_fclose(in);
+	safe_fclose(out);
 	safe_free(input);
 	safe_free(output);
 	return 1;
@@ -90,7 +90,7 @@ static char *dynamic_load(FILE *f) {
 			newbuf = (char *) realloc(buf, capacity);
 
 			if (!newbuf) {
-				free(buf);
+				safe_free(buf);
 				fclose(f);
 				return NULL;
 			}

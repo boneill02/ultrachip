@@ -471,14 +471,20 @@ static int validate_instruction(instruction_t *ins) {
 		if (ins->pcount == f->pcount && ins->cmd == f->cmd) {
 			match = 1;
 			for (int j = 0; j < ins->pcount; j++) {
-				if (ins->ptype[j] == SYM_INT) {
-					if (f->ptype[j] == SYM_INT12 && ins->p[j] < 0x1000) {
-						f->ptype[j] = SYM_INT12;
-					} else if (f->ptype[j] == SYM_INT8 && ins->p[j] < 0x100) {
-						ins->ptype[j] = SYM_INT8;
-					} else if (f->ptype[j] == SYM_INT4 && ins->p[j] < 0x10) {
-						ins->ptype[j] = SYM_INT4;
-					}
+				switch(ins->ptype[j]) {
+					case SYM_INT:
+					case SYM_INT4:
+					case SYM_INT8:
+					case SYM_INT12:
+						if (f->ptype[j] == SYM_INT12 && ins->p[j] < 0x1000) {
+							ins->ptype[j] = SYM_INT12;
+						} else if (f->ptype[j] == SYM_INT8 && ins->p[j] < 0x100) {
+							ins->ptype[j] = SYM_INT8;
+						} else if (f->ptype[j] == SYM_INT4 && ins->p[j] < 0x10) {
+							ins->ptype[j] = SYM_INT4;
+						}
+					default:
+						break;
 				}
 
 				if (ins->ptype[j] != f->ptype[j]) {

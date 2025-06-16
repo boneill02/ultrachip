@@ -171,28 +171,23 @@ static int parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *lab
 	symbol_t *sym = next_symbol(symbols);
 	char *words[MAX_WORDS];
 	int wc = tokenize(words, s, " ", MAX_WORDS);
-	printf("wc: %d\n", wc);
 	int ret = 0;
 
 	for (int i = 0; i < wc; i++) {
 		if (i == wc - 1) {
 			ret = parse_word(words[i], NULL, ln, sym, labels);
-			printf("last parse word ret: %d\n", ret);
 			if (ret < 0) {
 				return ret;
 			}
 			i += ret;
 		} else {
 			ret = parse_word(words[i], words[i+1], ln, sym, labels);
-			printf("parse word ret: %d\n", ret);
 			if (ret < 0) {
 				return ret;
 			}
 			i += ret;
 		}
-		if (!(sym = next_symbol(symbols))) {
-			return UNKNOWN_EXCEPTION;
-		}
+		sym = next_symbol(symbols);
 	}
 
 	return 1;
