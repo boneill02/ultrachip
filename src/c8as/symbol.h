@@ -210,4 +210,5 @@ symbol_t *next_symbol(symbol_list_t *);
 int populate_labels(char **, int, label_list_t *);
 int resolve_labels(symbol_list_t *, label_list_t *);
 int substitute_labels(symbol_list_t *, label_list_t *);
+
 #endif

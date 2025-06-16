@@ -38,6 +38,15 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
+/**
+ * @brief Assemble contents in input file and write to output file
+ * 
+ * @param inpath path to input file
+ * @param outpath path to output file
+ * @param args CLI args
+ * 
+ * @return 1 if success, 0 or exception code otherwise
+ */
 static int assemble(char *inpath, char *outpath, int args) {
 	FILE *in;
 	FILE *out;
@@ -77,6 +86,12 @@ static int assemble(char *inpath, char *outpath, int args) {
 	return 1;
 }
 
+/**
+ * @brief Dynamically load an entire file into a string
+ * 
+ * @param f file to load
+ * @return pointer to string
+ */
 static char *dynamic_load(FILE *f) {
 	int capacity = BUFSIZ;
 	char *buf = (char *) safe_malloc(capacity);
@@ -87,13 +102,7 @@ static char *dynamic_load(FILE *f) {
 	while ((ch = fgetc(f)) != EOF) {
 		if (len >= capacity - 1) {
 			capacity *= 2;
-			newbuf = (char *) realloc(buf, capacity);
-
-			if (!newbuf) {
-				safe_free(buf);
-				fclose(f);
-				return NULL;
-			}
+			newbuf = (char *) safe_realloc(buf, capacity);
 		}
 
 		buf[len++] = ch;

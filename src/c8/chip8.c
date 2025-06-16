@@ -35,6 +35,9 @@ uint16_t font[] = {
 	0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 };
 
+/**
+ * @brief Deinitialize graphics and free c8
+ */
 void deinit_chip8(chip8_t *c8) {
 	deinit_graphics();
 	free(c8);
@@ -42,13 +45,13 @@ void deinit_chip8(chip8_t *c8) {
 
 /**
  * @brief Initialize and return a `chip8_t` with the specified clockspeed.
- * 
+ *
  * This function allocates memory for a new `chip8_t` with all values set to 0,
  * sets the clockspeed to `cs`, adds the font to memory, and returns a pointer
  * to it.
- * 
+ *
  * @param cs clockspeed
- * 
+ *
  * @return pointer to initialized chip8_t (must be `free`'d). `NULL` if failed.
  */
 chip8_t *init_chip8(int cs, int flags, const char *path) {
@@ -79,6 +82,12 @@ chip8_t *init_chip8(int cs, int flags, const char *path) {
 	return c8;
 }
 
+/**
+ * @brief Load palette from the given path into colors.
+ *
+ * @param[colors] where to store the color codes
+ * @param[path] location
+ */
 int load_palette(int *colors, const char *path) {
 	char buf[BUFSIZ];
 	buf[0] = '$';
@@ -102,7 +111,7 @@ int load_palette(int *colors, const char *path) {
 
 /**
  * @brief Main VM simulation loop. Exits when `running` is 0.
- * 
+ *
  * @param c8 the `chip8_t` to simulate
  */
 void simulate(chip8_t * c8) {
@@ -158,7 +167,7 @@ void simulate(chip8_t * c8) {
 
 /**
  * @brief Add the font to `c8->mem`.
- * 
+ *
  * @param c8 `chip8_t` to add the font to
  */
 static void init_font(chip8_t *c8) {
@@ -169,10 +178,10 @@ static void init_font(chip8_t *c8) {
 
 /**
  * @brief Load a ROM to `c8->mem` at path `addr`.
- * 
+ *
  * @param c8 `chip8_t` to store the ROM's contents
  * @param addr path to the ROM
- * 
+ *
  * @return 0 if failed, 1 otherwise.
  */
 static int load_rom(chip8_t *c8, const char *addr) {
@@ -203,12 +212,12 @@ static int load_rom(chip8_t *c8, const char *addr) {
 
 /**
  * @brief Execute the instruction at `c8->pc`
- * 
+ *
  * This function parses and executes the instruction at the current program
  * counter.
- * 
+ *
  * If verbose flag is set, this will print the instruction to `stdout` as well.
- * 
+ *
  * @param c8 the `chip8_t` to execute the instruction from
  */
 static void parse_instruction(chip8_t *c8) {
@@ -475,4 +484,3 @@ static void parse_instruction(chip8_t *c8) {
 		c8->st--; // TODO sound
 	}
 }
-

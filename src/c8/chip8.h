@@ -9,6 +9,10 @@
 #define FLAG_DEBUG 0x1
 #define FLAG_VERBOSE 0x2
 
+/**
+ * @struct chip8_t
+ * @brief Represents current state of the CHIP-8 VM
+ */
 typedef struct {
 	uint8_t mem[MEMSIZE];
 	uint8_t R[8];

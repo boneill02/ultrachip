@@ -14,16 +14,6 @@ make
 sudo make install
 ```
 
-## Testing
-
-```
-make test
-make test-c8as
-make test-util
-```
-
-Tests are run using [Unity](https://github.com/ThrowTheSwitch/Unity).
-
 ## CHIP-8 VM
 
 This is a fully functional CHIP-8 and Super Chip-48 virtual machine with an
@@ -96,12 +86,12 @@ The assembler converts CHIP-8 and Super Chip-48 assembly language into bytecode.
 c8as [-vV] [-o outputfile] src
 ```
 
-* `-v` prints the resulting hex-formatted bytecode to standard output.
-* `-V` prints version information.
 * `-o` sets an output file (default is `a.c8`).
+* `-v` prints diagnostic messages and the resulting hex-encoded bytecode to standard output.
+* `-V` prints the version number.
 
 Commas are optional for instruction parameters. This assembler is case
-insensitive. See `tests/c8as` for example code.
+insensitive. See `examples/c8as` for example code.
 
 ## Disassembler
 
@@ -117,9 +107,20 @@ c8dis [-al] [-o outputfile] rom
 * `-a` toggles printing of addresses.
 * `-l` toggles printing of auto-generated labels.
 * `-o` writes the output to the specified file.
-* `-V` prints version information.
+* `-V` prints the version number.
 
 By default, `c8dis` will write to `stdout`.
+
+## Testing
+
+```
+make test
+make test-c8as
+make test-util
+```
+
+Tests are run using [Unity](https://github.com/ThrowTheSwitch/Unity).
+
 
 ## Further Reading
 

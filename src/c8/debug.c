@@ -52,7 +52,7 @@ typedef enum {
 /**
  * @union Arg
  * @brief Stores an argument's value (string or int)
- * 
+ *
  * Stores an argument's value as a string or int.
  * `s` gets the string value.
  * `i` gets the integer value.
@@ -63,7 +63,7 @@ typedef union {
 } ArgValue;
 
 /**
- * @struct arg_s
+ * @struct arg_t
  * @brief Represents an argument for a command with a type and value.
  */
 typedef struct {
@@ -97,6 +97,10 @@ static void print_help(void);
 static void print_value(chip8_t *, cmd_t *);
 static int set_value(chip8_t *, cmd_t *);
 
+/**
+ * These are string values of all possible argument, ordered to match the
+ * Argument enumerator.
+ */
 const char *args[] = {
 	"SP",
 	"DT",
@@ -125,16 +129,16 @@ const char *cmds[] = {
 
 /**
  * @brief Debug command line loop.
- * 
+ *
  * This function parses user commands from stdin and prints the result until
  * one of the following conditions is met:
- * 
+ *
  * - continue command is evaluated (return DEBUG_CONTINUE)
- * 
+ *
  * - quit command is evaluated (return DEBUG_QUIT)
- * 
+ *
  * - next command is evaluated (return DEBUG_STEP)
- * 
+ *
  * @param c8 the current CHIP-8 state
  * @return DEBUG_CONTINUE, DEBUG_STEP, or DEBUG_QUIT
  */
@@ -198,7 +202,7 @@ int debug_repl(chip8_t *c8) {
 
 /**
  * @brief Parse command from string s and store in cmd.
- * 
+ *
  * @param cmd where to store the command attributes
  * @return 1 if successful, 0 if not
  */
@@ -250,7 +254,7 @@ static int get_command(cmd_t *cmd, char *s) {
 
 /**
  * @brief Check if breakpoint exists at address pc
- * 
+ *
  * @param pc address to check for breakpoint at
  * @return 1 if yes, 0 if no
  */
@@ -258,6 +262,13 @@ int has_breakpoint(chip8_t *c8, uint16_t pc) {
 	return c8->breakpoints[pc];
 }
 
+/**
+ * @brief Load c8 from file.
+ *
+ * @param c8 struct to load to
+ * @param path path to load from
+ * @return 1 if success, 0 if failure
+ */
 static int load_state(chip8_t *c8, const char *path) {
 	FILE *f = fopen(path, "rb");
 	if (!f) {
@@ -270,10 +281,10 @@ static int load_state(chip8_t *c8, const char *path) {
 /**
  * Load a file path string into cmd. This does not check
  * whether the file exists or can be read from.
- * 
+ *
  * @param cmd where to store the path
  * @param arg the argument to store
- * 
+ *
  * @return 1
  */
 static int load_file_arg(cmd_t *cmd, char *arg) {
@@ -284,7 +295,7 @@ static int load_file_arg(cmd_t *cmd, char *arg) {
 
 /**
  * @brief Parse arguments.
- * 
+ *
  * @param cmd where to store the argument (cmd->id must be correct)
  * @param s arg string (user input after command)
  */
@@ -357,7 +368,7 @@ static void print_help(void) {
 
 /**
  * @brief Print all V registers (V0-Vf).
- * 
+ *
  * @param c8 the current CHIP-8 state
  */
 static void print_v_registers(chip8_t *c8) {
@@ -369,7 +380,7 @@ static void print_v_registers(chip8_t *c8) {
 
 /**
  * @brief Print all elements of the stack.
- * 
+ *
  * @param c8 the current CHIP-8 state
  */
 static void print_stack(chip8_t *c8) {
@@ -381,7 +392,7 @@ static void print_stack(chip8_t *c8) {
 
 /**
  * @brief Print the value specified by the arg in cmd.
- * 
+ *
  * @param c8 the current CHIP-8 state
  * @param cmd the command structure to get the arg from
  */
@@ -439,6 +450,13 @@ static void print_value(chip8_t *c8, cmd_t *cmd) {
 	}
 }
 
+/**
+ * @brief Save current state of c8 to file.
+ *
+ * @param c8 struct to save
+ * @param path path to save to
+ * @return 1 if success, 0 if failure
+ */
 static int save_state(chip8_t *c8, const char *path) {
 	FILE *f = fopen(path, "wb");
 	if (!f) {
@@ -450,10 +468,10 @@ static int save_state(chip8_t *c8, const char *path) {
 
 /**
  * @brief Set the value at `cmd->arg.type` to `cmd->setValue
- * 
+ *
  * This assumes the arguments are correctly formatted (e.g. no `ARG_V` type
  * without a value).
- * 
+ *
  * @param c8 the current CHIP-8 state
  * @param cmd the command structure
  */

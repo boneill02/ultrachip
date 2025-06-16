@@ -188,7 +188,7 @@ int build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) {
 
 /**
  * @brief Check if the given string is a comment
- * 
+ *
  * @param s the string to check
  * @return 1 if true, 0 if false
  */
@@ -199,7 +199,7 @@ int is_comment(const char *s) {
 
 /**
  * @brief Check if given string is a DB identifier
- * 
+ *
  * @return 1 if true, 0 if false
  */
 int is_db(const char *s) {
@@ -209,7 +209,7 @@ int is_db(const char *s) {
 
 /**
  * @brief Check if given string is a DW identifier
- * 
+ *
  * @return 1 if true, 0 if false
  */
 int is_dw(const char *s) {
@@ -219,7 +219,7 @@ int is_dw(const char *s) {
 
 /**
  * @brief Check if the given string is an instruction
- * 
+ *
  * @param s the string to check
  * @return instruction enumerator if true, -1 if false
  */
@@ -237,7 +237,7 @@ int is_instruction(const char *s) {
 
 /**
  * @brief Check if the given string is a label definition
- * 
+ *
  * @param s the string to check
  * @return 1 if true, 0 if false
  */
@@ -254,7 +254,7 @@ int is_label_definition(const char *s) {
 
 /**
  * @brief Check if given string is a label reference
- * 
+ *
  * @param s string to check
  * @return label index if true, -1 otherwise
  */
@@ -276,7 +276,7 @@ int is_label(const char *s, label_list_t *labels) {
 
 /**
  * @brief Check if the given string represents a V register
- * 
+ *
  * @param s string to check
  * @return V register number if true, -1 otherwise
  */
@@ -288,7 +288,7 @@ int is_register(const char *s) {
 
 /**
  * @brief Check if given string is a reserved identifier
- * 
+ *
  * @param s string to check
  * @return type of identifier if true, -1 otherwise
  */
@@ -306,14 +306,13 @@ int is_reserved_identifier(const char *s) {
 
 /**
  * @brief Get the next symbol
- * 
+ *
  * @return first empty symbol in symbol table
  */
 symbol_t *next_symbol(symbol_list_t *symbols) {
 	if (!symbols || !symbols->s) {
 		return NULL;
 	}
-
 	if (symbols->len == 0) {
 		symbols->len++;
 		return &symbols->s[0];
@@ -329,11 +328,11 @@ symbol_t *next_symbol(symbol_list_t *symbols) {
 
 /**
  * @brief Populate label list from lines
- * 
+ *
  * @param lines lines to search
  * @param lineCount number of lines to search
  * @param labels label list to populate
- * 
+ *
  * @return 1 if success, 0 if failure
  */
 int populate_labels(char **lines, int lineCount, label_list_t *labels) {
@@ -377,10 +376,10 @@ int populate_labels(char **lines, int lineCount, label_list_t *labels) {
 
 /**
  * @brief Get byte indexes of label definitions from completed symbol table
- * 
+ *
  * @param symbols list of symbols
  * @param labels list of labels
- * 
+ *
  * @return 1 if success, 0 if failure
  */
 int resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
@@ -413,7 +412,7 @@ int resolve_labels(symbol_list_t *symbols, label_list_t *labels) {
 
 /**
  * @brief Substitute label symbols with their corresponding int value
- * 
+ *
  * @param symbols symbols to search
  * @param labels labels to search
  */
@@ -436,9 +435,9 @@ int substitute_labels(symbol_list_t *symbols, label_list_t *labels) {
 
 /**
  * @brief Get bytecode value of instruction
- * 
+ *
  * @param ins instruction to get bytecode of
- * 
+ *
  * @return bytecode of instruction ins
  */
 static int parse_instruction(instruction_t *ins) {
@@ -455,11 +454,11 @@ static int parse_instruction(instruction_t *ins) {
 
 /**
  * @brief Validate the given instruction against legal instruction formats
- * 
+ *
  * If successful, ins->format will be populated with the matching format
- * 
+ *
  * @param ins instruction to validate
- * 
+ *
  * @return 1 if success, 0 if failure
  */
 static int validate_instruction(instruction_t *ins) {
@@ -505,8 +504,10 @@ static int validate_instruction(instruction_t *ins) {
 
 /**
  * @brief Expand symbol list
- * 
+ *
  * @param symbols symbol list
+ * 
+ * @return 1 if success, exception code otherwise.
  */
 static int reallocate_symbols(symbol_list_t *symbols) {
 	NULLCHECK1(symbols);
@@ -517,14 +518,16 @@ static int reallocate_symbols(symbol_list_t *symbols) {
 	memcpy(symbols->s, oldsym, symbols->ceil * sizeof(symbol_t));
 	symbols->ceil = newCeiling;
 	safe_free(oldsym);
+
+	return 1;
 }
 
 /**
  * @brief Find the bits needed to shift to OR a parameter into an instruction
- * 
+ *
  * FIXME find a better way to do this without having to do this every
  * time an instruction is encoded
- * 
+ *
  * @return number of bits to shift
  */
 static int shift(uint16_t fmt) {

@@ -30,15 +30,15 @@ static int write(uint8_t *, symbol_list_t *, int);
 
 /**
  * @brief Parse the given string
- * 
+ *
  * This is the main assembler function.
- * 
+ *
  * This function generates bytecode from the given assembly code.
- * 
+ *
  * @param s string containing assembly code
  * @param f file to write to
  * @param a args
- * 
+ *
  * @return length of resulting bytecode.
  */
 int parse(const char *s, uint8_t *out, int args) {
@@ -114,10 +114,10 @@ int parse(const char *s, uint8_t *out, int args) {
 }
 
 /**
- * @brief Trim and remove comment from line if exists
- * 
- * @param s string to trim
- * @return trimmed string
+ * @brief Remove comment from string if exists
+ *
+ * @param s string to remove comment from
+ * @return string without comment
  */
 char *remove_comment(char *s) {
 	if (!s) {
@@ -138,7 +138,11 @@ char *remove_comment(char *s) {
 	return s;
 }
 
-
+/**
+ * @brief Get line count of s
+ * @param s string to count lines from
+ * @return line count
+ */
 static int line_count(const char *s) {
 	int ln = 1;
 	while (*s) {
@@ -152,12 +156,12 @@ static int line_count(const char *s) {
 
 /**
  * @brief Generate symbols for the given line
- * 
+ *
  * @param s line string
  * @param ln line number
  * @param symbols symbol list
  * @param labels label list
- * 
+ *
  * @return 1 if success, exception code otherwise
  */
 static int parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *labels) {
@@ -195,13 +199,13 @@ static int parse_line(char *s, int ln, symbol_list_t *symbols, label_list_t *lab
 
 /**
  * @brief Generate symbol for the given word
- * 
+ *
  * @param s word string
  * @param next next word string
  * @param ln line number
  * @param sym symbol to populate
  * @param labels label list
- * 
+ *
  * @return number of words to skip
  */
 static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *labels) {
@@ -262,10 +266,9 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
 	return INVALID_SYMBOL_EXCEPTION;
 }
 
-
 /**
  * @brief Write 16 bit int to f
- * 
+ *
  * @param output where to write
  * @param n index to write to
  */
@@ -278,12 +281,12 @@ static inline int put16(uint8_t *output, uint16_t n, int idx) {
 
 /**
  * @brief split string into token array separated by delimeter
- * 
+ *
  * @param tok token array
  * @param s string to tokenize
  * @param delim delimeter to separate tokens
  * @param maxTokens maximum number of tokens
- * 
+ *
  * @return number of tokens
  */
 static int tokenize(char **tok, char *s, const char *delim, int maxTokens) {
@@ -305,9 +308,9 @@ static int tokenize(char **tok, char *s, const char *delim, int maxTokens) {
 
 /**
  * @brief Trim and remove comma from s if exists
- * 
- * @param s string to trim
- * @return trimmed string
+ *
+ * @param s string to remove comma from
+ * @return string without comma
  */
 static char *remove_comma(char *s) {
 	if (!s) {
@@ -323,8 +326,8 @@ static char *remove_comma(char *s) {
 }
 
 /**
- * @brief Convert all characters in null-terminated stirng s to uppercase
- * 
+ * @brief Convert all characters in null-terminated string s to uppercase
+ *
  * @param s string to convert
  */
 static int to_upper(char *s) {
@@ -339,11 +342,11 @@ static int to_upper(char *s) {
 
 /**
  * @brief Convert symbols to bytes and write to output
- * 
+ *
  * @param output output array
  * @param symbols symbol list
  * @param args arguments given by user
- * 
+ *
  * @return length of bytecode
  */
 static int write(uint8_t *output, symbol_list_t *symbols, int args) {

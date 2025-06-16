@@ -13,9 +13,9 @@ FILE *files[MAX_FILES];
 
 /**
  * @brief Get the integer value of hexadecimal ASCII representation
- * 
+ *
  * @param c the char to convert
- * 
+ *
  * @return -1 if failed, otherwise 0-15
  */
 int hex_to_int(char c) {
@@ -33,12 +33,12 @@ int hex_to_int(char c) {
 
 /**
  * @brief Parse decimal or hexadecimal integer from `s`
- * 
+ *
  * Converts string `s` to an integer. Assumes decimal unless the first
  * character is `'$'` or `'x'`.
- * 
+ *
  * @param s The string to convert.
- * 
+ *
  * @return -1 if failed, otherwise whatever the value is
  */
 int parse_int(const char *s) {
@@ -63,10 +63,20 @@ int parse_int(const char *s) {
     return result;
 }
 
+/**
+ * @brief Print version from preprocessor definition
+ *
+ * @param argv0 argv0
+ */
 void print_version(const char *argv0) {
     printf("%s %s\n", argv0, VERSION);
 }
 
+/**
+ * @brief Close file and remove from list of open files
+ *
+ * @param f file to close
+ */
 void safe_fclose(FILE *f) {
 	for (int i = 0; i < MAX_FILES; i++) {
 		if (files[i] == f) {
@@ -77,6 +87,13 @@ void safe_fclose(FILE *f) {
 	fclose(f);
 }
 
+/**
+ * @brief Open file and add list of open files
+ *
+ * @param p path of file
+ * @param m modes (rw etc)
+ * @return file pointer
+ */
 FILE *safe_fopen(const char *p, const char *m) {
 	FILE *f = fopen(p, m);
 
@@ -91,6 +108,11 @@ FILE *safe_fopen(const char *p, const char *m) {
 	return NULL;
 }
 
+/**
+ * @brief Free malloc'd memory and remove from list of mallocs
+ *
+ * @param m pointer to memory to free
+ */
 void safe_free(void *m) {
 	for (int i = 0; i < MAX_MALLOCS; i++) {
 		if (m == mallocs[i]) {
@@ -101,6 +123,12 @@ void safe_free(void *m) {
 	free(m);
 }
 
+/**
+ * @brief malloc some memory of the given size and add to list of mallocs
+ *
+ * @param size size to malloc
+ * @return pointer to memory
+ */
 void *safe_malloc(size_t size) {
 	void *m;
 
@@ -116,6 +144,12 @@ void *safe_malloc(size_t size) {
 	return NULL;
 }
 
+/** 
+ * @brief calloc some memory of the given size and add to list of mallocs
+ *
+ * @param size size to calloc
+ * @return pointer to memory
+ */
 void *safe_calloc(size_t nmemb, size_t size) {
 	void *m;
 
@@ -131,6 +165,32 @@ void *safe_calloc(size_t nmemb, size_t size) {
 	return NULL;
 }
 
+/** 
+ * @brief realloc some memory of the given size and add to list of mallocs
+ *
+ * @param size size to realloc
+ * @return pointer to memory
+ */
+void *safe_realloc(void *ptr, size_t size) {
+	void *m;
+
+	for (int i = 0; i < MAX_MALLOCS; i++) {
+		if (!mallocs[i]) {
+			mallocs[i] = realloc(ptr, size);
+			return mallocs[i];
+		}
+	}
+
+	safe_exit(TOO_MANY_MALLOCS_EXCEPTION);
+	return NULL;
+}
+
+/** 
+ * @brief close all files, free all mallocs, and print exception code/message if exists
+ *
+ * @param size size to calloc
+ * @return pointer to memory
+ */
 void safe_exit(int status) {
 	if (status != 1) {
 		switch (status) {
@@ -187,10 +247,10 @@ void safe_exit(int status) {
 
 /**
  * @brief Trim leading and trailing whitespace from `s`
- * 
+ *
  * Puts a `NULL` character after the last non-whitespace character and 
  * returns a pointer to the first non-whitespace character.
- * 
+ *
  * @param s string to trim
  * @return pointer to first non-whitespace character after `s`.
  */

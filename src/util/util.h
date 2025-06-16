@@ -13,6 +13,7 @@ void safe_free(void *);
 void safe_fclose(FILE *);
 FILE *safe_fopen(const char *, const char *);
 void *safe_malloc(size_t);
+void *safe_realloc(void *, size_t);
 void safe_exit(int);
 char *trim(char *);
 

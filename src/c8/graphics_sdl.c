@@ -55,9 +55,9 @@ void deinit_graphics(void) {
 
 /**
  * @brief Convert the given SDL Keycode to a CHIP-8 keycode.
- * 
+ *
  * @param k the SDL_Keycode
- * 
+ *
  * @return the CHIP-8 keycode
  */
 static int get_key(SDL_Keycode k) {
@@ -69,7 +69,7 @@ static int get_key(SDL_Keycode k) {
 
 /**
  * @brief Initialize the graphics library.
- * 
+ *
  * @return 1 if successful, 0 otherwise.
  */
 int init_graphics(void) {
@@ -82,7 +82,7 @@ int init_graphics(void) {
 
 /**
  * Render the given display to the SDL2 window.
- * 
+ *
  * @param display pointer to a int arr of size `DISPLAY_WIDTH*DISPLAY_HEIGHT`
  */
 void render(display_t *display, int *colors) {
@@ -117,12 +117,12 @@ void render(display_t *display, int *colors) {
 
 /**
  * @brief Process keypresses and delay based on clockspeed.
- * 
+ *
  * If a relevant key is pressed or released (see `keyMap` in this file), this
  * function will update `key` accordingly.
- * 
+ *
  * @param key pointer to int arr of keys
- * 
+ *
  * @return -2 if quitting, -1 if no key was pressed/released, else returns value
  * of key pressed/released.
  */
