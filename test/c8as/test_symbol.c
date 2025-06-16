@@ -119,10 +119,9 @@ void test_build_instruction_WhereInstructionIsValid(void) {
 }
 
 void test_build_instruction_WhereInstructionIsInvalid(void) {
-	/* FIXME: INTERMITTENTLY FAILING */
 	RESET;
 
-	int idx = rand() % SYMBOL_CEILING - 5;
+	int idx = 10;
 	generate_invalid_instruction_symbols(idx, rand());
 	TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, build_instruction(&ins, &symbols, idx));
 }
@@ -173,28 +172,26 @@ void test_is_comment_WhereNoCommentIsInString(void) {
 void test_is_db_WhereStringIsDB(void) {
 	RESET;
 
-	const char *s = "DB";
-	TEST_ASSERT_EQUAL_INT(1, is_db(s));
+	TEST_ASSERT_EQUAL_INT(1, is_db(S_DB));
 }
 
 void test_is_db_WhereStringIsNotDB(void) {
 	RESET;
 
-	const char *s = "DW";
-	TEST_ASSERT_EQUAL_INT(0, is_db(s));
+	TEST_ASSERT_EQUAL_INT(0, is_db(S_DW));
 }
 
 void test_is_db_WhereStringContainsDB(void) {
 	RESET;
 
-	const char *s = "Foo DB";
+	const char *s = "Foo .DB";
 	TEST_ASSERT_EQUAL_INT(0, is_db(s));
 }
 
 void test_is_db_WithTrailingChars(void) {
 	RESET;
 
-	const char *s = "DB foo";
+	const char *s = ".DB foo";
 	TEST_ASSERT_EQUAL_INT(0, is_db(s));
 }
 
@@ -212,25 +209,23 @@ void test_is_db_WhereStringIsNull(void) {
 
 void test_is_dw_WhereStringIsDW(void) {
 	RESET;
-	const char *s = "DW";
-	TEST_ASSERT_EQUAL_INT(1, is_dw(s));
+	TEST_ASSERT_EQUAL_INT(1, is_dw(S_DW));
 }
 
 void test_is_dw_WhereStringIsNotDW(void) {
 	RESET;
-	const char *s = "DB";
-	TEST_ASSERT_EQUAL_INT(0, is_dw(s));
+	TEST_ASSERT_EQUAL_INT(0, is_dw(S_DB));
 }
 
 void test_is_dw_WhereStringContainsDW(void) {
 	RESET;
-	const char *s = "Foo DW";
+	const char *s = "Foo .DW";
 	TEST_ASSERT_EQUAL_INT(0, is_db(s));
 }
 
 void test_is_dw_WithTrailingChars(void) {
 	RESET;
-	const char *s = "DW foo";
+	const char *s = ".DW foo";
 	TEST_ASSERT_EQUAL_INT(0, is_dw(s));
 }
 

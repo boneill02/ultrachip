@@ -9,25 +9,44 @@
 
 #define BYTECODE_SIZE (MEMSIZE - PROG_START)
 #define BUF_SIZE (BYTECODE_SIZE * MAX_LINE_LENGTH)
+
 #define CLEAR_BYTECODE for(int i=0;i<BYTECODE_SIZE;i++){bytecode[i]=0;}
 #define CLEAR_BUF for(int i=0;i<BUF_SIZE;i++){buf[i]='\0';}
 #define CLEAR_EXCEPTION for(int i=0;i<EXCEPTION_MESSAGE_SIZE;i++){exception[i]='\0';}
-
-#define RESET CLEAR_BUF; CLEAR_BYTECODE; CLEAR_EXCEPTION;
+#define CLEAR_LABELS \
+	memset(labels.l,0,LABEL_CEILING*sizeof(label_t)); \
+	labels.len=0; \
+	labels.ceil=LABEL_CEILING;
+#define CLEAR_SYMBOLS \
+	memset(labels.l, 0, SYMBOL_CEILING*sizeof(symbol_t)); \
+	labels.len=0; \
+	labels.ceil = LABEL_CEILING;
+#define RESET CLEAR_SYMBOLS; CLEAR_LABELS; CLEAR_BUF; CLEAR_BYTECODE; CLEAR_EXCEPTION;
 
 char buf[BUF_SIZE];
 uint8_t *bytecode;
 extern char exception[EXCEPTION_MESSAGE_SIZE];
 int fmtCount;
+int insCount;
+
+symbol_list_t symbols;
+label_list_t labels;
 
 void setUp(void) {
 	srand(time(NULL));
 	bytecode = calloc(BYTECODE_SIZE, 1);
 	for (fmtCount = 0; formats[fmtCount].cmd != I_NULL; fmtCount++);
+	for (insCount = 0; instructionStrings[insCount] != NULL; insCount++);
+	symbols.s = calloc(SYMBOL_CEILING, sizeof(symbol_t));
+	symbols.ceil = SYMBOL_CEILING;
+	labels.l = calloc(LABEL_CEILING, sizeof(label_t));
+	labels.ceil = LABEL_CEILING;
 }
 
 void tearDown(void) {
 	free(bytecode);
+	free(symbols.s);
+	free(labels.l);
 }
 
 void generate_valid_instruction_string(void) {
@@ -107,9 +126,10 @@ void test_parse_WhereOneValidInstructionExists(void) {
 	RESET;
 
 	/* Test specific instruction to match bytecode */
-	char *s = "ADD V5, V3\n";
-	sprintf(buf, "%s", s);
+	char *s = "ADD V5, V3";
+	sprintf(buf, "%s\n", s);
 	int r = parse(buf, bytecode, 1);
+	printf("%s\n", buf);
 	TEST_ASSERT_EQUAL_INT(2, r);
 	TEST_ASSERT_EQUAL_INT(0x85, bytecode[0]);
 	TEST_ASSERT_EQUAL_INT(0x34, bytecode[1]);
@@ -118,6 +138,7 @@ void test_parse_WhereOneValidInstructionExists(void) {
 	/* Test random instruction */
 	RESET;
 	generate_valid_instruction_string();
+	printf("%s\n", buf);
 	r = parse(buf, bytecode, 1);
 	TEST_ASSERT_EQUAL_INT(2, r); // FAILING
 	int bc = bytecode[0] || bytecode[1];
@@ -200,6 +221,173 @@ void test_parse_WhereOutIsNull(void) {
 	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, r);
 }
 
+void line_count_WhereStringHasMultipleLines(void) {
+
+	RESET;
+
+	const char *s = "ABCD\nEFGH\nIJKL\n";
+	TEST_ASSERT_EQUAL_INT(4, line_count(s));
+}
+
+void line_count_WhereStringHasOneLine(void) {
+	RESET;
+
+	const char *s = "blablabla";
+	TEST_ASSERT_EQUAL_INT(1, line_count(s));
+}
+
+void test_line_count_WhereStringIsEmpty(void) {
+	RESET;
+	
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, line_count(buf));
+}
+
+void test_line_count_WhereStringIsNull(void) {
+	RESET;
+	
+	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, line_count(NULL));
+}
+
+void test_parse_word_WhereWordIsLabelDefinition(void) {
+	RESET;
+
+	const char *s = "ldef";
+
+	sprintf(buf, "%s:", s);
+	labels.len = 1;
+	sprintf(labels.l[0].identifier, "%s", s);
+	int r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
+
+	TEST_ASSERT_EQUAL_INT(0, r);
+	TEST_ASSERT_EQUAL_INT(SYM_LABEL_DEFINITION, symbols.s[0].type);
+	TEST_ASSERT_EQUAL_INT(0, symbols.s[0].value);
+}
+
+void test_parse_word_WhereWordIsInstruction(void) {
+	RESET;
+
+	int ins = rand() % insCount;
+
+	sprintf(buf, "%s", instructionStrings[ins]);
+	int r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
+
+	TEST_ASSERT_EQUAL_INT(0, r);
+	TEST_ASSERT_EQUAL_INT(SYM_INSTRUCTION, symbols.s[0].type);
+	TEST_ASSERT_EQUAL_INT(ins, symbols.s[0].value);
+}
+
+void test_parse_word_WhereWordIsDB(void) {
+	RESET;
+
+	int v = rand() % UINT8_MAX;
+	sprintf(buf, "%s", S_DB, v);
+	sprintf(buf+10, "%d", v);
+	int r = parse_word(buf, buf + 10, 1, &symbols.s[0], &labels);
+
+	TEST_ASSERT_EQUAL_INT(1, r);
+	TEST_ASSERT_EQUAL_INT(SYM_DB, symbols.s[0].type);
+	TEST_ASSERT_EQUAL_INT(v, symbols.s[0].value);
+}
+
+void test_parse_word_WhereWordIsDW(void) {
+	RESET;
+
+	int v = rand() % UINT8_MAX;
+	sprintf(buf, "%s", S_DW, v);
+	sprintf(buf+10, "%d", v, v);
+	int r = parse_word(buf, buf + 10, 1, &symbols.s[0], &labels);
+
+	TEST_ASSERT_EQUAL_INT(1, r);
+	TEST_ASSERT_EQUAL_INT(SYM_DW, symbols.s[0].type);
+	TEST_ASSERT_EQUAL_INT(v, symbols.s[0].value);
+}
+
+void test_parse_word_WhereWordIsRegister(void) {
+	RESET;
+
+	int v = rand() % 0x10;
+	sprintf(buf, "V%01x", v);
+	int r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
+
+	TEST_ASSERT_EQUAL_INT(0, r);
+	TEST_ASSERT_EQUAL_INT(SYM_V, symbols.s[0].type);
+	TEST_ASSERT_EQUAL_INT(v, symbols.s[0].value);
+}
+
+void test_parse_word_WhereWordIsReservedIdentifier(void) {
+	RESET;
+
+	sprintf(buf, "%s", S_HF);
+	int r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
+
+	TEST_ASSERT_EQUAL_INT(0, r);
+	TEST_ASSERT_EQUAL_INT(SYM_HF, symbols.s[0].type);
+	TEST_ASSERT_EQUAL_INT(0, symbols.s[0].value);
+	
+	RESET;
+	sprintf(buf, "%s", S_IP);
+	r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
+
+	TEST_ASSERT_EQUAL_INT(0, r);
+	TEST_ASSERT_EQUAL_INT(SYM_IP, symbols.s[0].type);
+	TEST_ASSERT_EQUAL_INT(0, symbols.s[0].value);
+}
+
+void test_parse_word_WhereWordIsInt(void) {
+	RESET;
+	int v4 = rand() % 0x10;
+	int v8 = rand() % 0x100;
+	int v12 = rand() % 0x1000;
+
+	sprintf(buf, "$%x", v4);
+	int r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
+	TEST_ASSERT_EQUAL_INT(0, r);
+	TEST_ASSERT_EQUAL_INT(SYM_INT4, symbols.s[0].type);
+	TEST_ASSERT_EQUAL_INT(v4, symbols.s[0].value);
+
+	RESET;
+
+	sprintf(buf, "$%x", v8);
+	r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
+	TEST_ASSERT_EQUAL_INT(0, r);
+	TEST_ASSERT_EQUAL_INT(SYM_INT8, symbols.s[0].type);
+	TEST_ASSERT_EQUAL_INT(v8, symbols.s[0].value);
+
+	RESET;
+
+	sprintf(buf, "$%x", v12);
+	r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
+	TEST_ASSERT_EQUAL_INT(0, r);
+	TEST_ASSERT_EQUAL_INT(SYM_INT12, symbols.s[0].type);
+	TEST_ASSERT_EQUAL_INT(v12, symbols.s[0].value);
+}
+
+void test_parse_word_WhereWordIsLabel(void) {
+	RESET;
+
+	const char *l = "LABEL";
+	labels.len = 2;
+	sprintf(labels.l[0].identifier, "otherlabel");
+	sprintf(labels.l[1].identifier, l);
+	sprintf(buf, "%s", l);
+
+	int r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
+	TEST_ASSERT_EQUAL_INT(0, r);
+	TEST_ASSERT_EQUAL_INT(SYM_LABEL, symbols.s[0].type);
+	TEST_ASSERT_EQUAL_INT(1, symbols.s[0].value);
+}
+
+void test_parse_word_WhereWordIsInvalid(void) {
+	RESET;
+
+	const char *s = "Invalid";
+	sprintf(buf, "%s", s);
+	
+	int r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
+	TEST_ASSERT_EQUAL_INT(INVALID_SYMBOL_EXCEPTION, r);
+	TEST_ASSERT_EQUAL_INT(0, symbols.len);
+}
+
 int main(void) {
     UNITY_BEGIN();
 	RUN_TEST(test_remove_comment_WhereStringHasNoComment);
@@ -215,5 +403,13 @@ int main(void) {
 	RUN_TEST(test_parse_WhereStringIsEmpty);
 	RUN_TEST(test_parse_WhereStringIsNull);
 	RUN_TEST(test_parse_WhereOutIsNull);
+	RUN_TEST(test_parse_word_WhereWordIsDB);
+	RUN_TEST(test_parse_word_WhereWordIsDW);
+	RUN_TEST(test_parse_word_WhereWordIsInstruction);
+	RUN_TEST(test_parse_word_WhereWordIsRegister);
+	RUN_TEST(test_parse_word_WhereWordIsReservedIdentifier);
+	RUN_TEST(test_parse_word_WhereWordIsInt);
+	RUN_TEST(test_parse_word_WhereWordIsLabel);
+	RUN_TEST(test_parse_word_WhereWordIsInvalid);
 	return UNITY_END();
 }

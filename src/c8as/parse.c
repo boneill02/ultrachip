@@ -45,7 +45,7 @@ int parse(const char *s, uint8_t *out, int args) {
 	NULLCHECK2(s, out);
 	char *scpy;
 	int len = strlen(s);
-	int bytes = 0;
+	int count = 0;
 	int lineCount = line_count(s);
 	int ret;
 	char **lines;
@@ -75,7 +75,7 @@ int parse(const char *s, uint8_t *out, int args) {
 	}
 
 	lines = safe_malloc(lineCount * sizeof(char *));
-	if ((lineCount = tokenize(lines, scpy, "\n", lineCount)) < 1) {
+	if ((lineCount = tokenize(lines, scpy, "\n", lineCount)) < 0) {
 		return lineCount;
 	}
 
@@ -104,13 +104,13 @@ int parse(const char *s, uint8_t *out, int args) {
 	}
 
 	VERBOSE_PRINT("Writing output");
-	bytes = write(out, &symbols, args);
+	count = write(out, &symbols, args);
 
 	safe_free(scpy);
 	safe_free(symbols.s);
 	safe_free(labels.l);
 	safe_free(lines);
-	return bytes;
+	return count;
 }
 
 /**
@@ -140,7 +140,7 @@ char *remove_comment(char *s) {
 
 
 static int line_count(const char *s) {
-	int ln = 0;
+	int ln = 1;
 	while (*s) {
 		if (*s == '\n') {
 			ln++;
@@ -213,8 +213,7 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
 	s = trim(s);
 	to_upper(s);
 
-	value = is_label_definition(s);
-	if (is_label_definition(s)) {
+	if (is_label_definition(s) == 1) {
 		sym->type = SYM_LABEL_DEFINITION;
 		for (int j = 0; j < labels->len; j++) {
 			if (!strcmp(s, labels->l[j].identifier)) {
@@ -226,11 +225,11 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
 		sym->type = SYM_INSTRUCTION;
 		sym->value = value;
 		return 0;
-	} else if (is_db(s)) {
+	} else if (is_db(s) && next) {
 		sym->type = SYM_DB;
 		sym->value = parse_int(next);
 		return 1;
-	} else if (is_dw(s)) {
+	} else if (is_dw(s) && next) {
 		sym->type = SYM_DW;
 		sym->value = parse_int(next);
 		return 1;
@@ -241,10 +240,18 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
 	} else if ((value = is_reserved_identifier(s)) >= 0) {
 		sym->type = value;
 		return 0;
-	} else if ((value = parse_int(s)) != -1) {
-		sym->type = SYM_INT;
+	} else if ((value = parse_int(s)) > -1) {
+		if (value < 0x10) {
+			sym->type = SYM_INT4;
+		} else if (value < 0x100) {
+			sym->type = SYM_INT8;
+		} else if (value < 0x1000) {
+			sym->type = SYM_INT12;
+		} else {
+			sym->type = SYM_INT;
+		}
 		sym->value = value;
-		return 1;
+		return 0;
 	} else if ((value = is_label(s, labels)) >= 0) {
 		sym->type = SYM_LABEL;
 		sym->value = value;
@@ -289,7 +296,7 @@ static int tokenize(char **tok, char *s, const char *delim, int maxTokens) {
 	int tokenCount = 0;
 	char *token = strtok(s, delim);
 	while (token && tokenCount < maxTokens) {
-		tok[tokenCount++] = trim(token);
+		tok[tokenCount++] = token;
 		token = strtok(NULL, delim);
 	}
 

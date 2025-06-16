@@ -41,8 +41,8 @@
 #define S_ST "ST"
 #define S_I "I"
 #define S_IP "[I]"
-#define S_DB "DB"
-#define S_DW "DW"
+#define S_DB ".DB"
+#define S_DW ".DW"
 #define S_HF "HF"
 #define S_R "R"
 
