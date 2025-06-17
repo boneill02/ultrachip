@@ -97,6 +97,11 @@ void safe_fclose(FILE *f) {
 FILE *safe_fopen(const char *p, const char *m) {
 	FILE *f = fopen(p, m);
 
+	if (!f) {
+		sprintf(exception, "Path: %s", p);
+		safe_exit(LOAD_FILE_FAILURE_EXCEPTION);
+	}
+
 	for (int i = 0; i < MAX_FILES; i++) {
 		if (!files[i]) {
 			files[i] = f;

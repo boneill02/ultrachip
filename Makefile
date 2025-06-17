@@ -48,6 +48,9 @@ test-util: $(UNITY_PATH)
 test-c8as: $(UNITY_PATH)
 	@make -f mk/test-c8as.mk
 
+test-c8: $(UNITY_PATH)
+	@make -f mk/test-c8.mk
+
 test: test-util test-c8as
 
 uninstall:
@@ -56,4 +59,4 @@ uninstall:
 		  $(DESTDIR)$(PREFIX)/bin/
 
 .PHONY: all $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG) clean install uninstall
-.PHONY: test-util
+.PHONY: test-c8 test-c8as test-util

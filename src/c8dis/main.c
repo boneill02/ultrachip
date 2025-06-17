@@ -26,30 +26,19 @@ int main(int argc, char *argv[]) {
 				break;
 			case 'V':
 				print_version(argv[0]);
-				exit(EXIT_SUCCESS);
+				safe_exit(0);
 			default:
 				  fprintf(stderr, "Usage: %s [-al] [-o outputfile] file\n", argv[0]);
-				  exit(1);
+				  safe_exit(1);
 		}
 	}
 
-	if (!(inf = fopen(argv[optind], "r"))) {
-		fprintf(stderr, "Error: Failed to load rom file\n");
-		exit(EXIT_FAILURE);
-	}
+	inf = safe_fopen(argv[optind], "r");
 
-	if (outp && !(outf = fopen(outp, "w"))) {
-		fprintf(stderr, "Error: Failed to load output file\n");
-		fclose(inf);
-		exit(EXIT_FAILURE);
+	if (outp) {
+		outf = safe_fopen(outp, "w");
 	}
 
 	disassemble(inf, outf, args);
-
-	/* Cleanup */
-	fclose(inf);
-	if (outf != stdout) {
-		fclose(outf);
-	}
-	return EXIT_SUCCESS;
+	safe_exit(1);
 }

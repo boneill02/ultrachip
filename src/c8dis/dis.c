@@ -2,6 +2,7 @@
 
 #include "util/defs.h"
 #include "util/decode.h"
+#include "util/util.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -12,6 +13,52 @@
 #define PRINT_ADDRESSES (args & ARG_PRINT_ADDRESSES)
 
 static void find_labels(FILE *, uint8_t *);
+
+/**
+ * @brief Convert bytecode from `input` to assembly and writes it to `output`.
+ *
+ * `ARG_PRINT_ADDRESSES` should be AND'd to args to print addresses before each
+ * assembly instruction.
+ *
+ * `ARG_DEFINE_LABELS` should be AND'd to args to define labels.
+ *
+ * @param input the CHIP-8 ROM file to disassemble
+ * @param output the file to write the assembly to
+ * @param args 0 with `ARG_PRINT_ADDRESSES` and/or `ARG_DEFINE_LABELS`
+ * optionally OR'd
+ */
+void disassemble(FILE *input, FILE *output, int args) {
+	int c;
+	uint8_t *labelMap = NULL;
+	uint16_t addr = PROG_START;
+	uint16_t ins = 0;
+
+	if (DEFINE_LABELS) {
+		labelMap = (uint8_t *) safe_calloc(0x1000, sizeof(uint8_t));
+		find_labels(input, labelMap);
+		rewind(input);
+	}
+
+	while ((c = fgetc(input)) != EOF) {
+		if (addr % 2 == 0) {
+			ins = ((uint16_t) c) << 8;
+		} else {
+			ins |= (uint16_t) c;
+
+			if (DEFINE_LABELS && labelMap[addr]) {
+				fprintf(output, "label%d:\n", labelMap[addr]);
+			}
+
+			if (PRINT_ADDRESSES) {
+				fprintf(output, "%03x: ", addr - 1);
+			}
+			fprintf(output, "%s\n", decode_instruction(ins, labelMap));
+		}
+		addr++;
+	}
+
+	safe_free(labelMap);
+}
 
 /**
  * @brief Generate labels from `input` and add labels to `labelMap`.
@@ -39,50 +86,4 @@ static void find_labels(FILE *input, uint8_t *labelMap) {
 			}
 		}
 	}
-}
-
-/**
- * @brief Convert bytecode from `input` to assembly and writes it to `output`.
- *
- * `ARG_PRINT_ADDRESSES` should be AND'd to args to print addresses before each
- * assembly instruction.
- *
- * `ARG_DEFINE_LABELS` should be AND'd to args to define labels.
- *
- * @param input the CHIP-8 ROM file to disassemble
- * @param output the file to write the assembly to
- * @param args 0 with `ARG_PRINT_ADDRESSES` and/or `ARG_DEFINE_LABELS`
- * optionally OR'd
- */
-void disassemble(FILE *input, FILE *output, int args) {
-	int c;
-	uint8_t *labelMap = NULL;
-	uint16_t addr = PROG_START;
-	uint16_t ins = 0;
-
-	if (DEFINE_LABELS) {
-		labelMap = (uint8_t *) calloc(0x1000, sizeof(uint8_t));
-		find_labels(input, labelMap);
-		rewind(input);
-	}
-
-	while ((c = fgetc(input)) != EOF) {
-		if (addr % 2 == 0) {
-			ins = ((uint16_t) c) << 8;
-		} else {
-			ins |= (uint16_t) c;
-
-			if (DEFINE_LABELS && labelMap[addr]) {
-				fprintf(output, "label%d:\n", labelMap[addr]);
-			}
-
-			if (PRINT_ADDRESSES) {
-				fprintf(output, "%03x: ", addr - 1);
-			}
-			fprintf(output, "%s\n", decode_instruction(ins, labelMap));
-		}
-		addr++;
-	}
-
-	free(labelMap);
 }

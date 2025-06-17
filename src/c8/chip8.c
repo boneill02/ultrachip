@@ -4,6 +4,14 @@
 #include "util/decode.h"
 #include "util/util.h"
 
+#ifdef TEST
+#ifndef TEST_INCLUDED
+#define TEST_INCLUDED
+#include "debug.c"
+#include "graphics.c"
+#endif
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 
