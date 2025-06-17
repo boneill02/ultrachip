@@ -293,9 +293,9 @@ void test_parse_instruction_WhereInstructionIsADDVKK_WithCarry(void) {
 	RESET;
 	GENERATE_RANDOMS;
 
-	vx = 254;
+	vx = (rand() % 128) + 128;
+	kk = (rand() % 128) + 128;
 	c8.V[x] = vx;
-	kk++;
 	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXKK(0x7, x, kk));
 
 	int ret = parse_instruction(&c8);
@@ -309,7 +309,8 @@ void test_parse_instruction_WhereInstructionIsADDVKK_WithoutCarry(void) {
 	RESET;
 	GENERATE_RANDOMS;
 
-	vx = 0;
+	vx = rand() % 128;
+	kk = rand() % 128;
 	c8.V[x] = vx;
 	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXKK(0x7, x, kk));
 
@@ -371,13 +372,15 @@ void test_parse_instruction_WhereInstructionIsXORVV(void) {
 	int ret = parse_instruction(&c8);
 
 	TEST_ASSERT_EQUAL_INT(1, ret);
-	TEST_ASSERT_EQUAL_INT(c8.V[x], c8.V[x] ^ c8.V[y]);
+	TEST_ASSERT_EQUAL_INT(c8.V[x], vx ^ vy);
 }
 
 void test_parse_instruction_WhereInstructionIsADDVV_WithCarry(void) {
 	RESET;
 	GENERATE_RANDOMS;
 
+	vx = (rand() % 128) + 128;
+	vy = (rand() % 128) + 128;
 	c8.V[x] = vx;
 	c8.V[y] = vy;
 	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(0x8, x, y, 4));
@@ -385,12 +388,25 @@ void test_parse_instruction_WhereInstructionIsADDVV_WithCarry(void) {
 	int ret = parse_instruction(&c8);
 
 	TEST_ASSERT_EQUAL_INT(1, ret);
-	TEST_ASSERT_EQUAL_INT(c8.V[x], c8.V[x] ^ c8.V[y]);
+	TEST_ASSERT_EQUAL_INT(c8.V[x], (vx + vy) % 256);
+	TEST_ASSERT_EQUAL_INT(c8.V[0xF], 1);
 }
 
 void test_parse_instruction_WhereInstructionIsADDVV_WithoutCarry(void) {
 	RESET;
 	GENERATE_RANDOMS;
+
+	vx = rand() % 128;
+	vy = rand() % 128;
+	c8.V[x] = vx;
+	c8.V[y] = vy;
+	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(0x8, x, y, 4));
+
+	int ret = parse_instruction(&c8);
+
+	TEST_ASSERT_EQUAL_INT(1, ret);
+	TEST_ASSERT_EQUAL_INT(c8.V[x], vx + vy);
+	TEST_ASSERT_EQUAL_INT(c8.V[0xF], 0);
 }
 
 void test_parse_instruction_WhereInstructionIsSUBVV_WithBorrow(void) {
