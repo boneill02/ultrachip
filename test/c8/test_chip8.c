@@ -377,13 +377,20 @@ void test_parse_instruction_WhereInstructionIsXORVV(void) {
 void test_parse_instruction_WhereInstructionIsADDVV_WithCarry(void) {
 	RESET;
 	GENERATE_RANDOMS;
-	// TODO
+
+	c8.V[x] = vx;
+	c8.V[y] = vy;
+	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(0x8, x, y, 4));
+
+	int ret = parse_instruction(&c8);
+
+	TEST_ASSERT_EQUAL_INT(1, ret);
+	TEST_ASSERT_EQUAL_INT(c8.V[x], c8.V[x] ^ c8.V[y]);
 }
 
 void test_parse_instruction_WhereInstructionIsADDVV_WithoutCarry(void) {
 	RESET;
 	GENERATE_RANDOMS;
-	// TODO
 }
 
 void test_parse_instruction_WhereInstructionIsSUBVV_WithBorrow(void) {

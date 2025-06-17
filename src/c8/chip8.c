@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define DEBUG(c) (c->flags & FLAG_DEBUG)
 #define VERBOSE(c) (c->flags & FLAG_VERBOSE)
