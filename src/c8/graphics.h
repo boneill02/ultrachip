@@ -14,7 +14,7 @@
 typedef struct {
 	int p[EXTENDED_DISPLAY_WIDTH * EXTENDED_DISPLAY_HEIGHT];
 	int mode;
-	unsigned int x, y;
+	int x, y;
 } display_t;
 
 void deinit_graphics(void);

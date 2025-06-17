@@ -14,7 +14,7 @@
 
 static void init_font(chip8_t *);
 static int load_rom(chip8_t *, const char *);
-static void parse_instruction(chip8_t *);
+static int parse_instruction(chip8_t *);
 
 uint16_t font[] = {
 	0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -117,6 +117,7 @@ int load_palette(int *colors, const char *path) {
 void simulate(chip8_t * c8) {
 	int t;
 	int debugRet;
+	int ret = 0;
 	int step = 0;
 
 	c8->pc = PROG_START;
@@ -160,7 +161,10 @@ void simulate(chip8_t * c8) {
 		if (!c8->waitingForKey) {
 			/* Not waiting for key, parse next instruction */
 			c8->pc += 2;
-			parse_instruction(c8);
+			ret = parse_instruction(c8);
+			if (ret < 0) {
+				safe_exit(ret);
+			}
 		}
 	}
 }
@@ -220,7 +224,7 @@ static int load_rom(chip8_t *c8, const char *addr) {
  *
  * @param c8 the `chip8_t` to execute the instruction from
  */
-static void parse_instruction(chip8_t *c8) {
+static int parse_instruction(chip8_t *c8) {
 	uint16_t in = (((uint16_t) c8->mem[c8->pc]) << 8) | c8->mem[c8->pc + 1];
 	EXPAND(in);
 
@@ -233,6 +237,9 @@ static void parse_instruction(chip8_t *c8) {
 			if (y == 0xC) {
 				/* SCD n */
 				c8->display.y += b;
+				if (c8->display.y > EXTENDED_DISPLAY_HEIGHT) {
+					c8->display.y -= EXTENDED_DISPLAY_HEIGHT;
+				}
 				break;
 			}
 			switch (kk) {
@@ -250,10 +257,16 @@ static void parse_instruction(chip8_t *c8) {
 				case 0xFB:
 					/* SCR */
 					c8->display.x += 4;
+					if (c8->display.x > EXTENDED_DISPLAY_WIDTH) {
+						c8->display.x -= EXTENDED_DISPLAY_WIDTH;
+					}
 					break;
 				case 0xFC:
 					/* SCL */
 					c8->display.x -= 4;
+					if (c8->display.x < 0) {
+						c8->display.x += EXTENDED_DISPLAY_WIDTH;
+					}
 					break;
 				case 0xFD:
 					/* EXIT */
@@ -275,6 +288,10 @@ static void parse_instruction(chip8_t *c8) {
 			break;
 		case 0x2:
 			/* CALL nnn */
+			if (c8->sp == 15) {
+				sprintf(exception, "PC: %03x", c8->pc);
+				return STACK_OVERFLOW_EXCEPTION;
+			}
 			c8->stack[c8->sp] = c8->pc;
 			c8->sp++;
 			c8->pc = nnn;
@@ -342,7 +359,7 @@ static void parse_instruction(chip8_t *c8) {
 					break;
 				case 0x7:
 					/* SUBN Vx, Vy */
-					c8->V[0xF] = BORROWS(c8->V[y], c8->V[x]) == 0 ? 1 : 0;
+					c8->V[0xF] = !BORROWS(c8->V[y], c8->V[x]);
 					c8->V[x] = c8->V[y] - c8->V[x];
 					break;
 				case 0xE:
@@ -355,8 +372,9 @@ static void parse_instruction(chip8_t *c8) {
 			break;
 		case 0x9:
 			/* SNE Vx, Vy */
-			if (c8->V[x] != c8->V[y])
+			if (c8->V[x] != c8->V[y]) {
 				c8->pc += 2;
+			}
 			break;
 		case 0xA:
 			/* LD I, nnn */
@@ -389,7 +407,7 @@ static void parse_instruction(chip8_t *c8) {
 
 					int before = *get_pixel(&c8->display, dx, dy);
 					if ((c8->mem[c8->I + i] >> (7 - j)) & 1) {
-						*get_pixel(&c8->display, dx, dy) ^= 1;
+						get_pixel(&c8->display, dx, dy)[0] ^= 1;
 					}
 
 					if (before != *get_pixel(&c8->display, dx, dy)) {
@@ -481,4 +499,6 @@ static void parse_instruction(chip8_t *c8) {
 	if (c8->st > 0) {
 		c8->st--; // TODO sound
 	}
+
+	return 1;
 }

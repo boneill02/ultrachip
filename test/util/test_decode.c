@@ -79,7 +79,7 @@ void test_decode_instruction_WhereInstructionIsHIGH(void) {
 	test_decode_instruction_should_parse("HIGH", 0x00FF);
 }
 
-void test_decode_instruction_WhereInstructionIsJP(void) {
+void test_decode_instruction_WhereInstructionIsJPNNN(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_ANNN(1, nnn);
 	label_map[nnn] = 0;
@@ -88,7 +88,7 @@ void test_decode_instruction_WhereInstructionIsJP(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsJP_WithLabel(void) {
+void test_decode_instruction_WhereInstructionIsJPNNN_WithLabel(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_ANNN(1, nnn);
 	label_map[nnn] = label;
@@ -409,8 +409,8 @@ int main(void) {
     RUN_TEST(test_decode_instruction_WhereInstructionIsEXIT);
     RUN_TEST(test_decode_instruction_WhereInstructionIsLOW);
     RUN_TEST(test_decode_instruction_WhereInstructionIsHIGH);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsJP);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsJP_WithLabel);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsJPNNN);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsJPNNN_WithLabel);
     RUN_TEST(test_decode_instruction_WhereInstructionIsCALL);
     RUN_TEST(test_decode_instruction_WhereInstructionIsCALL_WithLabel);
     RUN_TEST(test_decode_instruction_WhereInstructionIsSEVKK);
