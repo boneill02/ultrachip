@@ -1,13 +1,5 @@
 #include "parse.h"
 
-#ifdef TEST
-#ifndef TEST_INCLUDED
-#define TEST_INCLUDED
-#include "util/util.c"
-#include "symbol.c"
-#endif
-#endif
-
 #include "symbol.h"
 
 #include "util/defs.h"

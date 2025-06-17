@@ -1,10 +1,14 @@
 #include "unity.h"
-#include "c8/debug.c"
+
 #include "util/defs.h"
+#include "util/decode.c"
+#include "util/util.c"
+#include "c8/debug.c"
 
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
+
 
 void setUp(void) {
 	srand(time(NULL));

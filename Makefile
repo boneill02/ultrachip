@@ -51,7 +51,7 @@ test-c8as: $(UNITY_PATH)
 test-c8: $(UNITY_PATH)
 	@make -f mk/test-c8.mk
 
-test: test-util test-c8as
+test: test-util test-c8as test-c8
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/$(C8_TARG) \

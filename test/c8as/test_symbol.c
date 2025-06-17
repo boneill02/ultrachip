@@ -1,4 +1,7 @@
 #include "unity.h"
+
+#include "util/util.c"
+#include "parse.c"
 #include "symbol.c"
 #include "parse.h"
 #include "util/defs.h"

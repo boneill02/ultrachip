@@ -22,7 +22,7 @@ test: $(BUILD_SRC_PATH) $(RESULTS)
 	@echo "-----------------------PASSED:-----------------------"
 	@echo "$(PASSED)"
 	@echo "DONE"
-	rm $(RESULTS)
+	rm -f $(RESULTS)
 
 $(RESULTS_PATH)/%.txt: $(BUILD_PATH)/%
 	-./$< > $@ 2>&1

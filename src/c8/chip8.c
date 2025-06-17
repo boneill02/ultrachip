@@ -4,14 +4,6 @@
 #include "util/decode.h"
 #include "util/util.h"
 
-#ifdef TEST
-#ifndef TEST_INCLUDED
-#define TEST_INCLUDED
-#include "debug.c"
-#include "graphics.c"
-#endif
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -246,11 +238,9 @@ static void parse_instruction(chip8_t *c8) {
 			switch (kk) {
 				case 0xE0:
 					/* CLS */
-					for (int i = 0; i < EXTENDED_DISPLAY_WIDTH; i++) {
-						for (int j = 0; j < EXTENDED_DISPLAY_HEIGHT; j++) {
-							*get_pixel(&c8->display, x, y) = 0;
-						}
-					}
+					memset(&c8->display.p, 0,
+						   EXTENDED_DISPLAY_HEIGHT * EXTENDED_DISPLAY_WIDTH
+						   * sizeof(int));
 					break;
 				case 0xEE:
 					/* RET */
