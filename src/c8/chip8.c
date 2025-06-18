@@ -129,12 +129,15 @@ void simulate(chip8_t * c8) {
 	}
 	while (c8->running) {
 		t = tick(c8->key, c8->cs);
+
 		if (c8->key[16]) {
-			// Enter debug mode
+			/* Enter debug mode */
 			c8->flags |= FLAG_DEBUG;
 			step = 1;
 		}
+
 		if (DEBUG(c8) && (has_breakpoint(c8, c8->pc) || step)) {
+			/* Call debug REPL and process return value */
 			debugRet = debug_repl(c8);
 
 			switch (debugRet) {
@@ -165,7 +168,18 @@ void simulate(chip8_t * c8) {
 			if (ret < 0) {
 				safe_exit(ret);
 			}
+
 			c8->pc += ret;
+
+			if (c8->dt > 0) {
+				c8->dt--;
+			}
+
+			if (c8->st > 0) {
+				c8->st--; // TODO sound
+			}
+
+			render(&c8->display, c8->colors);
 		}
 	}
 }
@@ -423,8 +437,6 @@ static int parse_instruction(chip8_t *c8) {
 				}
 			}
 
-
-			render(&c8->display, c8->colors);
 			break;
 		case 0xE:
 			if (kk == 0x9E) {
@@ -499,13 +511,6 @@ static int parse_instruction(chip8_t *c8) {
 			}
 	}
 
-	if (c8->dt > 0) {
-		c8->dt--;
-	}
-
-	if (c8->st > 0) {
-		c8->st--; // TODO sound
-	}
 
 	return ret;
 }

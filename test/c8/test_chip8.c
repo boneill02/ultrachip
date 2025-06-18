@@ -630,7 +630,7 @@ void test_parse_instruction_WhereInstructionIsLDDTX(void) {
 
 	int ret = parse_instruction(&c8);
 	TEST_ASSERT_EQUAL_INT(2, ret);
-	TEST_ASSERT_EQUAL_INT(y - 1, c8.dt);
+	TEST_ASSERT_EQUAL_INT(y, c8.dt);
 }
 
 void test_parse_instruction_WhereInstructionIsLDSTX(void) {
@@ -644,7 +644,7 @@ void test_parse_instruction_WhereInstructionIsLDSTX(void) {
 
 	int ret = parse_instruction(&c8);
 	TEST_ASSERT_EQUAL_INT(2, ret);
-	TEST_ASSERT_EQUAL_INT(y - 1, c8.st);
+	TEST_ASSERT_EQUAL_INT(y, c8.st);
 }
 
 void test_parse_instruction_WhereInstructionIsADDIX(void) {
