@@ -301,7 +301,7 @@ void test_parse_instruction_WhereInstructionIsADDVKK_WithCarry(void) {
 	int ret = parse_instruction(&c8);
 
 	TEST_ASSERT_EQUAL_INT(1, ret);
-	TEST_ASSERT_EQUAL_INT((vx + kk) % 256, c8.V[x]);
+	TEST_ASSERT_EQUAL_INT((uint8_t) (vx + kk), c8.V[x]);
 	TEST_ASSERT_EQUAL_INT(1, c8.V[0xF]);
 }
 
@@ -358,7 +358,7 @@ void test_parse_instruction_WhereInstructionIsANDVV(void) {
 	int ret = parse_instruction(&c8);
 
 	TEST_ASSERT_EQUAL_INT(1, ret);
-	TEST_ASSERT_EQUAL_INT(c8.V[x], c8.V[x] & c8.V[y]);
+	TEST_ASSERT_EQUAL_INT(vx & vy, c8.V[x]);
 }
 
 void test_parse_instruction_WhereInstructionIsXORVV(void) {
@@ -372,7 +372,7 @@ void test_parse_instruction_WhereInstructionIsXORVV(void) {
 	int ret = parse_instruction(&c8);
 
 	TEST_ASSERT_EQUAL_INT(1, ret);
-	TEST_ASSERT_EQUAL_INT(c8.V[x], vx ^ vy);
+	TEST_ASSERT_EQUAL_INT(vx ^ vy, c8.V[x]);
 }
 
 void test_parse_instruction_WhereInstructionIsADDVV_WithCarry(void) {
@@ -388,8 +388,8 @@ void test_parse_instruction_WhereInstructionIsADDVV_WithCarry(void) {
 	int ret = parse_instruction(&c8);
 
 	TEST_ASSERT_EQUAL_INT(1, ret);
-	TEST_ASSERT_EQUAL_INT(c8.V[x], (vx + vy) % 256);
-	TEST_ASSERT_EQUAL_INT(c8.V[0xF], 1);
+	TEST_ASSERT_EQUAL_INT((uint8_t) (vx + vy), c8.V[x]);
+	TEST_ASSERT_EQUAL_INT(1, c8.V[0xF]);
 }
 
 void test_parse_instruction_WhereInstructionIsADDVV_WithoutCarry(void) {
@@ -405,53 +405,190 @@ void test_parse_instruction_WhereInstructionIsADDVV_WithoutCarry(void) {
 	int ret = parse_instruction(&c8);
 
 	TEST_ASSERT_EQUAL_INT(1, ret);
-	TEST_ASSERT_EQUAL_INT(c8.V[x], vx + vy);
-	TEST_ASSERT_EQUAL_INT(c8.V[0xF], 0);
+	TEST_ASSERT_EQUAL_INT(vx + vy, c8.V[x]);
+	TEST_ASSERT_EQUAL_INT(0, c8.V[0xF]);
 }
 
 void test_parse_instruction_WhereInstructionIsSUBVV_WithBorrow(void) {
 	RESET;
-	// TODO
+	GENERATE_RANDOMS;
+
+	vx = rand() % 128;
+	vy = (rand() % 128) + 128;
+	c8.V[x] = vx;
+	c8.V[y] = vy;
+	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(0x8, x, y, 5));
+
+	int ret = parse_instruction(&c8);
+
+	TEST_ASSERT_EQUAL_INT(1, ret);
+	TEST_ASSERT_EQUAL_INT((uint8_t) (vx - vy), c8.V[x]);
+	TEST_ASSERT_EQUAL_INT(0, c8.V[0xF]);
 }
 
 void test_parse_instruction_WhereInstructionIsSUBVV_WithoutBorrow(void) {
 	RESET;
-	// TODO
+	GENERATE_RANDOMS;
+
+	vx = (rand() % 128) + 128;
+	vy = rand() % 128;
+	c8.V[x] = vx;
+	c8.V[y] = vy;
+	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(0x8, x, y, 5));
+
+	int ret = parse_instruction(&c8);
+
+	TEST_ASSERT_EQUAL_INT(1, ret);
+	TEST_ASSERT_EQUAL_INT(vx - vy, c8.V[x]);
+	TEST_ASSERT_EQUAL_INT(1, c8.V[0xF]);
 }
 
-void test_parse_instruction_WhereInstructionIsSHRV(void) {
+void test_parse_instruction_WhereInstructionIsSHRV_WithFlag(void) {
 	RESET;
-	// TODO
+	GENERATE_RANDOMS;
+
+	vx |= 0x2; // b10
+	c8.V[x] = vx;
+	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(0x8, x, y, 6));
+
+	int ret = parse_instruction(&c8);
+
+	TEST_ASSERT_EQUAL_INT(1, ret);
+	TEST_ASSERT_EQUAL_INT((vx >> 1) / 2, c8.V[x]);
+	TEST_ASSERT_EQUAL_INT(1, c8.V[0xF]);
+}
+
+void test_parse_instruction_WhereInstructionIsSHRV_WithoutFlag(void) {
+	RESET;
+	GENERATE_RANDOMS;
+
+	vx &= 0xFD; // b11111101
+	c8.V[x] = vx;
+	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(0x8, x, 0, 6));
+
+	int ret = parse_instruction(&c8);
+
+	TEST_ASSERT_EQUAL_INT(1, ret);
+	TEST_ASSERT_EQUAL_INT((vx >> 1) / 2, c8.V[x]);
+	TEST_ASSERT_EQUAL_INT(0, c8.V[0xF]);
 }
 
 void test_parse_instruction_WhereInstructionIsSUBNVV_WithBorrow(void) {
 	RESET;
-	// TODO
+	GENERATE_RANDOMS;
+
+	vx = rand() % 128;
+	vy = (rand() % 128) + 128;
+	c8.V[x] = vx;
+	c8.V[y] = vy;
+	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(0x8, x, y, 7));
+
+	int ret = parse_instruction(&c8);
+
+	TEST_ASSERT_EQUAL_INT(1, ret);
+	TEST_ASSERT_EQUAL_INT((uint8_t) (vy - vx), c8.V[x]);
+	TEST_ASSERT_EQUAL_INT(1, c8.V[0xF]);
 }
 
 void test_parse_instruction_WhereInstructionIsSUBNVV_WithoutBorrow(void) {
 	RESET;
-	// TODO
+	GENERATE_RANDOMS;
+
+	vx = (rand() % 128) + 128;
+	vy = rand() % 128;
+	c8.V[x] = vx;
+	c8.V[y] = vy;
+	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(0x8, x, y, 7));
+
+	int ret = parse_instruction(&c8);
+
+	TEST_ASSERT_EQUAL_INT(1, ret);
+	TEST_ASSERT_EQUAL_INT((uint8_t) (vy - vx), c8.V[x]);
+	TEST_ASSERT_EQUAL_INT(0, c8.V[0xF]);
 }
 
-void test_parse_instruction_WhereInstructionIsSHLV(void) {
+void test_parse_instruction_WhereInstructionIsSHLV_WithFlag(void) {
 	RESET;
-	// TODO
+	GENERATE_RANDOMS;
+
+	vx |= 0x40; // b01000000
+	c8.V[x] = vx;
+	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(0x8, x, 0, 0xE));
+
+	int ret = parse_instruction(&c8);
+
+	TEST_ASSERT_EQUAL_INT(1, ret);
+	TEST_ASSERT_EQUAL_INT((uint8_t) ((vx << 1) * 2), c8.V[x]);
+	TEST_ASSERT_EQUAL_INT(1, c8.V[0xF]);
 }
 
-void test_parse_instruction_WhereInstructionIsSNEVV(void) {
+void test_parse_instruction_WhereInstructionIsSHLV_WithoutFlag(void) {
 	RESET;
-	// TODO
+	GENERATE_RANDOMS;
+
+	vx &= 0xBF; // b10111111
+	c8.V[x] = vx;
+	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(0x8, x, 0, 0xE));
+
+	int ret = parse_instruction(&c8);
+
+	TEST_ASSERT_EQUAL_INT(1, ret);
+	TEST_ASSERT_EQUAL_INT((uint8_t) ((vx << 1) * 2), c8.V[x]);
+	TEST_ASSERT_EQUAL_INT(0, c8.V[0xF]);
+}
+
+void test_parse_instruction_WhereInstructionIsSNEVV_WhereVsAreEqual(void) {
+	RESET;
+	GENERATE_RANDOMS;
+
+	c8.V[x] = vx;	
+	c8.V[y] = vx;	
+	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(9, x, y, 0));
+
+	int ret = parse_instruction(&c8);
+
+	TEST_ASSERT_EQUAL_INT(1, ret);
+	TEST_ASSERT_EQUAL_INT(pc, c8.pc);
+}
+
+void test_parse_instruction_WhereInstructionIsSNEVV_WhereVsAreNotEqual(void) {
+	RESET;
+	GENERATE_RANDOMS;
+
+	c8.V[x] = vx;	
+	c8.V[y] = vx + 1;	
+	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(9, x, y, 0));
+
+	int ret = parse_instruction(&c8);
+
+	TEST_ASSERT_EQUAL_INT(1, ret);
+	TEST_ASSERT_EQUAL_INT(pc + 2, c8.pc);
 }
 
 void test_parse_instruction_WhereInstructionIsLDINNN(void) {
 	RESET;
-	// TODO
+	GENERATE_RANDOMS;
+
+	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_ANNN(0xA, nnn));
+
+	int ret = parse_instruction(&c8);
+
+	TEST_ASSERT_EQUAL_INT(1, ret);
+	TEST_ASSERT_EQUAL_INT(nnn, c8.I);
 }
 
 void test_parse_instruction_WhereInstructionIsJPV0NNN(void) {
 	RESET;
-	// TODO
+	GENERATE_RANDOMS;
+
+	c8.V[0] = kk;
+
+	INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_ANNN(0xB, nnn));
+
+	int ret = parse_instruction(&c8);
+
+	TEST_ASSERT_EQUAL_INT(1, ret);
+	TEST_ASSERT_EQUAL_INT(kk + nnn, c8.pc);
 }
 
 void test_parse_instruction_WhereInstructionIsRNDVKK(void) {
@@ -563,11 +700,14 @@ int main(void) {
     RUN_TEST(test_parse_instruction_WhereInstructionIsADDVV_WithoutCarry);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSUBVV_WithBorrow);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSUBVV_WithoutBorrow);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsSHRV);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSHRV_WithFlag);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSHRV_WithoutFlag);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSUBNVV_WithBorrow);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSUBNVV_WithoutBorrow);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsSHLV);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsSNEVV);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSHLV_WithFlag);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSHLV_WithoutFlag);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSNEVV_WhereVsAreEqual);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSNEVV_WhereVsAreNotEqual);
     RUN_TEST(test_parse_instruction_WhereInstructionIsLDINNN);
     RUN_TEST(test_parse_instruction_WhereInstructionIsJPV0NNN);
     RUN_TEST(test_parse_instruction_WhereInstructionIsRNDVKK);

@@ -366,7 +366,7 @@ static int parse_instruction(chip8_t *c8) {
 				case 0xE:
 					/* SHL Vx */
 					c8->V[x] = c8->V[x] << 1;
-					c8->V[0xF] = (c8->V[x] & 0x40) >> 7;
+					c8->V[0xF] = (c8->V[x] & 0x80) >> 7;
 					c8->V[x] *= 2;
 					break;
 			}
@@ -383,7 +383,7 @@ static int parse_instruction(chip8_t *c8) {
 			break;
 		case 0xB:
 			/* JP V0, nnn */
-			c8->pc = nnn + c8->V[0] - 2;
+			c8->pc = nnn + c8->V[0];
 			break;
 		case 0xC:
 			/* RND Vx, kk */
