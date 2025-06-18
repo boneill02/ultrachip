@@ -16,6 +16,7 @@
 	int kk = KK(i);
 
 #define FONT_START 0x000
+#define HIGH_FONT_START 0x100
 #define PROG_START 0x200
 #define MEMSIZE 0x1000
 #define CLOCK_SPEED 500

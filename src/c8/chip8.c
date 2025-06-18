@@ -478,6 +478,10 @@ static int parse_instruction(chip8_t *c8) {
 					/* LD F, Vx */
 					c8->I = FONT_START + (c8->V[x] * 5);
 					break;
+				case 0x30:
+					/* LD HF, Vx */
+					c8->I = HIGH_FONT_START + (c8->V[x] * 10);
+					break;
 				case 0x33:
 					/* LD B, Vx */
 					c8->mem[c8->I] = (c8->V[x] / 100) % 10; // hundreds

@@ -16,13 +16,13 @@
 #define FORMAT_KK(kk) (kk & 0x00FF)
 #define FORMAT_NNN(nnn) (nnn & 0x0FFF)
 #define GENERATE_RANDOMS \
-	uint8_t x = rand() % 0xF; \
-	uint8_t y = rand() % 0xF; \
-	uint8_t kk = rand() % 0xFF; \
-	uint8_t b = rand() % 0xF; \
-	uint8_t vx = rand() % 0xFF; \
-	uint8_t vy = rand() % 0xFF; \
-	uint16_t nnn = rand() % 0xFFF;
+	uint8_t x = rand() % 0x10; \
+	uint8_t y = rand() % 0x10; \
+	uint8_t kk = rand() % 0x100; \
+	uint8_t b = rand() % 0x10; \
+	uint8_t vx = rand() % 0x100; \
+	uint8_t vy = rand() % 0x100; \
+	uint16_t nnn = rand() % 0x1000;
 
 #define BUILD_INSTRUCTION_AXYB(a, x, y, b) \
 	(FORMAT_A(a) | FORMAT_X(x) | FORMAT_Y(y) | FORMAT_B(b))
@@ -254,7 +254,7 @@ void test_parse_instruction_WhereInstructionIsSEXY_WhereVsAreNotEqual(void) {
 	AXYB(0x5, x, y, 0);
 
 	c8.V[x] = vx;
-	c8.V[y] = vx + 1;
+	c8.V[y] = (vx + 1) % 0x100;
 
 	int ret = parse_instruction(&c8);
 	TEST_ASSERT_EQUAL_INT(2, ret);
@@ -317,7 +317,7 @@ void test_parse_instruction_WhereInstructionIsORXY(void) {
 
 	int ret = parse_instruction(&c8);
 	TEST_ASSERT_EQUAL_INT(2, ret);
-	TEST_ASSERT_EQUAL_INT(c8.V[x], c8.V[x] | c8.V[y]);
+	TEST_ASSERT_EQUAL_INT(vx | vy, c8.V[x]);
 }
 
 void test_parse_instruction_WhereInstructionIsANDXY(void) {
@@ -355,7 +355,7 @@ void test_parse_instruction_WhereInstructionIsADDXY_WithCarry(void) {
 
 	int ret = parse_instruction(&c8);
 	TEST_ASSERT_EQUAL_INT(2, ret);
-	TEST_ASSERT_EQUAL_INT((uint8_t) (vx + vy), c8.V[x]);
+	TEST_ASSERT_EQUAL_INT((vx + vy) % 0x100, c8.V[x]);
 	TEST_ASSERT_EQUAL_INT(1, c8.V[0xF]);
 }
 
@@ -363,8 +363,8 @@ void test_parse_instruction_WhereInstructionIsADDXY_WithoutCarry(void) {
 	RESET;
 	AXYB(0x8, x, y, 4);
 
-	vx = rand() % 128;
-	vy = rand() % 128;
+	vx = rand() % 127;
+	vy = rand() % 127;
 	c8.V[x] = vx;
 	c8.V[y] = vy;
 
@@ -541,7 +541,6 @@ void test_parse_instruction_WhereInstructionIsRNDXKK(void) {
 	int ret = parse_instruction(&c8);
 	TEST_ASSERT_EQUAL_INT(2, ret);
 	TEST_ASSERT_LESS_OR_EQUAL_INT(kk, c8.V[x]);
-	TEST_ASSERT_GREATER_THAN_INT(0, c8.V[x]);
 }
 
 void test_parse_instruction_WhereInstructionIsDRWVVB(void) {
@@ -666,37 +665,93 @@ void test_parse_instruction_WhereInstructionIsLDFX(void) {
 
 	int ret = parse_instruction(&c8);
 	TEST_ASSERT_EQUAL_INT(2, ret);
-	TEST_ASSERT_EQUAL_INT(FONT_START + (c8.V[x] * 5), c8.I);
+	TEST_ASSERT_EQUAL_INT(FONT_START + (y * 5), c8.I);
 }
 
 void test_parse_instruction_WhereInstructionIsLDHFX(void) {
 	RESET;
-	// TODO
+	AXKK(0xF, x, 0x30);
+
+	c8.V[x] = y;
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	TEST_ASSERT_EQUAL_INT(HIGH_FONT_START + (y * 10), c8.I);
 }
 
 void test_parse_instruction_WhereInstructionIsLDBX(void) {
 	RESET;
-	// TODO
+	AXKK(0xF, x, 0x33);
+
+	c8.V[x] = kk;
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	TEST_ASSERT_EQUAL_INT(kk / 100, c8.mem[c8.I]);
+	TEST_ASSERT_EQUAL_INT((kk / 10) % 10, c8.mem[c8.I + 1]);
+	TEST_ASSERT_EQUAL_INT(kk  % 10, c8.mem[c8.I + 2]);
 }
 
 void test_parse_instruction_WhereInstructionIsLDIPX(void) {
 	RESET;
-	// TODO
+	AXKK(0xF, x, 0x55);
+
+	c8.I = 0x300;
+	for (int i = 0; i < x; i++) {
+		c8.V[i] = (uint8_t) rand();
+	}
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	for (int i = 0; i < x; i++) {
+		TEST_ASSERT_EQUAL_INT(c8.mem[c8.I + i], c8.V[i]);
+	}
 }
 
 void test_parse_instruction_WhereInstructionIsLDXIP(void) {
 	RESET;
-	// TODO
+	AXKK(0xF, x, 0x65);
+
+	c8.I = 0x300;
+	for (int i = 0; i < x; i++) {
+		c8.mem[c8.I + i] = (uint8_t) rand();
+	}
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	for (int i = 0; i < x; i++) {
+		TEST_ASSERT_EQUAL_INT(c8.V[i], c8.mem[c8.I + i]);
+	}
 }
 
 void test_parse_instruction_WhereInstructionIsLDRX(void) {
 	RESET;
-	// TODO
+	AXKK(0xF, x, 0x75);
+
+	for (int i = 0; i < x; i++) {
+		c8.V[i] = 0x30;
+	}
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	for (int i = 0; i < x; i++) {
+		TEST_ASSERT_EQUAL_INT(c8.R[i], c8.V[i]);
+	}
 }
 
 void test_parse_instruction_WhereInstructionIsLDXR(void) {
 	RESET;
-	// TODO
+	AXKK(0xF, x, 0x85);
+
+	for (int i = 0; i < x; i++) {
+		c8.R[i] = rand() % 0x100;
+	}
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	for (int i = 0; i < x; i++) {
+		TEST_ASSERT_EQUAL_INT(c8.V[i], c8.R[i]);
+	}
 }
 
 int main(void) {
