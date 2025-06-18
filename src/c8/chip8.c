@@ -442,7 +442,7 @@ static int parse_instruction(chip8_t *c8) {
 		case 0xF:
 			switch (kk) {
 				case 0x07:
-					/* LD Vx, dt */
+					/* LD Vx, DT */
 					c8->V[x] = c8->dt;
 					break;
 				case 0x0A:
