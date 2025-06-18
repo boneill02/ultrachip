@@ -161,11 +161,11 @@ void simulate(chip8_t * c8) {
 
 		if (!c8->waitingForKey) {
 			/* Not waiting for key, parse next instruction */
-			c8->pc += 2;
 			ret = parse_instruction(c8);
 			if (ret < 0) {
 				safe_exit(ret);
 			}
+			c8->pc += ret;
 		}
 	}
 }
@@ -224,10 +224,12 @@ static int load_rom(chip8_t *c8, const char *addr) {
  * If verbose flag is set, this will print the instruction to `stdout` as well.
  *
  * @param c8 the `chip8_t` to execute the instruction from
+ * @return amount to increase PC or exception code
  */
 static int parse_instruction(chip8_t *c8) {
 	uint16_t in = (((uint16_t) c8->mem[c8->pc]) << 8) | c8->mem[c8->pc + 1];
 	EXPAND(in);
+	int ret = 2;
 
 	if (VERBOSE(c8)) {
 		printf("%s\n", decode_instruction(in, NULL));
@@ -254,6 +256,7 @@ static int parse_instruction(chip8_t *c8) {
 					/* RET */
 					c8->sp--;
 					c8->pc = c8->stack[c8->sp];
+					ret = 0;
 					break;
 				case 0xFB:
 					/* SCR */
@@ -286,6 +289,7 @@ static int parse_instruction(chip8_t *c8) {
 		case 0x1:
 			/* JP nnn */
 			c8->pc = nnn;
+			ret = 0;
 			break;
 		case 0x2:
 			/* CALL nnn */
@@ -296,6 +300,7 @@ static int parse_instruction(chip8_t *c8) {
 			c8->stack[c8->sp] = c8->pc;
 			c8->sp++;
 			c8->pc = nnn;
+			ret = 0;
 			break;
 		case 0x3:
 			/* SE Vx, kk */
@@ -384,6 +389,7 @@ static int parse_instruction(chip8_t *c8) {
 		case 0xB:
 			/* JP V0, nnn */
 			c8->pc = nnn + c8->V[0];
+			ret = 0;
 			break;
 		case 0xC:
 			/* RND Vx, kk */
@@ -501,5 +507,5 @@ static int parse_instruction(chip8_t *c8) {
 		c8->st--; // TODO sound
 	}
 
-	return 1;
+	return ret;
 }
