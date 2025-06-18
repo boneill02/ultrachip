@@ -549,73 +549,152 @@ void test_parse_instruction_WhereInstructionIsDRWVVB(void) {
 	// TODO
 }
 
-void test_parse_instruction_WhereInstructionIsSKPV(void) {
+void test_parse_instruction_WhereInstructionIsSKPV_WhereKeyIsPressed(void) {
+	RESET;
+	AXKK(0xE, x, 0x9E);
+
+	c8.V[x] = y;
+	c8.key[y] = 1;
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	TEST_ASSERT_EQUAL_INT(pc + 2, c8.pc);
+}
+
+void test_parse_instruction_WhereInstructionIsSKPV_WhereKeyIsNotPressed(void) {
+	RESET;
+	AXKK(0xE, x, 0x9E);
+
+	c8.V[x] = y;
+	c8.key[y] = 0;
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	TEST_ASSERT_EQUAL_INT(pc, c8.pc);
+}
+
+void test_parse_instruction_WhereInstructionIsSKNPV_WhereKeyIsPressed(void) {
+	RESET;
+	AXKK(0xE, x, 0xA1);
+
+	c8.V[x] = y;
+	c8.key[y] = 1;
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	TEST_ASSERT_EQUAL_INT(pc, c8.pc);
+}
+
+void test_parse_instruction_WhereInstructionIsSKNPV_WhereKeyIsNotPressed(void) {
+	RESET;
+	AXKK(0xE, x, 0xA1);
+
+	c8.V[x] = y;
+	c8.key[y] = 0;
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	TEST_ASSERT_EQUAL_INT(pc + 2, c8.pc);
+}
+
+
+void test_parse_instruction_WhereInstructionIsLDXDT(void) {
+	RESET;
+	AXKK(0xF, x, 0x07);
+
+	c8.dt = y;
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	TEST_ASSERT_EQUAL_INT(y, c8.V[x]);
+}
+
+void test_parse_instruction_WhereInstructionIsLDXK(void) {
+	RESET;
+	AXKK(0xF, x, 0x0A);
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	TEST_ASSERT_EQUAL_INT(x, c8.VK);
+	TEST_ASSERT_EQUAL_INT(1, c8.waitingForKey);
+}
+
+void test_parse_instruction_WhereInstructionIsLDDTX(void) {
+	RESET;
+	AXKK(0xF, x, 0x15);
+
+	if (y < 2) {
+		y += 2;
+	}
+	c8.V[x] = y;
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	TEST_ASSERT_EQUAL_INT(y - 1, c8.dt);
+}
+
+void test_parse_instruction_WhereInstructionIsLDSTX(void) {
+	RESET;
+	AXKK(0xF, x, 0x18);
+
+	if (y < 2) {
+		y += 2;
+	}
+	c8.V[x] = y;
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	TEST_ASSERT_EQUAL_INT(y - 1, c8.st);
+}
+
+void test_parse_instruction_WhereInstructionIsADDIX(void) {
+	RESET;
+	AXKK(0xF, x, 0x1E);
+
+	c8.V[x] = y;
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	TEST_ASSERT_EQUAL_INT(y, c8.I);
+}
+
+void test_parse_instruction_WhereInstructionIsLDFX(void) {
+	RESET;
+	AXKK(0xF, x, 0x29);
+
+	c8.V[x] = y;
+
+	int ret = parse_instruction(&c8);
+	TEST_ASSERT_EQUAL_INT(2, ret);
+	TEST_ASSERT_EQUAL_INT(FONT_START + (c8.V[x] * 5), c8.I);
+}
+
+void test_parse_instruction_WhereInstructionIsLDHFX(void) {
 	RESET;
 	// TODO
 }
 
-void test_parse_instruction_WhereInstructionIsSKNPV(void) {
+void test_parse_instruction_WhereInstructionIsLDBX(void) {
 	RESET;
 	// TODO
 }
 
-
-void test_parse_instruction_WhereInstructionIsLDVDT(void) {
+void test_parse_instruction_WhereInstructionIsLDIPX(void) {
 	RESET;
 	// TODO
 }
 
-void test_parse_instruction_WhereInstructionIsLDVK(void) {
+void test_parse_instruction_WhereInstructionIsLDXIP(void) {
 	RESET;
 	// TODO
 }
 
-void test_parse_instruction_WhereInstructionIsLDDTV(void) {
+void test_parse_instruction_WhereInstructionIsLDRX(void) {
 	RESET;
 	// TODO
 }
 
-void test_parse_instruction_WhereInstructionIsLDSTV(void) {
-	RESET;
-	// TODO
-}
-
-void test_parse_instruction_WhereInstructionIsADDIV(void) {
-	RESET;
-	// TODO
-}
-
-void test_parse_instruction_WhereInstructionIsLDFV(void) {
-	RESET;
-	// TODO
-}
-
-void test_parse_instruction_WhereInstructionIsLDHFV(void) {
-	RESET;
-	// TODO
-}
-
-void test_parse_instruction_WhereInstructionIsLDBV(void) {
-	RESET;
-	// TODO
-}
-
-void test_parse_instruction_WhereInstructionIsLDIPV(void) {
-	RESET;
-	// TODO
-}
-
-void test_parse_instruction_WhereInstructionIsLDVIP(void) {
-	RESET;
-	// TODO
-}
-
-void test_parse_instruction_WhereInstructionIsLDRV(void) {
-	RESET;
-	// TODO
-}
-
-void test_parse_instruction_WhereInstructionIsLDVR(void) {
+void test_parse_instruction_WhereInstructionIsLDXR(void) {
 	RESET;
 	// TODO
 }
@@ -661,19 +740,21 @@ int main(void) {
     RUN_TEST(test_parse_instruction_WhereInstructionIsJPV0NNN);
     RUN_TEST(test_parse_instruction_WhereInstructionIsRNDXKK);
     RUN_TEST(test_parse_instruction_WhereInstructionIsDRWVVB);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsSKPV);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsSKNPV);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDVDT);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDVK);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDDTV);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDSTV);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsADDIV);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDFV);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDHFV);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDBV);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDIPV);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDVIP);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDRV);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDVR);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSKPV_WhereKeyIsPressed);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSKPV_WhereKeyIsNotPressed);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSKNPV_WhereKeyIsPressed);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSKNPV_WhereKeyIsNotPressed);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDXDT);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDXK);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDDTX);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDSTX);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsADDIX);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDFX);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDHFX);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDBX);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDIPX);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDXIP);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDRX);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDXR);
     return UNITY_END();
 }
