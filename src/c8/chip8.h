@@ -11,7 +11,7 @@
 
 /**
  * @struct chip8_t
- * @brief Represents current state of the CHIP-8 VM
+ * @brief Represents current state of the CHIP-8 interpreter
  */
 typedef struct {
 	uint8_t mem[MEMSIZE];

@@ -1,7 +1,7 @@
 # CHIP-8 Toolkit
 
-This is a virtual machine, assembler, and disassembler for the CHIP-8 written
-in C, utilizing the SDL2 library for graphics.
+This is a interpreter, assembler, and disassembler for the CHIP-8 written in C,
+utilizing the SDL2 library for graphics.
 
 ## Installation
 
@@ -14,9 +14,9 @@ make
 sudo make install
 ```
 
-## CHIP-8 VM
+## CHIP-8 Interpreter
 
-This is a fully functional CHIP-8 and Super Chip-48 virtual machine with an
+This is a fully functional CHIP-8 and Super Chip-48 interpreter with an
 integrated debug mode.
 
 ### Usage

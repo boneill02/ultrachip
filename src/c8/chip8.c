@@ -111,7 +111,7 @@ int load_palette(int *colors, const char *path) {
 }
 
 /**
- * @brief Main VM simulation loop. Exits when `running` is 0.
+ * @brief Main interpreter simulation loop. Exits when `running` is 0.
  *
  * @param c8 the `chip8_t` to simulate
  */
