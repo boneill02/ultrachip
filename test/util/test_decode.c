@@ -1,5 +1,6 @@
 #include "unity.h"
 #include "util/decode.c"
+#include "util/exception.c"
 #include "util/defs.h"
 
 #include <stdint.h>

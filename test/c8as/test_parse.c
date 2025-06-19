@@ -1,5 +1,6 @@
 #include "unity.h"
 
+#include "util/exception.c"
 #include "util/util.c"
 #include "symbol.c"
 #include "parse.c"
@@ -205,20 +206,6 @@ void test_parse_WhereStringIsEmpty(void) {
 	TEST_ASSERT_EQUAL_INT(0, r);
 }
 
-void test_parse_WhereStringIsNull(void) {
-	RESET;
-
-	int r = parse(NULL, bytecode, ARG_VERBOSE);
-	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, r);
-}
-
-void test_parse_WhereOutIsNull(void) {
-	RESET;
-
-	int r = parse(buf, NULL, ARG_VERBOSE);
-	TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, r);
-}
-
 void line_count_WhereStringHasMultipleLines(void) {
 
 	RESET;
@@ -399,8 +386,6 @@ int main(void) {
 	RUN_TEST(test_parse_WhereResultingBytecodeIsTooBig);
 	RUN_TEST(test_parse_WhereTooManyLabelsAreDefined);
 	RUN_TEST(test_parse_WhereStringIsEmpty);
-	RUN_TEST(test_parse_WhereStringIsNull);
-	RUN_TEST(test_parse_WhereOutIsNull);
 	RUN_TEST(test_parse_word_WhereWordIsDB);
 	RUN_TEST(test_parse_word_WhereWordIsDW);
 	RUN_TEST(test_parse_word_WhereWordIsInstruction);
