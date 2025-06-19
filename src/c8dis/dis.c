@@ -2,6 +2,7 @@
 
 #include "util/defs.h"
 #include "util/decode.h"
+#include "util/exception.h"
 #include "util/util.h"
 
 #include <stdint.h>

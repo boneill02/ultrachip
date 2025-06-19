@@ -23,7 +23,7 @@ static SDL_Rect winRect = {
 	.h = DEFAULT_WINDOW_HEIGHT,
 };
 
-static uint16_t keyMap[17][2] = {
+static uint16_t keyMap[18][2] = {
 	{ SDLK_1, 0 },
 	{ SDLK_2, 1 },
 	{ SDLK_3, 2 },
@@ -40,7 +40,8 @@ static uint16_t keyMap[17][2] = {
 	{ SDLK_x, 13 },
 	{ SDLK_c, 14 },
 	{ SDLK_v, 15 },
-	{ SDLK_p, 16}, // Enter debug mode
+	{ SDLK_p, 16 }, // Enter debug mode
+	{ SDLK_m, 17 }, // Leave debug mode
 };
 
 static int get_key(SDL_Keycode k);
@@ -61,7 +62,7 @@ void deinit_graphics(void) {
  * @return the CHIP-8 keycode
  */
 static int get_key(SDL_Keycode k) {
-	for (int i = 0; i < 17; i++) {
+	for (int i = 0; i < 18; i++) {
 		if (keyMap[i][0] == k) return keyMap[i][1];
 	}
 	return -1;
@@ -96,7 +97,6 @@ void render(display_t *display, int *colors) {
 	SDL_SetRenderDrawColor(renderer, RGB_R(colors[1]), RGB_G(colors[1]),
 	                       RGB_B(colors[1]), SDL_ALPHA_OPAQUE);
 
-	printf("%d %d\n", colors[0], colors[1]);
 	if (display->mode == DISPLAY_EXTENDED) {
 		dx = display->x;
 		dy = display->y;
@@ -147,5 +147,5 @@ int tick(int *key, int clockSpeed) {
 		}
 	}
 
-	return ret == 16 ? -1 : ret;
+	return ret > 15 ? -1 : ret;
 }

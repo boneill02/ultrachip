@@ -50,6 +50,8 @@ char *decode_instruction(uint16_t in, uint8_t *label_map) {
 				sprintf(result, "LOW");
 			} else if (in == 0x00FF) {
 				sprintf(result, "HIGH");
+			} else {
+				sprintf(result, ".db %04x", in);
 			}
 			break;
 		case 0x1:
@@ -110,6 +112,9 @@ char *decode_instruction(uint16_t in, uint8_t *label_map) {
 				case 0xE:
 					sprintf(result, "SHL V%01x", x);
 					break;
+				default:
+					sprintf(result, ".db %04x", in);
+					break;
 			}
 			break;
 		case 0x9:
@@ -138,9 +143,10 @@ char *decode_instruction(uint16_t in, uint8_t *label_map) {
 		case 0xE:
 			if (kk == 0x9E) {
 				sprintf(result, "SKP V%01x", x);
-			}
-			if (kk == 0xA1) {
+			} else if (kk == 0xA1) {
 				sprintf(result, "SKNP V%01x", x);
+			} else {
+				sprintf(result, ".db %04x", in);
 			}
 			break;
 		case 0xF:
@@ -181,10 +187,12 @@ char *decode_instruction(uint16_t in, uint8_t *label_map) {
 				case 0x85:
 					sprintf(result, "LD V%01x, R", x);
 					break;
+				default:
+					sprintf(result, ".db %04x", in);
 			}
 			break;
 		default:
-			sprintf(result, "NOP");
+			sprintf(result, ".db %04x", in);
 	}
 
 	return result;

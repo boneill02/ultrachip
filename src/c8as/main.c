@@ -1,6 +1,7 @@
 #include "parse.h"
-#include "util/util.h"
 #include "util/defs.h"
+#include "util/exception.h"
+#include "util/util.h"
 
 #include <stdint.h>
 #include <stdio.h>

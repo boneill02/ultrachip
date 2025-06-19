@@ -1,8 +1,8 @@
 #include "symbol.h"
 
-
 #include "parse.h"
 #include "util/defs.h"
+#include "util/exception.h"
 #include "util/util.h"
 
 #include <ctype.h>
@@ -506,7 +506,7 @@ static int reallocate_symbols(symbol_list_t *symbols) {
 
 	int newCeiling = symbols->ceil + SYMBOL_CEILING;
 	symbol_t *oldsym = symbols->s;
-	symbols->s = (symbol_t *) malloc(sizeof(symbol_t) * newCeiling);
+	symbols->s = (symbol_t *) safe_malloc(sizeof(symbol_t) * newCeiling);
 	memcpy(symbols->s, oldsym, symbols->ceil * sizeof(symbol_t));
 	symbols->ceil = newCeiling;
 	safe_free(oldsym);

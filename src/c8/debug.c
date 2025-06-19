@@ -2,6 +2,7 @@
 
 #include "chip8.h"
 #include "util/decode.h"
+#include "util/exception.h"
 #include "util/util.h"
 
 #include <ctype.h>
@@ -273,11 +274,12 @@ static int get_command(cmd_t *cmd, char *s) {
  * @return 1 if success, 0 if failure
  */
 static int load_state(chip8_t *c8, const char *path) {
-	FILE *f = fopen(path, "rb");
+	FILE *f = safe_fopen(path, "rb");
 	if (!f) {
 		return 0;
 	}
 	fread(c8, sizeof(chip8_t), 1, f);
+	safe_fclose(f);
 	return 1;
 }
 

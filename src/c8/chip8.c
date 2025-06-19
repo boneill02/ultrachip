@@ -1,8 +1,10 @@
 #include "chip8.h"
 
 #include "debug.h"
+#include "font.h"
 #include "util/decode.h"
 #include "util/util.h"
+#include "util/exception.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,31 +12,32 @@
 
 #define DEBUG(c) (c->flags & FLAG_DEBUG)
 #define VERBOSE(c) (c->flags & FLAG_VERBOSE)
+
+#define QUIRK_BITWISE(c) \
+	if (c->flags & FLAG_QUIRK_BITWISE) { \
+		c->V[0xF] = 0; \
+	}
+
+#define QUIRK_DRAW(c) \
+	if (c->flags & FLAG_QUIRK_DRAW) { \
+		if () \
+	}
+
+#define QUIRK_LOADSTORE(c) \
+	if (c->flags & FLAG_QUIRK_LOADSTORE) { \
+		c->I += x + 1; \
+	}
+
+#define QUIRK_SHIFT(c) \
+	if (c->flags & FLAG_QUIRK_SHIFT) { \
+		y = x; \
+	}
+
 #define BORROWS(x, y) ((((int) x) - y) < 0)
 #define CARRIES(x, y) ((((int) x) + y) > UINT8_MAX)
 
-static void init_font(chip8_t *);
 static int load_rom(chip8_t *, const char *);
 static int parse_instruction(chip8_t *);
-
-uint16_t font[] = {
-	0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-	0x20, 0x60, 0x20, 0x20, 0x70, // 1
-	0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-	0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-	0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-	0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-	0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-	0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-	0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-	0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-	0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-	0xE0, 0x90, 0x90, 0x90, 0xE0, // B
-	0xF0, 0x80, 0x80, 0x80, 0xF0, // C
-	0xE0, 0x90, 0x90, 0x90, 0xE0, // D
-	0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-	0xF0, 0x80, 0xF0, 0x80, 0x80, // F
-};
 
 /**
  * @brief Deinitialize graphics and free c8
@@ -51,36 +54,59 @@ void deinit_chip8(chip8_t *c8) {
  * sets the clockspeed to `cs`, adds the font to memory, and returns a pointer
  * to it.
  *
- * @param cs clockspeed
+ * @param path path to ROM file
+ * @param flags flags
  *
- * @return pointer to initialized chip8_t (must be `free`'d). `NULL` if failed.
+ * @return pointer to initialized chip8_t.
  */
-chip8_t *init_chip8(int cs, int flags, const char *path) {
-	chip8_t *c8;
-	if (!(c8 = (chip8_t *) calloc(1, sizeof(chip8_t)))) {
-		return NULL;
-	}
+chip8_t *init_chip8(const char *path, int flags) {
+	NULLCHECK1(path);
+
+	chip8_t *c8 = (chip8_t *) safe_calloc(1, sizeof(chip8_t));
 
 	c8->flags = flags;
-	c8->cs = cs;
-	init_font(c8);
 
-	c8->colors[0] = 0x000000;
-	c8->colors[1] = 0xFFFFFF;
-
-	if (!load_rom(c8, path)) {
-		fprintf(stderr, "Error: Failed to load ROM.\n");
-		free(c8);
-		return NULL;
-	}
-
-	if (!init_graphics()) {
-		fprintf(stderr, "Error: Failed to initialize graphics.\n");
-		free(c8);
-		return NULL;
-	}
+	load_rom(c8, path);
+	set_fonts(c8, 0, 0);
+	init_graphics();
+	c8->colors[0] = 0x0;
+	c8->colors[1] = 0xFFF;
 
 	return c8;
+}
+
+/**
+ * @brief Load palette from the given string into colors.
+ *
+ * @param[colors] where to store the color codes
+ * @param[path] location
+ * 
+ * @return 1 if success
+ */
+int load_palette_arg(int *colors, char *s) {
+	NULLCHECK2(colors, s);
+	char *c[2];
+	int len = strlen(s);
+
+	c[1] = s;
+	for (int i = 0; i < len; i++) {
+		if (s[i] == ',') {
+			s[i] = '\0';
+			c[1] = &s[i+1];
+		}
+	}
+
+	if (!c[1]) {
+		safe_exit(INVALID_COLOR_PALETTE_EXCEPTION);
+	}
+
+	for (int i = 0; i < 2; i++) {
+		if ((colors[i] = parse_int(s)) == -1) {
+			safe_exit(INVALID_COLOR_PALETTE_EXCEPTION);
+		}
+	}
+
+	return 1;
 }
 
 /**
@@ -88,26 +114,60 @@ chip8_t *init_chip8(int cs, int flags, const char *path) {
  *
  * @param[colors] where to store the color codes
  * @param[path] location
+ * 
+ * @return 1 if success
  */
-int load_palette(int *colors, const char *path) {
+int load_palette_file(int *colors, const char *path) {
+	NULLCHECK2(colors, path);
+
 	char buf[BUFSIZ];
 	buf[0] = '$';
 	int c;
-	FILE *f = fopen(path, "r");
+	FILE *f = safe_fopen(path, "r");
 	if (!f) {
 		fprintf(stderr, "Failed to open color palette.\n");
-		return 1;
+		return 0;
 	}
 	for (int i = 0; i < 2; i++) {
 		fgets(buf + 1, BUFSIZ - 1, f);
 		if ((c = parse_int(buf)) == -1) {
 			fprintf(stderr, "Invalid color palette\n");
-			return 1;
+			return 0;
 		}
 		colors[i] = c;
 	}
 
-	return 0;
+	safe_fclose(f);
+	return 1;
+}
+
+int load_quirks(const char *s) {
+	NULLCHECK1(s);
+	int ret = 0;
+
+	for (int i = 0; i < strlen(s); i++) {
+		switch (s[i]) {
+			case 'b':
+				ret |= FLAG_QUIRK_BITWISE;
+				break;
+			case 'j':
+				ret |= FLAG_QUIRK_JUMP;
+				break;
+			case 'l':
+				ret |= FLAG_QUIRK_LOADSTORE;
+				break;
+			case 's':
+				ret |= FLAG_QUIRK_SHIFT;
+				break;
+			case 'v':
+				ret |= FLAG_QUIRK_DRAW;
+				break;
+			default:
+				safe_exit(INVALID_QUIRK_EXCEPTION);
+		}
+	}
+
+	return ret;
 }
 
 /**
@@ -118,7 +178,7 @@ int load_palette(int *colors, const char *path) {
 void simulate(chip8_t * c8) {
 	int t;
 	int debugRet;
-	int ret = 0;
+	int ret;
 	int step = 0;
 
 	c8->pc = PROG_START;
@@ -134,6 +194,11 @@ void simulate(chip8_t * c8) {
 			/* Enter debug mode */
 			c8->flags |= FLAG_DEBUG;
 			step = 1;
+		}
+		
+		if (c8->key[17]) {
+			/* Exit debug mode */
+			c8->flags &= INT32_MAX ^ FLAG_DEBUG;
 		}
 
 		if (DEBUG(c8) && (has_breakpoint(c8, c8->pc) || step)) {
@@ -185,46 +250,31 @@ void simulate(chip8_t * c8) {
 }
 
 /**
- * @brief Add the font to `c8->mem`.
- *
- * @param c8 `chip8_t` to add the font to
- */
-static void init_font(chip8_t *c8) {
-	for (int i = 0; i < (0x10 * 5); i++) {
-		c8->mem[FONT_START + i] = font[i];
-	}
-}
-
-/**
  * @brief Load a ROM to `c8->mem` at path `addr`.
  *
  * @param c8 `chip8_t` to store the ROM's contents
  * @param addr path to the ROM
  *
- * @return 0 if failed, 1 otherwise.
+ * @return 1 if success.
  */
 static int load_rom(chip8_t *c8, const char *addr) {
 	FILE *f;
 	int size;
-	
-	if (!(f = fopen(addr, "r"))) {
-		/* Can't open file */
-		return 0;
-	}
+
+	f = safe_fopen(addr, "r");
 
 	/* Get file size */
 	fseek(f, 0, SEEK_END);
 	size = ftell(f);
 	if (ftell(f) > (0x1000 - 0x200)) {
 		/* File is too big, failure */
-		fclose(f);
-		return 0;
+		safe_exit(FILE_TOO_BIG_EXCEPTION);
 	}
 	rewind(f);
 
 	/* Read the file into memory */
 	fread(c8->mem + PROG_START, size, 1, f);
-	fclose(f);
+	safe_fclose(f);
 
 	return 1;
 }
@@ -243,7 +293,6 @@ static int load_rom(chip8_t *c8, const char *addr) {
 static int parse_instruction(chip8_t *c8) {
 	uint16_t in = (((uint16_t) c8->mem[c8->pc]) << 8) | c8->mem[c8->pc + 1];
 	EXPAND(in);
-	int ret = 2;
 
 	if (VERBOSE(c8)) {
 		printf("%s\n", decode_instruction(in, NULL));
@@ -257,7 +306,7 @@ static int parse_instruction(chip8_t *c8) {
 				if (c8->display.y > EXTENDED_DISPLAY_HEIGHT) {
 					c8->display.y -= EXTENDED_DISPLAY_HEIGHT;
 				}
-				break;
+				return 2;
 			}
 			switch (kk) {
 				case 0xE0:
@@ -265,46 +314,44 @@ static int parse_instruction(chip8_t *c8) {
 					memset(&c8->display.p, 0,
 						   EXTENDED_DISPLAY_HEIGHT * EXTENDED_DISPLAY_WIDTH
 						   * sizeof(int));
-					break;
+					return 2;
 				case 0xEE:
 					/* RET */
 					c8->sp--;
 					c8->pc = c8->stack[c8->sp];
-					ret = 0;
-					break;
+					return 0;
 				case 0xFB:
 					/* SCR */
 					c8->display.x += 4;
 					if (c8->display.x > EXTENDED_DISPLAY_WIDTH) {
 						c8->display.x -= EXTENDED_DISPLAY_WIDTH;
 					}
-					break;
+					return 2;
 				case 0xFC:
 					/* SCL */
 					c8->display.x -= 4;
 					if (c8->display.x < 0) {
 						c8->display.x += EXTENDED_DISPLAY_WIDTH;
 					}
-					break;
+					return 2;
 				case 0xFD:
 					/* EXIT */
 					c8->running = 0;
-					break;
+					return 0;
 				case 0xFE:
 					/* LOW */
 					c8->display.mode = DISPLAY_STANDARD;
-					break;
+					return 2;
 				case 0xFF:
 					/* HIGH */
 					c8->display.mode = DISPLAY_EXTENDED;
-					break;
+					return 2;
 			}
 			break;
 		case 0x1:
 			/* JP nnn */
 			c8->pc = nnn;
-			ret = 0;
-			break;
+			return 0;
 		case 0x2:
 			/* CALL nnn */
 			if (c8->sp == 15) {
@@ -314,80 +361,83 @@ static int parse_instruction(chip8_t *c8) {
 			c8->stack[c8->sp] = c8->pc;
 			c8->sp++;
 			c8->pc = nnn;
-			ret = 0;
-			break;
+			return 0;
 		case 0x3:
 			/* SE Vx, kk */
 			if (c8->V[x] == kk) {
 				c8->pc += 2;
 			}
-			break;
+			return 2;
 		case 0x4:
 			/* SNE Vx, kk */
 			if (c8->V[x] != kk) {
 				c8->pc += 2;
 			}
-			break;
+			return 2;
 		case 0x5:
 			/* SE Vx, Vy */
 			if (c8->V[x] == c8->V[y]) {
 				c8->pc += 2;
 			}
-			break;
+			return 2;
 		case 0x6:
 			/* LD Vx, kk */
 			c8->V[x] = kk;
-			break;
+			return 2;
 		case 0x7:
 			/* ADD Vx, kk */
 			c8->V[0xF] = CARRIES(c8->V[x], kk);
 			c8->V[x] += kk;
-			break;
+			return 2;
 		case 0x8:
 			switch (b) {
 				case 0x0:
 					/* LD Vx, Vy */
 					c8->V[x] = c8->V[y];
-					break;
+					return 2;
 				case 0x1:
 					/* OR Vx, Vy */
 					c8->V[x] = c8->V[x] | c8->V[y];
-					break;
+					QUIRK_BITWISE(c8);
+					return 2;
 				case 0x2:
 					/* AND Vx, Vy */
 					c8->V[x] = c8->V[x] & c8->V[y];
-					break;
+					QUIRK_BITWISE(c8);
+					return 2;
 				case 0x3:
 					/* XOR Vx, Vy */
 					c8->V[x] = c8->V[x] ^ c8->V[y];
-					break;
+					QUIRK_BITWISE(c8);
+					return 2;
 				case 0x4:
 					/* ADD Vx, Vy */
 					c8->V[0xF] = CARRIES(c8->V[x], c8->V[y]);
 					c8->V[x] += c8->V[y];
-					break;
+					return 2;
 				case 0x5:
 					/* SUB Vx, Vy */
 					c8->V[0xF] = !BORROWS(c8->V[x], c8->V[y]);
 					c8->V[x] -= c8->V[y];
-					break;
+					
+					return 2;
 				case 0x6:
-					/* SHR Vx */
-					c8->V[x] = c8->V[x] >> 1;
+					/* SHR Vx, Vy */
+					QUIRK_SHIFT(c8);
+					c8->V[x] = c8->V[y] >> 1;
 					c8->V[0xF] = c8->V[x] & 0x1;
-					c8->V[x] /= 2;
-					break;
+					return 2;
 				case 0x7:
 					/* SUBN Vx, Vy */
 					c8->V[0xF] = !BORROWS(c8->V[y], c8->V[x]);
 					c8->V[x] = c8->V[y] - c8->V[x];
-					break;
+					return 2;
 				case 0xE:
-					/* SHL Vx */
-					c8->V[x] = c8->V[x] << 1;
-					c8->V[0xF] = (c8->V[x] & 0x80) >> 7;
-					c8->V[x] *= 2;
-					break;
+					/* SHL Vx, Vy */
+					QUIRK_SHIFT(c8);
+					c8->V[x] = c8->V[y] << 1;
+					c8->V[0xF] = (c8->V[x] >> 7) & 0x80;
+					return 2;
 			}
 			break;
 		case 0x9:
@@ -395,36 +445,46 @@ static int parse_instruction(chip8_t *c8) {
 			if (c8->V[x] != c8->V[y]) {
 				c8->pc += 2;
 			}
-			break;
+			return 2;
 		case 0xA:
 			/* LD I, nnn */
 			c8->I = nnn;
-			break;
+			return 2;
 		case 0xB:
 			/* JP V0, nnn */
-			c8->pc = nnn + c8->V[0];
-			ret = 0;
-			break;
+			if (c8->flags & FLAG_QUIRK_JUMP) {
+				c8->pc = nnn + c8->V[(nnn >> 8) & 0xF];
+			} else {
+				c8->pc = nnn + c8->V[0];
+			}
+			return 0;
 		case 0xC:
 			/* RND Vx, kk */
 			c8->V[x] = rand() & kk;
-			break;
+			return 2;
 		case 0xD:
 			/* DRW Vx, Vy, b */
 			c8->V[0xF] = 0;
-			int width = STANDARD_DISPLAY_WIDTH;
-			int height = STANDARD_DISPLAY_HEIGHT;
+			int dw = STANDARD_DISPLAY_WIDTH;
+			int dh = STANDARD_DISPLAY_HEIGHT;
 			int h = 8;
-			if (b == 0 && c8->display.mode == DISPLAY_EXTENDED) {
-				b = 16;
-				h = 16;
-				width = EXTENDED_DISPLAY_WIDTH;
-				height = EXTENDED_DISPLAY_HEIGHT;
+			if (c8->display.mode == DISPLAY_EXTENDED) {
+				if (b == 0) {
+					b = 16;
+				}
+				dw = EXTENDED_DISPLAY_WIDTH;
+				dh = EXTENDED_DISPLAY_HEIGHT;
 			}
 			for (int i = 0; i < b; i++) {
 				for (int j = 0; j < h; j++) {
-					int dx = (c8->V[x] + j) % width;
-					int dy = (c8->V[y] + i) % height;
+					int dx = (c8->V[x] + j) % dw;
+					int dy = (c8->V[y] + i) % dh;
+
+					if (c8->flags & FLAG_QUIRK_DRAW) {
+						if (((dx % dw) + b >= dw) || (dy % dh) + h >= dh) {
+							continue;
+						}
+					}
 
 					int before = *get_pixel(&c8->display, dx, dy);
 					if ((c8->mem[c8->I + i] >> (7 - j)) & 1) {
@@ -436,8 +496,7 @@ static int parse_instruction(chip8_t *c8) {
 					}
 				}
 			}
-
-			break;
+			return 2;
 		case 0xE:
 			if (kk == 0x9E) {
 				/* SKP Vx */
@@ -450,71 +509,72 @@ static int parse_instruction(chip8_t *c8) {
 					c8->pc += 2;
 				}
 			}
-			break;
+			return 2;
 		case 0xF:
 			switch (kk) {
 				case 0x07:
 					/* LD Vx, DT */
 					c8->V[x] = c8->dt;
-					break;
+					return 2;
 				case 0x0A:
 					/* LD Vx, K */
 					c8->VK = x;
 					c8->waitingForKey = 1;
-					break;
+					return 2;
 				case 0x15:
 					/* LD DT, Vx */
 					c8->dt = c8->V[x];
-					break;
+					return 2;
 				case 0x18:
 					/* LD ST, Vx */
 					c8->st = c8->V[x];
-					break;
+					return 2;
 				case 0x1E:
 					/* ADD I, Vx */
 					c8->I += c8->V[x];
-					break;
+					return 2;
 				case 0x29:
 					/* LD F, Vx */
 					c8->I = FONT_START + (c8->V[x] * 5);
-					break;
+					return 2;
 				case 0x30:
 					/* LD HF, Vx */
 					c8->I = HIGH_FONT_START + (c8->V[x] * 10);
-					break;
+					return 2;
 				case 0x33:
 					/* LD B, Vx */
 					c8->mem[c8->I] = (c8->V[x] / 100) % 10; // hundreds
 					c8->mem[c8->I + 1] = (c8->V[x] / 10) % 10; // tens
 					c8->mem[c8->I + 2] = c8->V[x] % 10; // ones
-					break;
+					return 2;
 				case 0x55:
 					/* LD [I], Vx */
 					for (int i = 0; i < x; i++) {
 						c8->mem[c8->I + i] = c8->V[i];
 					}
-					break;
+					QUIRK_LOADSTORE(c8);
+					return 2;
 				case 0x65:
 					/* LD Vx, [I] */
 					for (int i = 0; i < x; i++) {
 						c8->V[i] = c8->mem[c8->I + i];
 					}
-					break;
+					QUIRK_LOADSTORE(c8);
+					return 2;
 				case 0x75:
 					/* LD R, Vx */
 					for (int i = 0; i < x; i++) {
 						c8->R[i] = c8->V[i];
 					}
-					break;
+					return 2;
 				case 0x85:
 					/* LD Vx, R */
 					for (int i = 0; i < x; i++) {
 						c8->V[i] = c8->R[i];
 					}
-					break;
+					return 2;
 			}
 	}
 
-
-	return ret;
+	return 2;
 }

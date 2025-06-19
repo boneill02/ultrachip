@@ -3,6 +3,7 @@
 #include "symbol.h"
 
 #include "util/defs.h"
+#include "util/exception.h"
 #include "util/util.h"
 
 #include <ctype.h>
@@ -10,6 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define VERBOSE_PRINT(s) if (args & ARG_VERBOSE) { printf("%s\n", s); }
 
 static int line_count(const char *);
 static int parse_line(char *, int, symbol_list_t *, label_list_t *);

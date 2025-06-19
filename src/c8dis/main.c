@@ -1,4 +1,6 @@
 #include "dis.h"
+
+#include "util/exception.h"
 #include "util/util.h"
 
 #include <stdint.h>

@@ -126,3 +126,5 @@ Tests are run using [Unity](https://github.com/ThrowTheSwitch/Unity).
 
 * [Cowgod's Chip-8 Technical Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
 * [S-CHIP 1.1 Reference](http://devernay.free.fr/hacks/chip8/schip.txt)
+* [Octo](https://github.com/JohnEarnest/Octo)
+* [CHIP-8 Extensions and Compatibility](https://chip-8.github.io/extensions/)

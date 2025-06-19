@@ -6,8 +6,16 @@
 
 #include <stdint.h>
 
+#define CLOCK_SPEED 500
+#define STACK_SIZE 16
+
 #define FLAG_DEBUG 0x1
 #define FLAG_VERBOSE 0x2
+#define FLAG_QUIRK_BITWISE 0x4
+#define FLAG_QUIRK_DRAW 0x8
+#define FLAG_QUIRK_LOADSTORE 0x10
+#define FLAG_QUIRK_SHIFT 0x20
+#define FLAG_QUIRK_JUMP 0x40
 
 /**
  * @struct chip8_t
@@ -32,12 +40,15 @@ typedef struct {
 	int flags;
 	int breakpoints[MEMSIZE];
 	int colors[2];
+	int fonts[2];
 } chip8_t;
 
 void deinit_chip8(chip8_t *);
 int *get_pixel(display_t *, int, int);
-chip8_t *init_chip8(int, int, const char *);
-int load_palette(int *, const char *);
+chip8_t *init_chip8(const char *, int);
+int load_palette_arg(int *, char *);
+int load_palette_file(int *, const char *);
+int load_quirks(const char *);
 void simulate(chip8_t *);
 
 #endif
