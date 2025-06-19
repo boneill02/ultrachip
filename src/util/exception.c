@@ -154,7 +154,7 @@ void *safe_realloc(void *ptr, size_t size) {
  * @brief close all files, free all mallocs, and print exception code/message if exists
  */
 void safe_exit(int status) {
-	if (status < -3 && status >= -16) {
+	if (status < -3 && status >= -19) {
 		fprintf(stderr, "%s\n", exception_messages[(status * -1) - 2]);
 	}
 

@@ -210,7 +210,7 @@ void set_fonts_s(chip8_t *c8, const char *s) {
 
 	const char *s2 = NULL;
 	for (int i = 0; i < len; i++) {
-		if (s[i] == ',' || s[i] == len - 1) {
+		if (s[i] == ',' || i == len - 1) {
 			if (!strncmp(s, OCTO_S, i)) {
 				small = SMALLFONT_OCTO;
 			} else if (!strncmp(s, VIP_S, i))  {
@@ -226,7 +226,7 @@ void set_fonts_s(chip8_t *c8, const char *s) {
 			}
 
 			if (s[i] == ',') {
-				s2 = &s[i];
+				s2 = &s[i+1];
 				break;
 			}
 		}
