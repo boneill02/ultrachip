@@ -152,13 +152,10 @@ void *safe_realloc(void *ptr, size_t size) {
 
 /** 
  * @brief close all files, free all mallocs, and print exception code/message if exists
- *
- * @param size size to calloc
- * @return pointer to memory
  */
 void safe_exit(int status) {
 	if (status < -3 && status >= -16) {
-		fprintf(stderr, "%s\n", exception_messages[(status * -1) - 3]);
+		fprintf(stderr, "%s\n", exception_messages[(status * -1) - 2]);
 	}
 
 	if (strlen(exception)) {

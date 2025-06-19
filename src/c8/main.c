@@ -12,11 +12,12 @@
 int main(int argc, char *argv[]) {
 	chip8_t *c8;
 	int opt;
-	int cs;
-	int flags;
-	int palette = 0;
-	int colors[2];
+	int cs = 0;
+	int flags = 0;
+	int colors[2] = {0, 0xFFFFFF};
 	char *fontstr = NULL;
+
+	srand(time(NULL));
 
 	/* Parse args */
 	while ((opt = getopt(argc, argv, "c:df:p:P:q:vV")) != -1) {
@@ -31,11 +32,9 @@ int main(int argc, char *argv[]) {
 				fontstr = optarg;
 				break;
 			case 'p':
-				palette = 1;	
 				load_palette_file(colors, optarg);
 				break;
 			case 'P':
-				palette = 1;	
 				load_palette_arg(colors, optarg);
 				break;
 			case 'v':
@@ -47,19 +46,26 @@ int main(int argc, char *argv[]) {
 			case 'V':
 				print_version(argv[0]);
 				safe_exit(0);
+				break;
 			default:
 			  fprintf(stderr, "Usage: %s [-dvV] [-c clockspeed] [-p file] [-P colors] [-q quirks] file\n", argv[0]);
 			  exit(EXIT_FAILURE);
 		}
 	}
 
-	srand(time(NULL));
 
 	c8 = init_chip8(argv[optind], flags);
+	c8->colors[0] = colors[0];
+	c8->colors[1] = colors[1];
 
 	if (fontstr) {
 		set_fonts_s(c8, fontstr);
 	}
+
+	if (cs) {
+		c8->cs = cs;
+	}
+
 
 	simulate(c8);
 	deinit_chip8(c8);

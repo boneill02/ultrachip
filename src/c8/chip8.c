@@ -65,13 +65,11 @@ chip8_t *init_chip8(const char *path, int flags) {
 	chip8_t *c8 = (chip8_t *) safe_calloc(1, sizeof(chip8_t));
 
 	c8->flags = flags;
+	c8->cs = CLOCK_SPEED;
 
 	load_rom(c8, path);
 	set_fonts(c8, 0, 0);
 	init_graphics();
-	c8->colors[0] = 0x0;
-	c8->colors[1] = 0xFFF;
-
 	return c8;
 }
 
@@ -88,7 +86,7 @@ int load_palette_arg(int *colors, char *s) {
 	char *c[2];
 	int len = strlen(s);
 
-	c[1] = s;
+	c[0] = s;
 	for (int i = 0; i < len; i++) {
 		if (s[i] == ',') {
 			s[i] = '\0';
@@ -101,7 +99,7 @@ int load_palette_arg(int *colors, char *s) {
 	}
 
 	for (int i = 0; i < 2; i++) {
-		if ((colors[i] = parse_int(s)) == -1) {
+		if ((colors[i] = parse_int(c[i])) == -1) {
 			safe_exit(INVALID_COLOR_PALETTE_EXCEPTION);
 		}
 	}
@@ -190,6 +188,12 @@ void simulate(chip8_t * c8) {
 	while (c8->running) {
 		t = tick(c8->key, c8->cs);
 
+		if (t == -2) {
+			/* Quit */
+			c8->running = 0;
+			continue;
+		}
+
 		if (c8->key[16]) {
 			/* Enter debug mode */
 			c8->flags |= FLAG_DEBUG;
@@ -214,11 +218,6 @@ void simulate(chip8_t * c8) {
 					break;
 
 			}
-		}
-
-		if (t == -2) {
-			/* Quit */
-			c8->running = 0;
 		}
 
 		if (t >= 0 && c8->waitingForKey) {

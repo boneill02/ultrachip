@@ -48,11 +48,12 @@ int parse_int(const char *s) {
     int result = -1;
 	char *endptr = NULL;
     errno = 0;
-    if (s[0] == '$' || s[0] == 'x' || s[0] == 'V' || s[0] == 'v'
-	    || (len > 2 && s[0] == '0' && s[1] == 'x')) {
+    if (s[0] == '$' || s[0] == 'x' || s[0] == 'V' || s[0] == 'v') {
         result = strtol(s+1, &endptr, 16);
-    } else if (len > 2 && s[0] == '0' && s[1] == 'b') {
-		result = strtol(s+1, &endptr, 2);
+	} else if (len > 2 && s[0] == '0' && s[1] == 'x') {
+		result = strtol(s+2, &endptr, 16);
+	} else if (len > 2 && s[0] == '0' && s[1] == 'b') {
+		result = strtol(s+2, &endptr, 2);
 	} else {
         result = strtol(s, &endptr, 10);
     }

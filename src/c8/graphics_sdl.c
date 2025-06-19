@@ -23,7 +23,7 @@ static SDL_Rect winRect = {
 	.h = DEFAULT_WINDOW_HEIGHT,
 };
 
-static uint16_t keyMap[18][2] = {
+static int keyMap[18][2] = {
 	{ SDLK_1, 0 },
 	{ SDLK_2, 1 },
 	{ SDLK_3, 2 },
@@ -63,7 +63,9 @@ void deinit_graphics(void) {
  */
 static int get_key(SDL_Keycode k) {
 	for (int i = 0; i < 18; i++) {
-		if (keyMap[i][0] == k) return keyMap[i][1];
+		if (keyMap[i][0] == k) {
+			return keyMap[i][1];
+		}
 	}
 	return -1;
 }
