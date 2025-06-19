@@ -43,16 +43,20 @@ int hex_to_int(char c) {
  */
 int parse_int(const char *s) {
 	NULLCHECK1(s);
-	if (strlen(s) == 0) {
+	int len = strlen(s);
+	if (len == 0) {
 		return -1;
 	}
 
     int result = -1;
 	char *endptr = NULL;
     errno = 0;
-    if (s[0] == '$' || s[0] == 'x' || s[0] == 'V' || s[0] == 'v') {
+    if (s[0] == '$' || s[0] == 'x' || s[0] == 'V' || s[0] == 'v'
+	    || (len > 2 && s[0] == '0' && s[1] == 'x')) {
         result = strtol(s+1, &endptr, 16);
-    } else {
+    } else if (len > 2 && s[0] == '0' && s[1] == 'b') {
+		result = strtol(s+1, &endptr, 2);
+	} else {
         result = strtol(s, &endptr, 10);
     }
 
