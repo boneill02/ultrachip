@@ -116,7 +116,7 @@ void test_decode_instruction_WhereInstructionIsCALL_WithLabel(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsSEVKK(void) {
+void test_decode_instruction_WhereInstructionIsSEXKK(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_AXKK(3, x, kk);
 
@@ -124,7 +124,7 @@ void test_decode_instruction_WhereInstructionIsSEVKK(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsSNEVKK(void) {
+void test_decode_instruction_WhereInstructionIsSNEXKK(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_AXKK(4, x, kk);
 
@@ -132,7 +132,7 @@ void test_decode_instruction_WhereInstructionIsSNEVKK(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsSEVV(void) {
+void test_decode_instruction_WhereInstructionIsSEXY(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_AXYB(5, x, y, 0);
 
@@ -140,7 +140,7 @@ void test_decode_instruction_WhereInstructionIsSEVV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsLDVKK(void) {
+void test_decode_instruction_WhereInstructionIsLDXKK(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_AXKK(6, x, kk);
 
@@ -148,7 +148,7 @@ void test_decode_instruction_WhereInstructionIsLDVKK(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsADDVKK(void) {
+void test_decode_instruction_WhereInstructionIsADDXKK(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_AXKK(7, x, kk);
 
@@ -156,7 +156,7 @@ void test_decode_instruction_WhereInstructionIsADDVKK(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsLDVV(void) {
+void test_decode_instruction_WhereInstructionIsLDXY(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_AXYB(8, x, y, 0);
 
@@ -164,7 +164,7 @@ void test_decode_instruction_WhereInstructionIsLDVV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsORVV(void) {
+void test_decode_instruction_WhereInstructionIsORXY(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_AXYB(8, x, y, 1);
 
@@ -172,7 +172,7 @@ void test_decode_instruction_WhereInstructionIsORVV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsANDVV(void) {
+void test_decode_instruction_WhereInstructionIsANDXY(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_AXYB(8, x, y, 2);
 
@@ -180,7 +180,7 @@ void test_decode_instruction_WhereInstructionIsANDVV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsXORVV(void) {
+void test_decode_instruction_WhereInstructionIsXORXY(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_AXYB(8, x, y, 3);
 
@@ -188,7 +188,7 @@ void test_decode_instruction_WhereInstructionIsXORVV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsADDVV(void) {
+void test_decode_instruction_WhereInstructionIsADDXY(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_AXYB(8, x, y, 4);
 
@@ -196,7 +196,7 @@ void test_decode_instruction_WhereInstructionIsADDVV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsSUBVV(void) {
+void test_decode_instruction_WhereInstructionIsSUBXY(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_AXYB(8, x, y, 5);
 
@@ -204,15 +204,15 @@ void test_decode_instruction_WhereInstructionIsSUBVV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsSHRV(void) {
+void test_decode_instruction_WhereInstructionIsSHRXY(void) {
 	GENERATE_RANDOMS;
-	int ins = BUILD_INSTRUCTION_AXYB(8, x, 0, 6);
+	int ins = BUILD_INSTRUCTION_AXYB(8, x, y, 6);
 
-	sprintf(buf, "SHR V%01x", x);
+	sprintf(buf, "SHR V%01x, V%01x", x, y);
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsSUBNVV(void) {
+void test_decode_instruction_WhereInstructionIsSUBNXY(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_AXYB(8, x, y, 7);
 
@@ -220,15 +220,15 @@ void test_decode_instruction_WhereInstructionIsSUBNVV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsSHLV(void) {
+void test_decode_instruction_WhereInstructionIsSHLXY(void) {
 	GENERATE_RANDOMS;
-	int ins = BUILD_INSTRUCTION_AXYB(8, x, 0, 0xE);
+	int ins = BUILD_INSTRUCTION_AXYB(8, x, y, 0xE);
 
-	sprintf(buf, "SHL V%01x", x);
+	sprintf(buf, "SHL V%01x, V%01x", x, y);
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsSNEVV(void) {
+void test_decode_instruction_WhereInstructionIsSNEXY(void) {
 	GENERATE_RANDOMS;
 	int ins = BUILD_INSTRUCTION_AXYB(9, x, y, 0);
 
@@ -272,7 +272,7 @@ void test_decode_instruction_WhereInstructionIsJPV0NNN_WithLabel(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsRNDVKK(void) {
+void test_decode_instruction_WhereInstructionIsRNDXKK(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xC, x, kk);
 
@@ -280,7 +280,7 @@ void test_decode_instruction_WhereInstructionIsRNDVKK(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsDRWVVB(void) {
+void test_decode_instruction_WhereInstructionIsDRWXYB(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXYB(0xD, x, y, b);
 
@@ -288,7 +288,7 @@ void test_decode_instruction_WhereInstructionIsDRWVVB(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsSKPV(void) {
+void test_decode_instruction_WhereInstructionIsSKPX(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xE, x, 0x9E);
 
@@ -296,7 +296,7 @@ void test_decode_instruction_WhereInstructionIsSKPV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsSKNPV(void) {
+void test_decode_instruction_WhereInstructionIsSKNPX(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xE, x, 0xA1);
 
@@ -304,7 +304,7 @@ void test_decode_instruction_WhereInstructionIsSKNPV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsLDVDT(void) {
+void test_decode_instruction_WhereInstructionIsLDXDT(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xF, x, 0x07);
 
@@ -312,7 +312,7 @@ void test_decode_instruction_WhereInstructionIsLDVDT(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsLDVK(void) {
+void test_decode_instruction_WhereInstructionIsLDXK(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xF, x, 0x0A);
 
@@ -320,7 +320,7 @@ void test_decode_instruction_WhereInstructionIsLDVK(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsLDDTV(void) {
+void test_decode_instruction_WhereInstructionIsLDDTX(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xF, x, 0x15);
 
@@ -328,7 +328,7 @@ void test_decode_instruction_WhereInstructionIsLDDTV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsLDSTV(void) {
+void test_decode_instruction_WhereInstructionIsLDSTX(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xF, x, 0x18);
 
@@ -336,7 +336,7 @@ void test_decode_instruction_WhereInstructionIsLDSTV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsADDIV(void) {
+void test_decode_instruction_WhereInstructionIsADDIX(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xF, x, 0x1E);
 
@@ -344,7 +344,7 @@ void test_decode_instruction_WhereInstructionIsADDIV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsLDFV(void) {
+void test_decode_instruction_WhereInstructionIsLDFX(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xF, x, 0x29);
 
@@ -352,7 +352,7 @@ void test_decode_instruction_WhereInstructionIsLDFV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsLDHFV(void) {
+void test_decode_instruction_WhereInstructionIsLDHFX(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xF, x, 0x30);
 
@@ -360,7 +360,7 @@ void test_decode_instruction_WhereInstructionIsLDHFV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsLDBV(void) {
+void test_decode_instruction_WhereInstructionIsLDBX(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xF, x, 0x33);
 
@@ -368,7 +368,7 @@ void test_decode_instruction_WhereInstructionIsLDBV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsLDIPV(void) {
+void test_decode_instruction_WhereInstructionIsLDIPX(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xF, x, 0x55);
 
@@ -376,7 +376,7 @@ void test_decode_instruction_WhereInstructionIsLDIPV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsLDVIP(void) {
+void test_decode_instruction_WhereInstructionIsLDXIP(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xF, x, 0x65);
 
@@ -384,7 +384,7 @@ void test_decode_instruction_WhereInstructionIsLDVIP(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsLDRV(void) {
+void test_decode_instruction_WhereInstructionIsLDRX(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xF, x, 0x75);
 
@@ -392,7 +392,7 @@ void test_decode_instruction_WhereInstructionIsLDRV(void) {
 	test_decode_instruction_should_parse(buf, ins);
 }
 
-void test_decode_instruction_WhereInstructionIsLDVR(void) {
+void test_decode_instruction_WhereInstructionIsLDXR(void) {
 	GENERATE_RANDOMS;
 	uint16_t ins = BUILD_INSTRUCTION_AXKK(0xF, x, 0x85);
 
@@ -414,40 +414,40 @@ int main(void) {
     RUN_TEST(test_decode_instruction_WhereInstructionIsJPNNN_WithLabel);
     RUN_TEST(test_decode_instruction_WhereInstructionIsCALL);
     RUN_TEST(test_decode_instruction_WhereInstructionIsCALL_WithLabel);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsSEVKK);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsSNEVKK);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsSEVV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsLDVKK);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsADDVKK);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsLDVV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsORVV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsANDVV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsXORVV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsADDVV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsSUBVV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsSHRV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsSUBNVV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsSHLV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsSNEVV);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsSEXKK);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsSNEXKK);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsSEXY);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsLDXKK);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsADDXKK);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsLDXY);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsORXY);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsANDXY);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsXORXY);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsADDXY);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsSUBXY);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsSHRXY);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsSUBNXY);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsSHLXY);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsSNEXY);
     RUN_TEST(test_decode_instruction_WhereInstructionIsLDINNN);
     RUN_TEST(test_decode_instruction_WhereInstructionIsLDINNN_WithLabel);
     RUN_TEST(test_decode_instruction_WhereInstructionIsJPV0NNN);
     RUN_TEST(test_decode_instruction_WhereInstructionIsJPV0NNN_WithLabel);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsRNDVKK);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsDRWVVB);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsSKPV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsSKNPV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsLDVDT);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsLDVK);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsLDDTV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsLDSTV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsADDIV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsLDFV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsLDHFV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsLDBV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsLDIPV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsLDVIP);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsLDRV);
-    RUN_TEST(test_decode_instruction_WhereInstructionIsLDVR);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsRNDXKK);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsDRWXYB);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsSKPX);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsSKNPX);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsLDXDT);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsLDXK);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsLDDTX);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsLDSTX);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsADDIX);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsLDFX);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsLDHFX);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsLDBX);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsLDIPX);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsLDXIP);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsLDRX);
+    RUN_TEST(test_decode_instruction_WhereInstructionIsLDXR);
     return UNITY_END();
 }
