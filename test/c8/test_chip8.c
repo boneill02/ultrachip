@@ -409,7 +409,7 @@ void test_parse_instruction_WhereInstructionIsSUBXY_WithoutBorrow(void) {
 	TEST_ASSERT_EQUAL_INT(1, c8.V[0xF]);
 }
 
-void test_parse_instruction_WhereInstructionIsSHRX_WithFlag(void) {
+void test_parse_instruction_WhereInstructionIsSHRXY_WithFlag(void) {
 	RESET;
 	AXYB(0x8, x, y, 6);
 
@@ -422,7 +422,7 @@ void test_parse_instruction_WhereInstructionIsSHRX_WithFlag(void) {
 	TEST_ASSERT_EQUAL_INT(1, c8.V[0xF]);
 }
 
-void test_parse_instruction_WhereInstructionIsSHRX_WithoutFlag(void) {
+void test_parse_instruction_WhereInstructionIsSHRXY_WithoutFlag(void) {
 	RESET;
 	AXYB(0x8, x, y, 6);
 
@@ -465,7 +465,7 @@ void test_parse_instruction_WhereInstructionIsSUBNXY_WithoutBorrow(void) {
 	TEST_ASSERT_EQUAL_INT(0, c8.V[0xF]);
 }
 
-void test_parse_instruction_WhereInstructionIsSHLX_WithFlag(void) {
+void test_parse_instruction_WhereInstructionIsSHLXY_WithFlag(void) {
 	RESET;
 	AXYB(0x8, x, y, 0xE);
 
@@ -478,7 +478,7 @@ void test_parse_instruction_WhereInstructionIsSHLX_WithFlag(void) {
 	TEST_ASSERT_EQUAL_INT(1, c8.V[0xF]);
 }
 
-void test_parse_instruction_WhereInstructionIsSHLX_WithoutFlag(void) {
+void test_parse_instruction_WhereInstructionIsSHLXY_WithoutFlag(void) {
 	RESET;
 	AXYB(0x8, x, y, 0xE);
 
@@ -555,12 +555,8 @@ void test_parse_instruction_WhereInstructionIsDRWXYB_InStandardMode(void) {
 	}
 	AXYB(0xD, x, y, b);
 
-	if (vx >= STANDARD_DISPLAY_WIDTH) {
-		vx -= STANDARD_DISPLAY_WIDTH;
-	}
-	if (vy >= STANDARD_DISPLAY_HEIGHT) {
-		vy -= STANDARD_DISPLAY_HEIGHT;
-	}
+	vx %= STANDARD_DISPLAY_WIDTH;
+	vy %= STANDARD_DISPLAY_HEIGHT;
 
 	c8.V[x] = vx;
 	c8.V[y] = vy;
@@ -573,7 +569,7 @@ void test_parse_instruction_WhereInstructionIsDRWXYB_InStandardMode(void) {
 	int ret = parse_instruction(&c8);
 	for (int i = 0; i < b; i++) {
 		TEST_ASSERT_EQUAL_INT(c8.mem[c8.I + i],
-			                  c8.display.p[vy * STANDARD_DISPLAY_HEIGHT + vx]);
+			                  c8.display.p[vy * EXTENDED_DISPLAY_WIDTH + vx]);
 	}
 }
 
@@ -812,12 +808,12 @@ int main(void) {
     RUN_TEST(test_parse_instruction_WhereInstructionIsADDXY_WithoutCarry);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSUBXY_WithBorrow);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSUBXY_WithoutBorrow);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsSHRX_WithFlag);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsSHRX_WithoutFlag);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSHRXY_WithFlag);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSHRXY_WithoutFlag);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSUBNXY_WithBorrow);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSUBNXY_WithoutBorrow);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsSHLX_WithFlag);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsSHLX_WithoutFlag);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSHLXY_WithFlag);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSHLXY_WithoutFlag);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSNEXY_WhereVsAreEqual);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSNEXY_WhereVsAreNotEqual);
     RUN_TEST(test_parse_instruction_WhereInstructionIsLDINNN);
