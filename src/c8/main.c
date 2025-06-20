@@ -41,14 +41,14 @@ int main(int argc, char *argv[]) {
 				flags |= FLAG_VERBOSE;
 				break;
 			case 'q':
-				flags |= load_quirks(optarg);
+				load_quirks(&flags, optarg);
 				break;
 			case 'V':
 				print_version(argv[0]);
 				safe_exit(0);
 				break;
 			default:
-			  fprintf(stderr, "Usage: %s [-dvV] [-c clockspeed] [-p file] [-P colors] [-q quirks] file\n", argv[0]);
+			  fprintf(stderr, "Usage: %s [-dvV] [-c clockspeed] [-f small,big] [-p file] [-P colors] [-q quirks] file\n", argv[0]);
 			  exit(EXIT_FAILURE);
 		}
 	}

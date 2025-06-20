@@ -139,33 +139,30 @@ int load_palette_file(int *colors, const char *path) {
 	return 1;
 }
 
-int load_quirks(const char *s) {
-	NULLCHECK1(s);
-	int ret = 0;
+void load_quirks(int *flags, const char *s) {
+	NULLCHECK2(flags, s);
 
 	for (int i = 0; i < strlen(s); i++) {
 		switch (s[i]) {
 			case 'b':
-				ret |= FLAG_QUIRK_BITWISE;
+				*flags ^= FLAG_QUIRK_BITWISE;
+				break;
+			case 'd':
+				*flags ^= FLAG_QUIRK_DRAW;
 				break;
 			case 'j':
-				ret |= FLAG_QUIRK_JUMP;
+				*flags ^= FLAG_QUIRK_JUMP;
 				break;
 			case 'l':
-				ret |= FLAG_QUIRK_LOADSTORE;
+				*flags ^= FLAG_QUIRK_LOADSTORE;
 				break;
 			case 's':
-				ret |= FLAG_QUIRK_SHIFT;
-				break;
-			case 'v':
-				ret |= FLAG_QUIRK_DRAW;
+				*flags ^= FLAG_QUIRK_SHIFT;
 				break;
 			default:
 				safe_exit(INVALID_QUIRK_EXCEPTION);
 		}
 	}
-
-	return ret;
 }
 
 /**
@@ -177,14 +174,11 @@ void simulate(chip8_t * c8) {
 	int t;
 	int debugRet;
 	int ret;
-	int step = 0;
+	int step = 1;
 
 	c8->pc = PROG_START;
 	c8->running = 1;
 
-	if (DEBUG(c8)) {
-		debugRet = debug_repl(c8);
-	}
 	while (c8->running) {
 		t = tick(c8->key, c8->cs);
 

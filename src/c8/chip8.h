@@ -48,7 +48,7 @@ int *get_pixel(display_t *, int, int);
 chip8_t *init_chip8(const char *, int);
 int load_palette_arg(int *, char *);
 int load_palette_file(int *, const char *);
-int load_quirks(const char *);
+void load_quirks(int *, const char *);
 void simulate(chip8_t *);
 
 #endif

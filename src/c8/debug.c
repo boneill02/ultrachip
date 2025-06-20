@@ -1,6 +1,7 @@
 #include "debug.h"
 
 #include "chip8.h"
+#include "font.h"
 #include "util/decode.h"
 #include "util/exception.h"
 #include "util/util.h"
@@ -28,6 +29,8 @@ typedef enum {
 	CMD_PRINT,
 	CMD_HELP,
 	CMD_QUIT,
+	CMD_LOADFLAGS,
+	CMD_SAVEFLAGS,
 } Command;
 
 /**
@@ -45,10 +48,15 @@ typedef enum {
 	ARG_I,
 	ARG_VK,
 	ARG_STACK,
+	ARG_BG,
+	ARG_FG,
+	ARG_SFONT,
+	ARG_BFONT,
+	ARG_QUIRKS,
 	ARG_V,
+	ARG_R,
 	ARG_ADDR,
 	ARG_FILE,
-	ARG_R,
 } Argument;
 
 /**
@@ -92,14 +100,16 @@ int breakpoints[MEMSIZE];
 
 static int get_command(cmd_t *, char *);
 static int load_file_arg(cmd_t *, char *);
-static int load_state(chip8_t *, const char *);
+static void load_flags(chip8_t *, const char *);
+static void load_state(chip8_t *, const char *);
 static int parse_arg(cmd_t *, char *);
 static void print_help(void);
 static void print_r_registers(chip8_t *);
 static void print_stack(chip8_t *c8);
 static void print_v_registers(chip8_t *);
 static void print_value(chip8_t *, cmd_t *);
-static int save_state(chip8_t *, const char *);
+static void save_flags(chip8_t *, const char *);
+static void save_state(chip8_t *, const char *);
 static int set_value(chip8_t *, cmd_t *);
 
 /**
@@ -112,7 +122,13 @@ const char *args[] = {
 	"ST",
 	"PC",
 	"I",
+	"VK",
 	"stack",
+	"bg",
+	"fg",
+	"sfont",
+	"bfont",
+	"quirks",
 };
 
 /**
@@ -130,6 +146,8 @@ const char *cmds[] = {
 	"print",
 	"help",
 	"quit",
+	"loadflags",
+	"saveflags",
 };
 
 /**
@@ -190,6 +208,12 @@ int debug_repl(chip8_t *c8) {
 					break;
 				case CMD_QUIT:
 					return DEBUG_QUIT;
+				case CMD_LOADFLAGS:
+					load_flags(c8, cmd.arg.value.s);
+					break;
+				case CMD_SAVEFLAGS:
+					save_flags(c8, cmd.arg.value.s);
+					break;
 				case CMD_NONE:
 					printf("Invalid command\n");
 					break;
@@ -248,39 +272,42 @@ static int get_command(cmd_t *cmd, char *s) {
 				return parse_arg(cmd, trim(s + len));
 			}
 		}
-
-		if (strlen(s) == 1 && s[0] == full[0]) {
-			/* Shorthand with no arg */
-			cmd->id = (Command) i;
-			cmd->arg.type = ARG_NONE;
-			return 1;
-		}
-
-		if (s[0] == full[0] && isspace(s[1])) {
-			/* Shorthand with arg */
-			cmd->id = (Command) i;
-			return parse_arg(cmd, trim(s + 1));
-		}
 	}
 
 	return 0; // Unknown command
 }
 
 /**
- * @brief Load c8 from file.
+ * @brief Load R from file.
  *
  * @param c8 struct to load to
  * @param path path to load from
- * @return 1 if success, 0 if failure
  */
-static int load_state(chip8_t *c8, const char *path) {
-	FILE *f = safe_fopen(path, "rb");
+static void load_flags(chip8_t *c8, const char *path) {
+	FILE *f = fopen(path, "rb");
 	if (!f) {
-		return 0;
+		printf("Invalid file\n");
+		return;
+	}
+
+	fread(&c8->R, 1, 8, f);
+	fclose(f);
+}
+
+/**
+ * @brief Load flag registers from file.
+ *
+ * @param c8 struct to load to
+ * @param path path to load from
+ */
+static void load_state(chip8_t *c8, const char *path) {
+	FILE *f = fopen(path, "rb");
+	if (!f) {
+		printf("Invalid file\n");
+		return;
 	}
 	fread(c8, sizeof(chip8_t), 1, f);
-	safe_fclose(f);
-	return 1;
+	fclose(f);
 }
 
 /**
@@ -307,61 +334,79 @@ static int load_file_arg(cmd_t *cmd, char *arg) {
 static int parse_arg(cmd_t *cmd, char *s) {
 	arg_t *arg = &cmd->arg;
 	char *value;
-	s = trim(s);
+
+	arg->type = ARG_NONE;
+
+	/* Try to match with keywords */
+	for (int i = 0; i < sizeof(args) / sizeof(args[0]); i++) {
+		if (!strcmp(s, args[i])) {
+			printf("%s", s);
+			arg->type = (Argument) i;
+		}
+	}
 
 	if (cmd->id == CMD_SET) {
 		/* Split attribute to set and value to set it to */
-		value = s;
-		while (!isspace(*value)) {
-			value++;
-		}
-
-		if (*value == '\0') {
-			return 0; // No value given
-		}
-
-		*value = '\0';
-		value++;
-		trim(value);
-
-		cmd->setValue = parse_int(value);
-	}
-
-
-	if (cmd->id == CMD_LOAD || cmd->id == CMD_SAVE) {
-		return load_file_arg(cmd, s);
-	}
-
-	if (s[0] == 'V') { // register
-		if (strlen(s) > 1) {
-			if (s[1] == 'K') { // VK
-				arg->type = ARG_VK;
-				return 1;
-			} else { // Vx
-				arg->type = ARG_V;
-				arg->value.i = hex_to_int(s[1]);
-				return 1;
+		for (int i = 0; i < strlen(s); i++) {
+			if (isspace(s[i])) {
+				s[i] = '\0';
+				value = trim(&s[i+1]);
 			}
-		} else { // V
-			arg->type = ARG_V;
-			arg->value.i = ARG_NONE;
-			return 1;
 		}
-	} else if (s[0] == '$') { // address
-		arg->type = ARG_ADDR;
-		arg->value.i = parse_int(s);
-		return arg->value.i > 0;
-	} else { // other value
-		for (int i = 0; i < (int) (sizeof(args) / sizeof(args[0])); i++) {
+
+		for (int i = 0; i < sizeof(args) / sizeof(args[0]); i++) {
 			if (!strcmp(s, args[i])) {
 				arg->type = (Argument) i;
-				arg->value.i = -1;
-				return 1;
 			}
+		}
+
+		switch (arg->type) {
+			case ARG_NONE: break; // will find in final switch
+			case ARG_ADDR:
+				cmd->arg.value.i = parse_int(s);
+				cmd->setValue = parse_int(value);
+				return 1;
+			case ARG_QUIRKS:
+			case ARG_SFONT:
+			case ARG_BFONT: cmd->arg.value.s = value; break;
+			default: cmd->arg.value.i = parse_int(value); break;
 		}
 	}
 
-	return 0; // Failed to load arg
+	for (int i = 0; i < sizeof(args) / sizeof(args[0]); i++) {
+		if (!strcmp(s, args[i])) {
+			arg->type = (Argument) i;
+		}
+	}
+
+	switch (cmd->id) {
+		case CMD_LOAD:
+		case CMD_SAVE:
+		case CMD_LOADFLAGS:
+		case CMD_SAVEFLAGS: return load_file_arg(cmd, s);
+		default: break;
+	}
+
+	switch (s[0]) {
+		case 'V':
+		case 'R':
+			arg->type = s[0] == 'V' ? ARG_V : ARG_R;
+			if (strlen(s) > 1) {
+				arg->value.i = hex_to_int(s[1]);
+			} else {
+				arg->value.i = ARG_NONE;
+			}
+			break;
+		case '$':
+			arg->type = ARG_ADDR;
+			arg->value.i = parse_int(s);
+			return arg->value.i > 0;
+		default: break;
+	}
+
+	printf("%s %d %d\n", cmds[cmd->id], arg->type, arg->value);
+
+	return 1;
 }
 
 /**
@@ -369,6 +414,26 @@ static int parse_arg(cmd_t *cmd, char *s) {
  */
 static void print_help(void) {
 	printf("%s\n", DEBUG_HELP_STRING);
+}
+
+static void print_quirks(int flags) {
+	printf("Quirks: ");
+	if (flags & FLAG_QUIRK_BITWISE) {
+		printf("b");
+	}
+	if (flags & FLAG_QUIRK_DRAW) {
+		printf("d");
+	}
+	if (flags & FLAG_QUIRK_JUMP) {
+		printf("j");
+	}
+	if (flags & FLAG_QUIRK_LOADSTORE) {
+		printf("l");
+	}
+	if (flags & FLAG_QUIRK_SHIFT) {
+		printf("s");
+	}
+	printf("\n");
 }
 
 /**
@@ -426,10 +491,13 @@ static void print_value(chip8_t *c8, cmd_t *cmd) {
 			printf("PC: %03x\t\tSP: %02x\n", c8->pc, c8->sp);
 			printf("DT: %02x\t\tST: %02x\n", c8->dt, c8->st);
 			printf("I:  %03x\t\tK:  V%01x\n", c8->I, c8->VK);
+			printf("BG: %06x\tFG: %06x\n", c8->colors[0], c8->colors[1]);
+			print_fonts(c8);
 			print_v_registers(c8);
 			print_r_registers(c8);
 			printf("Stack:\n");
 			print_stack(c8);
+			print_quirks(c8->flags);
 			break;
 		case ARG_SP:
 			printf("SP: %02x\n", c8->sp);
@@ -447,30 +515,22 @@ static void print_value(chip8_t *c8, cmd_t *cmd) {
 			} else {
 				printf("R%01x: %02x\n", cmd->arg.value.i, c8->R[cmd->arg.value.i]);
 			}
-		case ARG_PC:
-			printf("PC: %03x\n", c8->pc);
-			break;
-		case ARG_DT:
-			printf("DT: %02x\n", c8->dt);
-			break;
-		case ARG_ST:
-			printf("ST: %02x\n", c8->st);
-			break;
-		case ARG_I:
-			printf("I:  %03x\n", c8->I);
-			break;
-		case ARG_VK:
-			printf("VK: V%01x\n", c8->VK);
-			break;
-		case ARG_STACK:
-			print_stack(c8);
-			break;
+		case ARG_PC: printf("PC: %03x\n", c8->pc); break;
+		case ARG_DT: printf("DT: %02x\n", c8->dt); break;
+		case ARG_ST: printf("ST: %02x\n", c8->st); break;
+		case ARG_I: printf("I:  %03x\n", c8->I); break;
+		case ARG_VK: printf("VK: V%01x\n", c8->VK); break;
+		case ARG_BG: printf("BG: %06x\n", c8->colors[0]); break;
+		case ARG_FG: printf("FG: %06x\n", c8->colors[1]); break;
+		case ARG_BFONT: printf("SFONT: %s\n", fontNames[1][c8->fonts[1]]); break;
+		case ARG_SFONT: printf("SFONT: %s\n", fontNames[0][c8->fonts[0]]); break;
+		case ARG_QUIRKS: print_quirks(c8->flags); break;
+		case ARG_STACK: print_stack(c8); break;
 		case ARG_ADDR:
 			addr = cmd->arg.value.i;
 			printf("$%03x: %04x\t%s\n", addr, c8->mem[addr], decode_instruction(c8->mem[addr], NULL));
 			break;
-		case ARG_FILE:
-			break; // Should not be reached
+		default: break; // Should not be reached
 	}
 }
 
@@ -479,15 +539,31 @@ static void print_value(chip8_t *c8, cmd_t *cmd) {
  *
  * @param c8 struct to save
  * @param path path to save to
- * @return 1 if success, 0 if failure
  */
-static int save_state(chip8_t *c8, const char *path) {
+static void save_flags(chip8_t *c8, const char *path) {
 	FILE *f = fopen(path, "wb");
 	if (!f) {
-		return 0;
+		printf("Invalid file\n");
+		return;
 	}
+
+	fwrite(&c8->R, 1, 8, f);
+}
+
+/**
+ * @brief Save current state of c8 to file.
+ *
+ * @param c8 struct to save
+ * @param path path to save to
+ */
+static void save_state(chip8_t *c8, const char *path) {
+	FILE *f = fopen(path, "wb");
+	if (!f) {
+		printf("Invalid file\n");
+		return;
+	}
+
 	fwrite(c8, sizeof(chip8_t), 1, f);
-	return 1;
 }
 
 /**
@@ -501,32 +577,20 @@ static int save_state(chip8_t *c8, const char *path) {
  */
 static int set_value(chip8_t *c8, cmd_t *cmd) {
 	switch (cmd->arg.type) {
-		case ARG_NONE: 
-			return 0;
-		case ARG_ADDR:
-			c8->mem[cmd->arg.value.i] = cmd->setValue;
-			return 1;
-		case ARG_DT:
-			c8->dt = cmd->setValue;
-			return 1;
-		case ARG_I:
-			c8->I = cmd->setValue;
-			return 1;
-		case ARG_PC:
-			c8->pc = cmd->setValue;
-			return 1;
-		case ARG_SP:
-			c8->sp = cmd->setValue;
-			return 1;
-		case ARG_ST:
-			c8->st = cmd->setValue;
-			return 1;
-		case ARG_V:
-			c8->V[cmd->arg.value.i] = cmd->setValue;
-			return 1;
-		case ARG_VK:
-			c8->V[c8->VK] = cmd->setValue;
-			return 1;
+		case ARG_NONE:  return 0;
+		case ARG_ADDR: c8->mem[cmd->arg.value.i] = cmd->setValue; return 1;
+		case ARG_DT: c8->dt = cmd->arg.value.i; return 1;
+		case ARG_I: c8->I = cmd->arg.value.i; return 1;
+		case ARG_PC: c8->pc = cmd->arg.value.i; return 1;
+		case ARG_SP: c8->sp = cmd->arg.value.i; return 1;
+		case ARG_ST: c8->st = cmd->arg.value.i; return 1;
+		case ARG_V: c8->V[cmd->arg.value.i] = cmd->setValue; return 1;
+		case ARG_VK: c8->VK = cmd->arg.value.i; return 1;
+		case ARG_BG: c8->colors[0] = cmd->arg.value.i; return 1;
+		case ARG_FG: c8->colors[1] = cmd->arg.value.i; return 1;
+		case ARG_QUIRKS: load_quirks(&c8->flags, cmd->arg.value.s); return 1;
+		case ARG_BFONT: set_big_font(c8, cmd->arg.value.s); return 1;
+		case ARG_SFONT: set_small_font(c8, cmd->arg.value.s); return 1;
 		default:
 			return 0;
 	}

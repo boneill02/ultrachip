@@ -23,6 +23,21 @@
 #define FISH_S "fish"
 #define SCHIP_S "schip"
 
+const char *fontNames[2][5] = {
+	{
+		OCTO_S,
+		VIP_S,
+		DREAM6800_S,
+		ETI660_S,
+		FISH_S,
+	},
+	{
+		OCTO_S,
+		SCHIP_S,
+		FISH_S,
+	},
+};
+
 /**
  * Small fonts.
  * 
@@ -195,55 +210,69 @@ void set_fonts(chip8_t *c8, int small, int big) {
 	NULLCHECK1(c8);
 
 	if (small > -1 && small < 5) {
+		c8->fonts[0] = small;
 		memcpy(&c8->mem[FONT_START], smallFonts[small], 80);
 	}
 
 	if (big > -1 && big < 3) {
+		c8->fonts[1] = big;
 		memcpy(&c8->mem[HIGH_FONT_START], bigFonts[big], 160);
 	}
 }
 
-void set_fonts_s(chip8_t *c8, const char *s) {
+int set_fonts_s(chip8_t *c8, char *s) {
 	int len = strlen(s);
 	int small = -1;
 	int big = -1;
 
 	const char *s2 = NULL;
+
 	for (int i = 0; i < len; i++) {
-		if (s[i] == ',' || i == len - 1) {
-			if (!strncmp(s, OCTO_S, i)) {
-				small = SMALLFONT_OCTO;
-			} else if (!strncmp(s, VIP_S, i))  {
-				small = SMALLFONT_VIP;
-			} else if (!strncmp(s, DREAM6800_S, i)) {
-				small = SMALLFONT_DREAM6800;
-			} else if (!strncmp(s, ETI660_S, i)) {
-				small = SMALLFONT_ETI660;
-			} else if (!strncmp(s, FISH_S, i)) {
-				small = SMALLFONT_FISH;
-			} else {
-				safe_exit(INVALID_FONT_EXCEPTION);
-			}
-
-			if (s[i] == ',') {
-				s2 = &s[i+1];
-				break;
-			}
+		if (s[i] == ',' && i < len - 1) {
+			s2 = &s[i+1];
+			s[i] = '\0';
 		}
 	}
 
+	if (!set_small_font(c8, s)) {
+		fprintf(stderr, "Invalid font: %s\n", s);
+		return 0;
+	}
 	if (s2) {
-		if (!strcmp(s2, OCTO_S)) {
-			big = BIGFONT_OCTO;
-		} else if (!strcmp(s2, SCHIP_S)) {
-			big = BIGFONT_SCHIP;
-		} else if (!strcmp(s2, FISH_S)) {
-			big = BIGFONT_FISH;
+		if (!set_big_font(c8, s2)) {
+			fprintf(stderr, "Invalid font: %s\n", s2);
+			return 0;
 		}
 	}
 
-	if (small == -1) {
-		safe_exit(INVALID_FONT_EXCEPTION);
-	}
 	set_fonts(c8, small, big);
+	return 1;
+}
+
+int set_small_font(chip8_t *c8, const char *s) {
+	int f = -1;
+
+	for (int i = 0; i < 5; i++) {
+		if (!strcmp(s, fontNames[0][i])) {
+			f = i;
+		}
+	}
+	set_fonts(c8, f, -1);
+	return f != -1;
+}
+
+int set_big_font(chip8_t *c8, const char *s) {
+	int f = -1;
+	for (int i = 0; i < 3; i++) {
+		if (!strcmp(s, fontNames[1][i])) {
+			f = i;
+		}
+	}
+
+	set_fonts(c8, -1, f);
+	return f != -1;
+}
+
+void print_fonts(chip8_t *c8) {
+	printf("SFONT: %s\tBFONT: %s\n", fontNames[0][c8->fonts[0]], fontNames[1][c8->fonts[1]]);
 }
