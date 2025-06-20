@@ -406,8 +406,6 @@ static int parse_arg(cmd_t *cmd, char *s) {
 		default: break;
 	}
 
-	printf("%s %d %d\n", cmds[cmd->id], arg->type, arg->value);
-
 	return 1;
 }
 
