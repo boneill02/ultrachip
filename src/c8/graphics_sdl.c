@@ -23,6 +23,14 @@ static SDL_Rect winRect = {
 	.h = DEFAULT_WINDOW_HEIGHT,
 };
 
+/**
+ * Map of all keys to track.
+ * 
+ * * `keyMap[x][0]` is `SDL_Keycode`
+ * * `keyMap[x][]` is CHIP-8 keycode
+ * * `keyMap[16]` enables debug mode / step,
+ * * `keyMap[17]` disables debug mode
+ */
 static int keyMap[18][2] = {
 	{ SDLK_1, 0 },
 	{ SDLK_2, 1 },
@@ -86,7 +94,8 @@ int init_graphics(void) {
 /**
  * Render the given display to the SDL2 window.
  *
- * @param display pointer to a int arr of size `DISPLAY_WIDTH*DISPLAY_HEIGHT`
+ * @param display `display_t` to render
+ * @param colors colors t
  */
 void render(display_t *display, int *colors) {
 	int dx = 0;

@@ -62,10 +62,9 @@ typedef enum {
 /**
  * @union ArgValue
  * @brief Stores an argument's value (string or int)
- *
- * Stores an argument's value as a string or int.
- * `s` gets the string value.
- * `i` gets the integer value.
+ * 
+ * @param s string value
+ * @param i int value
  */
 typedef union {
 	char *s;
@@ -75,6 +74,9 @@ typedef union {
 /**
  * @struct arg_t
  * @brief Represents an argument for a command with a type and value.
+ * 
+ * @param type Argument type
+ * @param value Argument value
  */
 typedef struct {
 	Argument type;
@@ -85,18 +87,15 @@ typedef struct {
  * @struct cmd_t
  * @brief Represents a command with an ID, argument ID, and associated argument.
  *
- * This structure defines a command that includes:
- * - the command identifier (`id`),
- * - an argument (`arg`)
- * - value to set `arg->value` to (`setValue`, for set commands)
+ * @param id command identifier
+ * @param arg `arg_t` argument
+ * @param setValue value to set `arg.value` to for set commands
  */
 typedef struct {
 	Command id;
 	arg_t arg;
 	int setValue;
 } cmd_t;
-
-int breakpoints[MEMSIZE];
 
 static int get_command(cmd_t *, char *);
 static int load_file_arg(cmd_t *, char *);
@@ -156,14 +155,14 @@ const char *cmds[] = {
  * This function parses user commands from stdin and prints the result until
  * one of the following conditions is met:
  *
- * - continue command is evaluated (return DEBUG_CONTINUE)
+ * - continue command is evaluated (return `DEBUG_CONTINUE`)
  *
- * - quit command is evaluated (return DEBUG_QUIT)
+ * - quit command is evaluated (return `DEBUG_QUIT`)
  *
- * - next command is evaluated (return DEBUG_STEP)
+ * - next command is evaluated (return `DEBUG_STEP`)
  *
  * @param c8 the current CHIP-8 state
- * @return DEBUG_CONTINUE, DEBUG_STEP, or DEBUG_QUIT
+ * @return `DEBUG_CONTINUE`, `DEBUG_STEP`, or `DEBUG_QUIT`
  */
 int debug_repl(chip8_t *c8) {
 	char buf[64];
@@ -175,16 +174,16 @@ int debug_repl(chip8_t *c8) {
 			switch(cmd.id) {
 				case CMD_ADD_BREAKPOINT:
 					if (cmd.arg.type == -1) {
-						breakpoints[c8->pc] = 1;
+						c8->breakpoints[c8->pc] = 1;
 					} else {
-						breakpoints[cmd.arg.value.i] = 1;
+						c8->breakpoints[cmd.arg.value.i] = 1;
 					}
 					break;
 				case CMD_RM_BREAKPOINT:
 					if (cmd.arg.value.i == -1) {
-						breakpoints[c8->pc] = 0;
+						c8->breakpoints[c8->pc] = 0;
 					} else {
-						breakpoints[cmd.arg.value.i] = 0;
+						c8->breakpoints[cmd.arg.value.i] = 0;
 					}
 					break;
 				case CMD_CONTINUE: return DEBUG_CONTINUE;
@@ -212,6 +211,7 @@ int debug_repl(chip8_t *c8) {
 /**
  * @brief Check if breakpoint exists at address pc
  *
+ * @param c8 `chip8_t` to check breakpoints of
  * @param pc address to check for breakpoint at
  * @return 1 if yes, 0 if no
  */
@@ -220,9 +220,10 @@ int has_breakpoint(chip8_t *c8, uint16_t pc) {
 }
 
 /**
- * @brief Parse command from string s and store in cmd.
+ * @brief Parse command from string `s` and store in `cmd`.
  *
  * @param cmd where to store the command attributes
+ * @param s command string
  * @return 1 if successful, 0 if not
  */
 static int get_command(cmd_t *cmd, char *s) {
@@ -259,7 +260,7 @@ static int get_command(cmd_t *cmd, char *s) {
 }
 
 /**
- * @brief Load R from file.
+ * @brief Load flag registers from file.
  *
  * @param c8 struct to load to
  * @param path path to load from
@@ -276,7 +277,7 @@ static void load_flags(chip8_t *c8, const char *path) {
 }
 
 /**
- * @brief Load flag registers from file.
+ * @brief Load `chip8_t` from file.
  *
  * @param c8 struct to load to
  * @param path path to load from
@@ -313,6 +314,8 @@ static int load_file_arg(cmd_t *cmd, char *arg) {
  *
  * @param cmd where to store the argument (cmd->id must be correct)
  * @param s arg string (user input after command)
+ * 
+ * @return 1 if success, 0 otherwise
  */
 static int parse_arg(cmd_t *cmd, char *s) {
 	arg_t *arg = &cmd->arg;
@@ -394,27 +397,36 @@ static void print_help(void) {
 }
 
 static void print_quirks(int flags) {
+	int f = 0;
 	printf("Quirks: ");
 	if (flags & FLAG_QUIRK_BITWISE) {
+		f = 1;
 		printf("b");
 	}
 	if (flags & FLAG_QUIRK_DRAW) {
+		f = 1;
 		printf("d");
 	}
 	if (flags & FLAG_QUIRK_JUMP) {
+		f = 1;
 		printf("j");
 	}
 	if (flags & FLAG_QUIRK_LOADSTORE) {
+		f = 1;
 		printf("l");
 	}
 	if (flags & FLAG_QUIRK_SHIFT) {
+		f = 1;
 		printf("s");
+	}
+	if (!f) {
+		printf("None");
 	}
 	printf("\n");
 }
 
 /**
- * @brief Print all R registers.
+ * @brief Print all R (flag) registers.
  *
  * @param c8 the current CHIP-8 state
  */
@@ -512,9 +524,9 @@ static void print_value(chip8_t *c8, cmd_t *cmd) {
 }
 
 /**
- * @brief Save current state of c8 to file.
+ * @brief Save flag registers to file.
  *
- * @param c8 struct to save
+ * @param c8 `chip8_t` to grab flag registers from
  * @param path path to save to
  */
 static void save_flags(chip8_t *c8, const char *path) {
@@ -528,9 +540,9 @@ static void save_flags(chip8_t *c8, const char *path) {
 }
 
 /**
- * @brief Save current state of c8 to file.
+ * @brief Save `chip8_t` to file.
  *
- * @param c8 struct to save
+ * @param c8 `chip8_t` to save
  * @param path path to save to
  */
 static void save_state(chip8_t *c8, const char *path) {
@@ -544,7 +556,7 @@ static void save_state(chip8_t *c8, const char *path) {
 }
 
 /**
- * @brief Set the value at `cmd->arg.type` to `cmd->setValue
+ * @brief Set the value at `cmd->arg.type` to `cmd->setValue`
  *
  * This assumes the arguments are correctly formatted (e.g. no `ARG_V` type
  * without a value).

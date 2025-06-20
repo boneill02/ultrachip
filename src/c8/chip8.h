@@ -20,6 +20,27 @@
 /**
  * @struct chip8_t
  * @brief Represents current state of the CHIP-8 interpreter
+ * 
+ * @param mem CHIP-8 memory
+ * @param R flag registers
+ * @param V V (general purpose) registers
+ * @param sp stack pointer
+ * @param dt display timer
+ * @param st sound timer
+ * @param stack stack
+ * @param pc program counter
+ * @param I I (address) register
+ * @param key key press states
+ * @param VK V to store next keypress
+ * @param cs instructions to execute per second
+ * @param waitingForKey 1 or 0
+ * @param running 1 or 0
+ * @param display graphics display
+ * @param flags CLI flags
+ * @param breakpoints debug breakpoint map
+ * @param colors 24 bit hex colors, background=[0] foreground=[1]
+ * @param fonts font IDs (see font.c)
+ * @param draw need to draw? (1 or 0)
  */
 typedef struct {
 	uint8_t mem[MEMSIZE];
@@ -31,7 +52,7 @@ typedef struct {
 	uint16_t stack[STACK_SIZE];
 	uint16_t pc;
 	uint16_t I;
-	int key[17];
+	int key[18];
 	int VK;
 	int cs;
 	int waitingForKey;

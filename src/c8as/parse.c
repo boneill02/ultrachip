@@ -1,7 +1,6 @@
 #include "parse.h"
 
 #include "symbol.h"
-
 #include "util/defs.h"
 #include "util/exception.h"
 #include "util/util.h"
@@ -17,7 +16,7 @@
 static int line_count(const char *);
 static int parse_line(char *, int, symbol_list_t *, label_list_t *);
 static int parse_word(char *, char *, int, symbol_t *, label_list_t *);
-static inline int put16(uint8_t *, uint16_t, int);
+static inline void put16(uint8_t *, uint16_t, int);
 static int tokenize(char **, char *, const char *, int);
 static int to_upper(char *);
 static char *remove_comma(char *);
@@ -31,13 +30,14 @@ static int write(uint8_t *, symbol_list_t *, int);
  * This function generates bytecode from the given assembly code.
  *
  * @param s string containing assembly code
- * @param f file to write to
+ * @param out pointer to write bytecode to
  * @param a args
  *
  * @return length of resulting bytecode.
  */
 int parse(const char *s, uint8_t *out, int args) {
 	NULLCHECK2(s, out);
+
 	char *scpy;
 	int len = strlen(s);
 	int count = 0;
@@ -115,9 +115,7 @@ int parse(const char *s, uint8_t *out, int args) {
  * @return string without comment
  */
 char *remove_comment(char *s) {
-	if (!s) {
-		return NULL;
-	}
+	NULLCHECK1(s);
 
 	if (s[0] == ';') {
 		s[0] = '\0';
@@ -135,10 +133,14 @@ char *remove_comment(char *s) {
 
 /**
  * @brief Get line count of s
+ * 
  * @param s string to count lines from
+ * 
  * @return line count
  */
 static int line_count(const char *s) {
+	NULLCHECK1(s);
+
 	int ln = 1;
 	while (*s) {
 		if (*s == '\n') {
@@ -267,7 +269,7 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
  * @param output where to write
  * @param n index to write to
  */
-static inline int put16(uint8_t *output, uint16_t n, int idx) {
+static inline void put16(uint8_t *output, uint16_t n, int idx) {
 	NULLCHECK1(output);
 
 	output[idx] = (n >> 8) & 0xFF;
@@ -308,9 +310,7 @@ static int tokenize(char **tok, char *s, const char *delim, int maxTokens) {
  * @return string without comma
  */
 static char *remove_comma(char *s) {
-	if (!s) {
-		return NULL;
-	}
+	NULLCHECK1(s);
 
 	trim(s);
 	if (s[strlen(s) - 1] == ',') {

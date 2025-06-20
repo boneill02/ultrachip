@@ -51,6 +51,8 @@
  * @brief Represents instruction types
  * 
  * This enumeration defines all possible CHIP-8 instructions.
+ * 
+ * NOTE: values to be kept in same order as `instructionStrings`
  */
 typedef enum {
 	I_NULL = -1,
@@ -88,7 +90,7 @@ typedef enum {
  * This enumeration defines all symbol types found during the first assembler
  * pass.
  * 
- * NOTE: values before label need to be kept in same order as identifierStrings
+ * NOTE: values before label need to be kept in same order as `identifierStrings`
  */
 typedef enum {
 	SYM_NULL,
@@ -120,6 +122,12 @@ typedef enum {
  * 
  * instruction_t's are checked against instruction_format_t's to verify
  * that they will produce valid instructions.
+ * 
+ * @param cmd instruction command
+ * @param base base hex value of command (without parameters)
+ * @param pcount parameter count
+ * @param ptype parameter types
+ * @param pmask parameter masks (where to OR parameters to)
  */
 typedef struct {
 	Instruction cmd;
@@ -135,6 +143,13 @@ typedef struct {
  * 
  * During the second pass, this structure is used to verify the instruction's
  * validity and generate the bytecode.
+ * 
+ * @param line line number
+ * @param cmd instruction command
+ * @param pcount parameter count
+ * @param ptype parameter types
+ * @param p parameter values
+ * @param format corresponding `instruction_format_t` (if valid)
  */
 typedef struct {
 	int line;
@@ -151,8 +166,8 @@ typedef struct {
  * 
  * Represents a label with an identifier and byte value
  * 
- * @var identifier string identifier
- * @var byte location of the label
+ * @param identifier string identifier
+ * @param byte location of the label
  */
 typedef struct {
 	char identifier[LABEL_IDENTIFIER_SIZE];
@@ -163,9 +178,9 @@ typedef struct {
  * @struct label_list_t
  * @brief Represents a list of labels
  * 
- * @var l pointer to first label
- * @var len length of the list
- * @var ceil maximum length of the list
+ * @param l pointer to first label
+ * @param len length of the list
+ * @param ceil maximum length of the list
  */
 typedef struct {
 	label_t *l;
@@ -176,6 +191,10 @@ typedef struct {
 /**
  * @struct symbol_t
  * @brief Represents a symbol with a type, value, and line number
+ * 
+ * @param type symbol type
+ * @param value symbol value
+ * @param ln line number
  */
 typedef struct {
 	Symbol type;
@@ -186,6 +205,10 @@ typedef struct {
 /**
  * @struct symbol_list_t
  * @brief Represents a symbol with a type, value, and line number
+ * 
+ * @param s pointer to first symbol
+ * @param len number of symbols in list
+ * @param ceil amount of symbols that can fit in allocated memory
  */
 typedef struct {
 	symbol_t *s;

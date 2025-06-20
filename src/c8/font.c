@@ -206,6 +206,13 @@ const uint8_t bigFonts[3][160] = {
 	}
 };
 
+/**
+ * @brief Loads small and/or big fonts in `c8`
+ * 
+ * @param c8 `chip8_t` to set fonts
+ * @param small small font identifier (-1 to not set)
+ * @param big big font identifier (-1 to not set)
+ */
 void set_fonts(chip8_t *c8, int small, int big) {
 	NULLCHECK1(c8);
 
@@ -220,6 +227,14 @@ void set_fonts(chip8_t *c8, int small, int big) {
 	}
 }
 
+/**
+ * @brief Set fonts from string
+ * 
+ * @param c8 `chip8_t` to set fonts
+ * @param s string to get fonts from (comma-separated `fontNames` names)
+ * 
+ * @return 1 if success, 0 otherwise
+ */
 int set_fonts_s(chip8_t *c8, char *s) {
 	int len = strlen(s);
 	int small = -1;
@@ -249,6 +264,14 @@ int set_fonts_s(chip8_t *c8, char *s) {
 	return 1;
 }
 
+/**
+ * @brief Set small font from `s` (`fontNames` name)
+ * 
+ * @param c8 `chip8_t` to set font from
+ * @param s string to get font from
+ * 
+ * @return 1 if success, 0 otherwise
+ */
 int set_small_font(chip8_t *c8, const char *s) {
 	int f = -1;
 
@@ -261,6 +284,14 @@ int set_small_font(chip8_t *c8, const char *s) {
 	return f != -1;
 }
 
+/**
+ * @brief Set big font from `s` (`fontNames` name)
+ * 
+ * @param c8 `chip8_t` to set font from
+ * @param s string to get font from
+ * 
+ * @return 1 if success, 0 otherwise
+ */
 int set_big_font(chip8_t *c8, const char *s) {
 	int f = -1;
 	for (int i = 0; i < 3; i++) {
@@ -273,6 +304,11 @@ int set_big_font(chip8_t *c8, const char *s) {
 	return f != -1;
 }
 
+/**
+ * @brief Print fonts (for debug)
+ * 
+ * @param c8 `chip8_t` to get fonts from
+ */
 void print_fonts(chip8_t *c8) {
 	printf("SFONT: %s\tBFONT: %s\n", fontNames[0][c8->fonts[0]], fontNames[1][c8->fonts[1]]);
 }

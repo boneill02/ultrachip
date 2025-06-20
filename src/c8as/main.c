@@ -46,9 +46,11 @@ int main(int argc, char *argv[]) {
  * @param outpath path to output file
  * @param args CLI args
  * 
- * @return 1 if success, 0 or exception code otherwise
+ * @return 1 if success, 0 otherwise
  */
 static int assemble(char *inpath, char *outpath, int args) {
+	NULLCHECK2(inpath, outpath);
+
 	FILE *in;
 	FILE *out;
 	char *input;
@@ -94,6 +96,8 @@ static int assemble(char *inpath, char *outpath, int args) {
  * @return pointer to string
  */
 static char *dynamic_load(FILE *f) {
+	NULLCHECK1(f);
+
 	int capacity = BUFSIZ;
 	char *buf = (char *) safe_malloc(capacity);
 	char *newbuf;

@@ -8,6 +8,9 @@
 #include <ctype.h>
 #include <string.h>
 
+/**
+ * Reserved identifier strings. Has to match `Symbol`.
+ */
 const char *identifierStrings[] = {
 	"",
 	S_DT,
@@ -24,6 +27,9 @@ const char *identifierStrings[] = {
 	NULL,
 };
 
+/**
+ * Instruction strings. Has to match `Instruction`.
+ */
 const char *instructionStrings[] = {
 	S_CLS,
 	S_RET,
@@ -53,6 +59,9 @@ const char *instructionStrings[] = {
 	NULL,
 };
 
+/**
+ * 
+ */
 instruction_format_t formats[] = {
 	{ I_SCD,  0x00C0, 1, {SYM_INT4},               {0x000F}},
 	{ I_CLS,  0x00E0, 0, {SYM_NULL},               {0} },

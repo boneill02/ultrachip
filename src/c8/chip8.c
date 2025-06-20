@@ -41,23 +41,25 @@ static int parse_instruction(chip8_t *);
 
 /**
  * @brief Deinitialize graphics and free c8
+ * 
+ * @param c8 c8 to free
  */
 void deinit_chip8(chip8_t *c8) {
 	deinit_graphics();
-	free(c8);
+	safe_free(c8);
 }
 
 /**
- * @brief Initialize and return a `chip8_t` with the specified clockspeed.
+ * @brief Initialize and return a `chip8_t` with the given flags
  *
- * This function allocates memory for a new `chip8_t` with all values set to 0,
- * sets the clockspeed to `cs`, adds the font to memory, and returns a pointer
- * to it.
+ * This function allocates memory for a new `chip8_t` with all values set to 0
+ * or their default values, adds the font to memory, inititializes the graphics
+ * system, and returns a pointer to the `chip8_t`.
  *
  * @param path path to ROM file
  * @param flags flags
  *
- * @return pointer to initialized chip8_t.
+ * @return pointer to initialized `chip8_t`.
  */
 chip8_t *init_chip8(const char *path, int flags) {
 	NULLCHECK1(path);
@@ -74,10 +76,10 @@ chip8_t *init_chip8(const char *path, int flags) {
 }
 
 /**
- * @brief Load palette from the given string into colors.
+ * @brief Load palette from the given string into `colors`.
  *
- * @param[colors] where to store the color codes
- * @param[path] location
+ * @param colors where to store the color codes
+ * @param path location
  * 
  * @return 1 if success
  */
@@ -108,10 +110,10 @@ int load_palette_arg(int *colors, char *s) {
 }
 
 /**
- * @brief Load palette from the given path into colors.
+ * @brief Load palette from the given path into `colors`.
  *
- * @param[colors] where to store the color codes
- * @param[path] location
+ * @param colors where to store the color codes
+ * @param path palette file location
  * 
  * @return 1 if success
  */
@@ -139,6 +141,12 @@ int load_palette_file(int *colors, const char *path) {
 	return 1;
 }
 
+/**
+ * @brief Load quirk flags from string
+ * 
+ * @param flags where to store flags
+ * @param s string to get quirks from
+ */
 void load_quirks(int *flags, const char *s) {
 	NULLCHECK2(flags, s);
 
@@ -166,7 +174,7 @@ void load_quirks(int *flags, const char *s) {
 }
 
 /**
- * @brief Main interpreter simulation loop. Exits when `running` is 0.
+ * @brief Main interpreter simulation loop. Exits when `c8->running` is 0.
  *
  * @param c8 the `chip8_t` to simulate
  */
@@ -196,7 +204,9 @@ void simulate(chip8_t * c8) {
 		
 		if (c8->key[17]) {
 			/* Exit debug mode */
-			c8->flags &= INT32_MAX ^ FLAG_DEBUG;
+			if (DEBUG(c8)) {
+				c8->flags ^= FLAG_DEBUG;
+			}
 		}
 
 		if (DEBUG(c8) && (has_breakpoint(c8, c8->pc) || step)) {
