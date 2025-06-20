@@ -297,7 +297,7 @@ static void load_state(chip8_t *c8, const char *path) {
 	fread(c8, sizeof(chip8_t), 1, f);
 	fclose(f);
 
-	render(&c8->display, c8->colors);
+	c8->draw = 1;
 }
 
 /**
