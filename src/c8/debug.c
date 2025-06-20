@@ -187,36 +187,17 @@ int debug_repl(chip8_t *c8) {
 						breakpoints[cmd.arg.value.i] = 0;
 					}
 					break;
-				case CMD_CONTINUE:
-					return DEBUG_CONTINUE;
-				case CMD_NEXT:
-					return DEBUG_STEP;
-				case CMD_LOAD:
-					load_state(c8, cmd.arg.value.s);
-					break;
-				case CMD_SAVE:
-					save_state(c8, cmd.arg.value.s);
-					break;
-				case CMD_PRINT:
-					print_value(c8, &cmd);
-					break;
-				case CMD_SET:
-					set_value(c8, &cmd);
-					break;
-				case CMD_HELP:
-					print_help();
-					break;
-				case CMD_QUIT:
-					return DEBUG_QUIT;
-				case CMD_LOADFLAGS:
-					load_flags(c8, cmd.arg.value.s);
-					break;
-				case CMD_SAVEFLAGS:
-					save_flags(c8, cmd.arg.value.s);
-					break;
-				case CMD_NONE:
-					printf("Invalid command\n");
-					break;
+				case CMD_CONTINUE: return DEBUG_CONTINUE;
+				case CMD_NEXT: return DEBUG_STEP;
+				case CMD_LOAD: load_state(c8, cmd.arg.value.s); break;
+				case CMD_SAVE: save_state(c8, cmd.arg.value.s); break;
+				case CMD_PRINT: print_value(c8, &cmd); break;
+				case CMD_SET: set_value(c8, &cmd); break;
+				case CMD_HELP: print_help(); break;
+				case CMD_QUIT: return DEBUG_QUIT;
+				case CMD_LOADFLAGS: load_flags(c8, cmd.arg.value.s); break;
+				case CMD_SAVEFLAGS: save_flags(c8, cmd.arg.value.s); break;
+				case CMD_NONE: printf("Invalid command\n"); break;
 			 }
 		} else {
 			printf("Invalid command\n");
@@ -339,14 +320,6 @@ static int parse_arg(cmd_t *cmd, char *s) {
 
 	arg->type = ARG_NONE;
 
-	/* Try to match with keywords */
-	for (int i = 0; i < sizeof(args) / sizeof(args[0]); i++) {
-		if (!strcmp(s, args[i])) {
-			printf("%s", s);
-			arg->type = (Argument) i;
-		}
-	}
-
 	if (cmd->id == CMD_SET) {
 		/* Split attribute to set and value to set it to */
 		for (int i = 0; i < strlen(s); i++) {
@@ -355,15 +328,19 @@ static int parse_arg(cmd_t *cmd, char *s) {
 				value = trim(&s[i+1]);
 			}
 		}
+	}
 
-		for (int i = 0; i < sizeof(args) / sizeof(args[0]); i++) {
-			if (!strcmp(s, args[i])) {
-				arg->type = (Argument) i;
-			}
+	/* Try to match with keywords */
+	for (int i = 0; i < sizeof(args) / sizeof(args[0]); i++) {
+		if (!strcmp(s, args[i])) {
+			printf("%s", s);
+			arg->type = (Argument) i;
 		}
+	}
 
+
+	if (cmd->id == CMD_SET) {
 		switch (arg->type) {
-			case ARG_NONE: break; // will find in final switch
 			case ARG_ADDR:
 				cmd->arg.value.i = parse_int(s);
 				cmd->setValue = parse_int(value);
@@ -371,7 +348,7 @@ static int parse_arg(cmd_t *cmd, char *s) {
 			case ARG_QUIRKS:
 			case ARG_SFONT:
 			case ARG_BFONT: cmd->arg.value.s = value; break;
-			default: cmd->arg.value.i = parse_int(value); break;
+			default: cmd->setValue = parse_int(value); break;
 		}
 	}
 
@@ -591,7 +568,6 @@ static int set_value(chip8_t *c8, cmd_t *cmd) {
 		case ARG_QUIRKS: load_quirks(&c8->flags, cmd->arg.value.s); return 1;
 		case ARG_BFONT: set_big_font(c8, cmd->arg.value.s); return 1;
 		case ARG_SFONT: set_small_font(c8, cmd->arg.value.s); return 1;
-		default:
-			return 0;
+		default: printf("Invalid argument\n"); return 0;
 	}
 }
