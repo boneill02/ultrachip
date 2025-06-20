@@ -104,13 +104,13 @@ char *decode_instruction(uint16_t in, uint8_t *label_map) {
 					sprintf(result, "SUB V%01x, V%01x", x, y);
 					break;
 				case 0x6:
-					sprintf(result, "SHR V%01x", x);
+					sprintf(result, "SHR V%01x, V%01x", x, y);
 					break;
 				case 0x7:
 					sprintf(result, "SUBN V%01x, V%01x", x, y);
 					break;
 				case 0xE:
-					sprintf(result, "SHL V%01x", x);
+					sprintf(result, "SHL V%01x, V%01x", x, y);
 					break;
 				default:
 					sprintf(result, ".db %04x", in);
