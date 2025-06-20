@@ -41,6 +41,7 @@ typedef struct {
 	int breakpoints[MEMSIZE];
 	int colors[2];
 	int fonts[2];
+	int draw;
 } chip8_t;
 
 void deinit_chip8(chip8_t *);

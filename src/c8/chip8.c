@@ -237,7 +237,10 @@ void simulate(chip8_t * c8) {
 				c8->st--; // TODO sound
 			}
 
-			render(&c8->display, c8->colors);
+			if (c8->draw) {
+				render(&c8->display, c8->colors);
+				c8->draw = 0;
+			}
 		}
 	}
 }
@@ -327,24 +330,12 @@ static int parse_instruction(chip8_t *c8) {
 						c8->display.x += EXTENDED_DISPLAY_WIDTH;
 					}
 					return 2;
-				case 0xFD:
-					/* EXIT */
-					c8->running = 0;
-					return 0;
-				case 0xFE:
-					/* LOW */
-					c8->display.mode = DISPLAY_STANDARD;
-					return 2;
-				case 0xFF:
-					/* HIGH */
-					c8->display.mode = DISPLAY_EXTENDED;
-					return 2;
+				case 0xFD: c8->running = 0; return 0; // EXIT
+				case 0xFE: c8->display.mode = DISPLAY_STANDARD; return 2; // LOW
+				case 0xFF: c8->display.mode = DISPLAY_EXTENDED; return 2; // HIGH
 			}
 			break;
-		case 0x1:
-			/* JP nnn */
-			c8->pc = nnn;
-			return 0;
+		case 0x1: c8->pc = nnn; return 0; // JP nnn
 		case 0x2:
 			/* CALL nnn */
 			if (c8->sp == 15) {
@@ -373,10 +364,7 @@ static int parse_instruction(chip8_t *c8) {
 				c8->pc += 2;
 			}
 			return 2;
-		case 0x6:
-			/* LD Vx, kk */
-			c8->V[x] = kk;
-			return 2;
+		case 0x6: c8->V[x] = kk; return 2; // LD Vx, kk
 		case 0x7:
 			/* ADD Vx, kk */
 			c8->V[0xF] = CARRIES(c8->V[x], kk);
@@ -384,10 +372,7 @@ static int parse_instruction(chip8_t *c8) {
 			return 2;
 		case 0x8:
 			switch (b) {
-				case 0x0:
-					/* LD Vx, Vy */
-					c8->V[x] = c8->V[y];
-					return 2;
+				case 0x0: c8->V[x] = c8->V[y]; return 2; // LD Vx, Vy
 				case 0x1:
 					/* OR Vx, Vy */
 					c8->V[x] = c8->V[x] | c8->V[y];
@@ -451,10 +436,7 @@ static int parse_instruction(chip8_t *c8) {
 				c8->pc = nnn + c8->V[0];
 			}
 			return 0;
-		case 0xC:
-			/* RND Vx, kk */
-			c8->V[x] = rand() & kk;
-			return 2;
+		case 0xC: c8->V[x] = rand() & kk; return 2; // RND Vx, kk
 		case 0xD:
 			/* DRW Vx, Vy, b */
 			c8->V[0xF] = 0;
@@ -489,6 +471,8 @@ static int parse_instruction(chip8_t *c8) {
 					}
 				}
 			}
+
+			c8->draw = 1;
 			return 2;
 		case 0xE:
 			if (kk == 0x9E) {
@@ -505,27 +489,15 @@ static int parse_instruction(chip8_t *c8) {
 			return 2;
 		case 0xF:
 			switch (kk) {
-				case 0x07:
-					/* LD Vx, DT */
-					c8->V[x] = c8->dt;
-					return 2;
+				case 0x07: c8->V[x] = c8->dt; return 2; // LD Vx, DT
 				case 0x0A:
 					/* LD Vx, K */
 					c8->VK = x;
 					c8->waitingForKey = 1;
 					return 2;
-				case 0x15:
-					/* LD DT, Vx */
-					c8->dt = c8->V[x];
-					return 2;
-				case 0x18:
-					/* LD ST, Vx */
-					c8->st = c8->V[x];
-					return 2;
-				case 0x1E:
-					/* ADD I, Vx */
-					c8->I += c8->V[x];
-					return 2;
+				case 0x15: c8->dt = c8->V[x]; return 2; // LD DT, Vx
+				case 0x18: c8->st = c8->V[x]; return 2; // LD ST, Vx
+				case 0x1E: c8->I += c8->V[x]; return 2; // ADD I, Vx
 				case 0x29:
 					/* LD F, Vx */
 					c8->I = FONT_START + (c8->V[x] * 5);
