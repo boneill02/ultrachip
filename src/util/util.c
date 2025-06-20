@@ -1,3 +1,9 @@
+/**
+ * @file util.c
+ *
+ * Miscellaneous useful functions.
+ */
+
 #include "util/util.h"
 
 #include "util/defs.h"
@@ -77,7 +83,7 @@ void print_version(const char *argv0) {
 /**
  * @brief Trim leading and trailing whitespace from `s`
  *
- * Puts a `NULL` character after the last non-whitespace character and 
+ * Puts a `NULL` character after the last non-whitespace character and
  * returns a pointer to the first non-whitespace character.
  *
  * @param s string to trim

@@ -1,3 +1,9 @@
+/**
+ * @file decode.c
+ *
+ * Stuff for disassembling bytecode.
+ */
+
 #include "util/decode.h"
 
 #include "util/defs.h"
@@ -23,7 +29,7 @@ char result[32];
  *
  * @param in The instruction to decode
  * @param label_map The label map (can be NULL for no labels)
- * 
+ *
  * @return `result` containing the associated assembly instruction
  */
 char *decode_instruction(uint16_t in, uint8_t *label_map) {

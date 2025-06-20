@@ -1,3 +1,9 @@
+/**
+ * @file parse.h
+ *
+ * Base assembler code
+ */
+
 #ifndef CHIP8_PARSE_H
 #define CHIP8_PARSE_H
 

@@ -1,3 +1,9 @@
+/**
+ * @file util.h
+ *
+ * Miscellaneous useful functions.
+ */
+
 #ifndef CHIP8_UTIL_H
 #define CHIP8_UTIL_H
 

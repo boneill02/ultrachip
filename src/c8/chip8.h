@@ -1,3 +1,9 @@
+/**
+ * @file chip8.h
+ *
+ * Stuff for simulating and modifying `chip8_t`s.
+ */
+
 #ifndef CHIP8_H
 #define CHIP8_H
 
@@ -20,7 +26,7 @@
 /**
  * @struct chip8_t
  * @brief Represents current state of the CHIP-8 interpreter
- * 
+ *
  * @param mem CHIP-8 memory
  * @param R flag registers
  * @param V V (general purpose) registers

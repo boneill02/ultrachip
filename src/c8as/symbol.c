@@ -1,3 +1,9 @@
+/**
+ * @file symbol.c
+ *
+ * Stuff for parsing symbols and instructions
+ */
+
 #include "symbol.h"
 
 #include "parse.h"
@@ -60,7 +66,7 @@ const char *instructionStrings[] = {
 };
 
 /**
- * 
+ * All valid instruction formats
  */
 instruction_format_t formats[] = {
 	{ I_SCD,  0x00C0, 1, {SYM_INT4},               {0x000F}},
@@ -118,10 +124,10 @@ static int validate_instruction(instruction_t *);
 
 /**
  * @brief Build an instruction from symbols beginning at idx
- * 
+ *
  * This function builds an instruction from a completely parsed set of symbols
  * (with labels expanded).
- * 
+ *
  * @param ins instruction_t to store instruction contents
  * @param symbols symbol list
  * @param idx symbols index of start of instruction
@@ -445,7 +451,7 @@ int substitute_labels(symbol_list_t *symbols, label_list_t *labels) {
  */
 static int parse_instruction(instruction_t *ins) {
 	NULLCHECK1(ins);
-	
+
 	uint16_t result = ins->format->base;
 	for (int j = 0; j < ins->pcount; j++) {
 		if (ins->format->pmask[j]) {
@@ -509,7 +515,7 @@ static int validate_instruction(instruction_t *ins) {
  * @brief Expand symbol list
  *
  * @param symbols symbol list
- * 
+ *
  * @return 1 if success, exception code otherwise.
  */
 static int reallocate_symbols(symbol_list_t *symbols) {

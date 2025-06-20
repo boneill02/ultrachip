@@ -1,3 +1,9 @@
+/**
+ * @file font.h
+ *
+ * Stuff related to loading fonts.
+ */
+
 #ifndef CHIP8_FONT_H
 #define CHIP8_FONT_H
 

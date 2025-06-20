@@ -1,3 +1,9 @@
+/**
+ * @file debug.c
+ *
+ * Stuff related to debug mode.
+ */
+
 #include "debug.h"
 
 #include "chip8.h"
@@ -62,7 +68,7 @@ typedef enum {
 /**
  * @union ArgValue
  * @brief Stores an argument's value (string or int)
- * 
+ *
  * @param s string value
  * @param i int value
  */
@@ -74,7 +80,7 @@ typedef union {
 /**
  * @struct arg_t
  * @brief Represents an argument for a command with a type and value.
- * 
+ *
  * @param type Argument type
  * @param value Argument value
  */
@@ -314,7 +320,7 @@ static int load_file_arg(cmd_t *cmd, char *arg) {
  *
  * @param cmd where to store the argument (cmd->id must be correct)
  * @param s arg string (user input after command)
- * 
+ *
  * @return 1 if success, 0 otherwise
  */
 static int parse_arg(cmd_t *cmd, char *s) {

@@ -1,3 +1,9 @@
+/**
+ * @file dis.h
+ *
+ * Disassembler code.
+ */
+
 #ifndef CHIP8_DIS_H
 #define CHIP8_DIS_H
 

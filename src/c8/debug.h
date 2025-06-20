@@ -1,3 +1,9 @@
+/**
+ * @file debug.h
+ *
+ * Stuff related to debug mode.
+ */
+
 #ifndef DEBUG_H
 #define DEBUG_H
 

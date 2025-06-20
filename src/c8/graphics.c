@@ -1,3 +1,9 @@
+/**
+ * @file graphics.c
+ *
+ * Backend-agnostic graphics-related functions
+ */
+
 #include "graphics.h"
 
 /**

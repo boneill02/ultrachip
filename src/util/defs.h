@@ -1,3 +1,9 @@
+/**
+ * @file defs.h
+ *
+ * Base CHIP-8 definitions/macros
+ */
+
 #ifndef CHIP8_DEFS_H
 #define CHIP8_DEFS_H
 

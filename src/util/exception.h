@@ -1,3 +1,10 @@
+/**
+ * @file exception.h
+ *
+ * Stuff for safe handling of files and mallocs, and debug-friendly error codes
+ * and messages when something goes wrong.
+ */
+
 #ifndef CHIP8_EXCEPTION_H
 #define CHIP8_EXCEPTION_H
 
@@ -47,6 +54,9 @@
 #define FAILED_GRAPHICS_INITIALIZATION_EXCEPTION_MESSAGE "Failed to initialize graphics."
 #define INVALID_FONT_EXCEPTION_MESSAGE "Invalid font."
 
+/**
+ * Message to print when calling `safe_exit` with a non-zero code
+ */
 extern char exception[EXCEPTION_MESSAGE_SIZE];
 
 void *safe_calloc(size_t, size_t);

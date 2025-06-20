@@ -1,3 +1,9 @@
+/**
+ * @file symbol.h
+ *
+ * Stuff for parsing symbols and instructions
+ */
+
 #ifndef CHIP8_SYMBOL_H
 #define CHIP8_SYMBOL_H
 
@@ -49,9 +55,9 @@
 /**
  * @enum Instruction
  * @brief Represents instruction types
- * 
+ *
  * This enumeration defines all possible CHIP-8 instructions.
- * 
+ *
  * NOTE: values to be kept in same order as `instructionStrings`
  */
 typedef enum {
@@ -86,10 +92,10 @@ typedef enum {
 /**
  * @enum Symbol
  * @brief Represents symbol types
- * 
+ *
  * This enumeration defines all symbol types found during the first assembler
  * pass.
- * 
+ *
  * NOTE: values before label need to be kept in same order as `identifierStrings`
  */
 typedef enum {
@@ -119,10 +125,10 @@ typedef enum {
 /**
  * @struct instruction_format_t
  * @brief Represents a valid instruction format
- * 
+ *
  * instruction_t's are checked against instruction_format_t's to verify
  * that they will produce valid instructions.
- * 
+ *
  * @param cmd instruction command
  * @param base base hex value of command (without parameters)
  * @param pcount parameter count
@@ -140,10 +146,10 @@ typedef struct {
 /**
  * @struct instruction_t
  * @brief Represents an instruction
- * 
+ *
  * During the second pass, this structure is used to verify the instruction's
  * validity and generate the bytecode.
- * 
+ *
  * @param line line number
  * @param cmd instruction command
  * @param pcount parameter count
@@ -163,9 +169,9 @@ typedef struct {
 /**
  * @struct label_t
  * @brief Represents a label
- * 
+ *
  * Represents a label with an identifier and byte value
- * 
+ *
  * @param identifier string identifier
  * @param byte location of the label
  */
@@ -177,7 +183,7 @@ typedef struct {
 /**
  * @struct label_list_t
  * @brief Represents a list of labels
- * 
+ *
  * @param l pointer to first label
  * @param len length of the list
  * @param ceil maximum length of the list
@@ -191,7 +197,7 @@ typedef struct {
 /**
  * @struct symbol_t
  * @brief Represents a symbol with a type, value, and line number
- * 
+ *
  * @param type symbol type
  * @param value symbol value
  * @param ln line number
@@ -205,7 +211,7 @@ typedef struct {
 /**
  * @struct symbol_list_t
  * @brief Represents a symbol with a type, value, and line number
- * 
+ *
  * @param s pointer to first symbol
  * @param len number of symbols in list
  * @param ceil amount of symbols that can fit in allocated memory

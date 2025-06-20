@@ -1,3 +1,13 @@
+/**
+ * @file graphics.h
+ *
+ * Function declarations for graphics display are here.
+ *
+ * Only `get_pixel` is defined in graphics.c. Declarations are library
+ * agnostic so a different graphics backend can be used.
+ */
+
+
 #ifndef CHIP8_GRAPHICS_H
 #define CHIP8_GRAPHICS_H
 
@@ -16,6 +26,14 @@
 #define DISPLAY_STANDARD 0
 #define DISPLAY_EXTENDED 1
 
+/**
+ * @struct display_t
+ *
+ * @param p pixels (1D array)
+ * @param mode display mode (`DISPLAY_STANDARD` or `DISPLAY_EXTENDED`)
+ * @param x x offset (for `DISPLAY_EXTENDED`)
+ * @param y y offset (for `DISPLAY_EXTENDED`)
+ */
 typedef struct {
 	int p[EXTENDED_DISPLAY_WIDTH * EXTENDED_DISPLAY_HEIGHT];
 	int mode;

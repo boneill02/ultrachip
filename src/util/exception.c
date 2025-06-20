@@ -1,3 +1,10 @@
+/**
+ * @file exception.c
+ *
+ * Stuff for safe handling of files and mallocs, and debug-friendly error codes
+ * and messages when something goes wrong.
+ */
+
 #include "exception.h"
 
 #include "defs.h"
@@ -109,7 +116,7 @@ void *safe_malloc(size_t size) {
 	return NULL;
 }
 
-/** 
+/**
  * @brief calloc some memory of the given size and add to list of mallocs
  *
  * @param size size to calloc
@@ -130,7 +137,7 @@ void *safe_calloc(size_t nmemb, size_t size) {
 	return NULL;
 }
 
-/** 
+/**
  * @brief realloc some memory of the given size and add to list of mallocs
  *
  * @param size size to realloc
@@ -150,7 +157,7 @@ void *safe_realloc(void *ptr, size_t size) {
 	return NULL;
 }
 
-/** 
+/**
  * @brief close all files, free all mallocs, and print exception code/message if exists
  */
 void safe_exit(int status) {

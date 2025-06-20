@@ -1,3 +1,9 @@
+/**
+ * @file font.c
+ *
+ * Stuff related to loading fonts.
+ */
+
 #include "font.h"
 
 #include "chip8.h"
@@ -40,7 +46,7 @@ const char *fontNames[2][5] = {
 
 /**
  * Small fonts.
- * 
+ *
  * From Octo (https://github.com/JohnEarnest/Octo).
  */
 const uint8_t smallFonts[5][80] = {
@@ -61,7 +67,7 @@ const uint8_t smallFonts[5][80] = {
 		0xF0, 0x80, 0x80, 0x80, 0xF0, // C
 		0xE0, 0x90, 0x90, 0x90, 0xE0, // D
 		0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-		0xF0, 0x80, 0xF0, 0x80, 0x80, // F	
+		0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 	},
 	{
 		/* SMALLFONT_VIP */
@@ -143,7 +149,7 @@ const uint8_t smallFonts[5][80] = {
 
 /**
  * Big fonts.
- * 
+ *
  * From Octo (https://github.com/JohnEarnest/Octo).
  */
 const uint8_t bigFonts[3][160] = {
@@ -208,7 +214,7 @@ const uint8_t bigFonts[3][160] = {
 
 /**
  * @brief Loads small and/or big fonts in `c8`
- * 
+ *
  * @param c8 `chip8_t` to set fonts
  * @param small small font identifier (-1 to not set)
  * @param big big font identifier (-1 to not set)
@@ -229,10 +235,10 @@ void set_fonts(chip8_t *c8, int small, int big) {
 
 /**
  * @brief Set fonts from string
- * 
+ *
  * @param c8 `chip8_t` to set fonts
  * @param s string to get fonts from (comma-separated `fontNames` names)
- * 
+ *
  * @return 1 if success, 0 otherwise
  */
 int set_fonts_s(chip8_t *c8, char *s) {
@@ -266,10 +272,10 @@ int set_fonts_s(chip8_t *c8, char *s) {
 
 /**
  * @brief Set small font from `s` (`fontNames` name)
- * 
+ *
  * @param c8 `chip8_t` to set font from
  * @param s string to get font from
- * 
+ *
  * @return 1 if success, 0 otherwise
  */
 int set_small_font(chip8_t *c8, const char *s) {
@@ -286,10 +292,10 @@ int set_small_font(chip8_t *c8, const char *s) {
 
 /**
  * @brief Set big font from `s` (`fontNames` name)
- * 
+ *
  * @param c8 `chip8_t` to set font from
  * @param s string to get font from
- * 
+ *
  * @return 1 if success, 0 otherwise
  */
 int set_big_font(chip8_t *c8, const char *s) {
@@ -306,7 +312,7 @@ int set_big_font(chip8_t *c8, const char *s) {
 
 /**
  * @brief Print fonts (for debug)
- * 
+ *
  * @param c8 `chip8_t` to get fonts from
  */
 void print_fonts(chip8_t *c8) {

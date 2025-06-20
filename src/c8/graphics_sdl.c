@@ -1,3 +1,9 @@
+/**
+ * @file graphics_sdl.c
+ *
+ * SDL2 graphics implementation.
+ */
+
 #include "graphics.h"
 
 #include "util/util.h"
@@ -25,7 +31,7 @@ static SDL_Rect winRect = {
 
 /**
  * Map of all keys to track.
- * 
+ *
  * * `keyMap[x][0]` is `SDL_Keycode`
  * * `keyMap[x][]` is CHIP-8 keycode
  * * `keyMap[16]` enables debug mode / step,

@@ -1,3 +1,9 @@
+/**
+ * @file decode.h
+ *
+ * Stuff for disassembling bytecode.
+ */
+
 #ifndef DECODE_H
 #define DECODE_H
 

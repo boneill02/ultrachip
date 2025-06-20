@@ -1,3 +1,9 @@
+/**
+ * @file dis.c
+ *
+ * Disassembler code.
+ */
+
 #include "dis.h"
 
 #include "util/defs.h"

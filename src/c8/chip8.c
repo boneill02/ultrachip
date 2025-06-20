@@ -1,3 +1,9 @@
+/**
+ * @file chip8.c
+ *
+ * Stuff for simulating and modifying `chip8_t`s.
+ */
+
 #include "chip8.h"
 
 #include "debug.h"
@@ -41,7 +47,7 @@ static int parse_instruction(chip8_t *);
 
 /**
  * @brief Deinitialize graphics and free c8
- * 
+ *
  * @param c8 c8 to free
  */
 void deinit_chip8(chip8_t *c8) {
@@ -80,7 +86,7 @@ chip8_t *init_chip8(const char *path, int flags) {
  *
  * @param colors where to store the color codes
  * @param path location
- * 
+ *
  * @return 1 if success
  */
 int load_palette_arg(int *colors, char *s) {
@@ -114,7 +120,7 @@ int load_palette_arg(int *colors, char *s) {
  *
  * @param colors where to store the color codes
  * @param path palette file location
- * 
+ *
  * @return 1 if success
  */
 int load_palette_file(int *colors, const char *path) {
@@ -143,7 +149,7 @@ int load_palette_file(int *colors, const char *path) {
 
 /**
  * @brief Load quirk flags from string
- * 
+ *
  * @param flags where to store flags
  * @param s string to get quirks from
  */
@@ -201,7 +207,7 @@ void simulate(chip8_t * c8) {
 			c8->flags |= FLAG_DEBUG;
 			step = 1;
 		}
-		
+
 		if (c8->key[17]) {
 			/* Exit debug mode */
 			if (DEBUG(c8)) {
@@ -407,7 +413,7 @@ static int parse_instruction(chip8_t *c8) {
 					/* SUB Vx, Vy */
 					c8->V[0xF] = !BORROWS(c8->V[x], c8->V[y]);
 					c8->V[x] -= c8->V[y];
-					
+
 					return 2;
 				case 0x6:
 					/* SHR Vx, Vy */

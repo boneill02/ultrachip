@@ -1,3 +1,9 @@
+/**
+ * @file parse.c
+ *
+ * Base assembler code
+ */
+
 #include "parse.h"
 
 #include "symbol.h"
@@ -133,9 +139,9 @@ char *remove_comment(char *s) {
 
 /**
  * @brief Get line count of s
- * 
+ *
  * @param s string to count lines from
- * 
+ *
  * @return line count
  */
 static int line_count(const char *s) {
