@@ -38,6 +38,56 @@ char exception_messages[19][EXCEPTION_MESSAGE_SIZE] = {
 void *mallocs[MAX_MALLOCS];
 FILE *files[MAX_FILES];
 
+/**
+ * @brief calloc some memory of the given size and add to list of mallocs
+ *
+ * @param nmemb number of elements
+ * @param size size of each element
+ * @return pointer to memory
+ */
+void *safe_calloc(size_t nmemb, size_t size) {
+	void *m;
+
+	for (int i = 0; i < MAX_MALLOCS; i++) {
+		if (!mallocs[i]) {
+			mallocs[i] = calloc(nmemb, size);
+			return mallocs[i];
+		}
+	}
+
+	safe_exit(TOO_MANY_MALLOCS_EXCEPTION);
+
+	return NULL;
+}
+
+/**
+ * @brief close all files, free all mallocs, and print exception code/message if exists
+ *
+ * @param status exit code
+ */
+void safe_exit(int status) {
+	if (status < -3 && status >= -19) {
+		fprintf(stderr, "%s\n", exception_messages[(status * -1) - 2]);
+	}
+
+	if (strlen(exception)) {
+		fprintf(stderr, "%s\n", exception);
+	}
+
+	for (int i = 0; i < MAX_MALLOCS; i++) {
+		if (mallocs[i]) {
+			free(mallocs[i]);
+		}
+	}
+
+	for (int i = 0; i < MAX_FILES; i++) {
+		if (files[i]) {
+			fclose(files[i]);
+		}
+	}
+
+	exit(status);
+}
 
 /**
  * @brief Close file and remove from list of open files
@@ -117,29 +167,9 @@ void *safe_malloc(size_t size) {
 }
 
 /**
- * @brief calloc some memory of the given size and add to list of mallocs
- *
- * @param size size to calloc
- * @return pointer to memory
- */
-void *safe_calloc(size_t nmemb, size_t size) {
-	void *m;
-
-	for (int i = 0; i < MAX_MALLOCS; i++) {
-		if (!mallocs[i]) {
-			mallocs[i] = calloc(nmemb, size);
-			return mallocs[i];
-		}
-	}
-
-	safe_exit(TOO_MANY_MALLOCS_EXCEPTION);
-
-	return NULL;
-}
-
-/**
  * @brief realloc some memory of the given size and add to list of mallocs
  *
+ * @param ptr old memory pointer
  * @param size size to realloc
  * @return pointer to memory
  */
@@ -155,31 +185,4 @@ void *safe_realloc(void *ptr, size_t size) {
 
 	safe_exit(TOO_MANY_MALLOCS_EXCEPTION);
 	return NULL;
-}
-
-/**
- * @brief close all files, free all mallocs, and print exception code/message if exists
- */
-void safe_exit(int status) {
-	if (status < -3 && status >= -19) {
-		fprintf(stderr, "%s\n", exception_messages[(status * -1) - 2]);
-	}
-
-	if (strlen(exception)) {
-		fprintf(stderr, "%s\n", exception);
-	}
-
-	for (int i = 0; i < MAX_MALLOCS; i++) {
-		if (mallocs[i]) {
-			free(mallocs[i]);
-		}
-	}
-
-	for (int i = 0; i < MAX_FILES; i++) {
-		if (files[i]) {
-			fclose(files[i]);
-		}
-	}
-
-	exit(status);
 }

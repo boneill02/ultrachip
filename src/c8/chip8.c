@@ -85,7 +85,7 @@ chip8_t *init_chip8(const char *path, int flags) {
  * @brief Load palette from the given string into `colors`.
  *
  * @param colors where to store the color codes
- * @param path location
+ * @param s string to load
  *
  * @return 1 if success
  */

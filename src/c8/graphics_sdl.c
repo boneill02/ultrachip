@@ -139,6 +139,7 @@ void render(display_t *display, int *colors) {
  * function will update `key` accordingly.
  *
  * @param key pointer to int arr of keys
+ * @param clockSpeed instructions per second
  *
  * @return -2 if quitting, -1 if no key was pressed/released, else returns value
  * of key pressed/released.

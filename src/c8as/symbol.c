@@ -265,6 +265,7 @@ int is_label_definition(const char *s) {
  * @brief Check if given string is a label reference
  *
  * @param s string to check
+ * @param labels label list to check from
  * @return label index if true, -1 otherwise
  */
 int is_label(const char *s, label_list_t *labels) {

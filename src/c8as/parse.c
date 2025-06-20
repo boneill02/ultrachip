@@ -37,7 +37,7 @@ static int write(uint8_t *, symbol_list_t *, int);
  *
  * @param s string containing assembly code
  * @param out pointer to write bytecode to
- * @param a args
+ * @param args command line arguments
  *
  * @return length of resulting bytecode.
  */
