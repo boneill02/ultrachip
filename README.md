@@ -117,7 +117,7 @@ except for address values.
 
 ## Assembler
 
-The assembler converts CHIP-8 and Super Chip-48 assembly language into bytecode.
+The assembler converts CHIP-8 and SCHIP assembly language into bytecode.
 
 ### Usage
 
