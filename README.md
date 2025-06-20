@@ -152,13 +152,7 @@ By default, `c8dis` will write to `stdout`.
 
 ## Testing
 
-```
-make test
-make test-c8as
-make test-util
-```
-
-Tests are run using [Unity](https://github.com/ThrowTheSwitch/Unity).
+Build [Unity](https://github.com/ThrowTheSwitch/Unity), then `make test`.
 
 
 ## Further Reading
