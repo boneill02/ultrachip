@@ -1,4 +1,4 @@
-#include "libc8/decode.h"
+#include "c8/decode.h"
 
 #include <stdint.h>
 #include <stdlib.h>

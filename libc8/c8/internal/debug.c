@@ -528,7 +528,7 @@ static void print_value(c8_t *c8, cmd_t *cmd) {
 		case ARG_STACK: print_stack(c8); break;
 		case ARG_ADDR:
 			addr = cmd->arg.value.i;
-			printf("$%03x: %04x\t%s\n", addr, c8->mem[addr], decode_instruction(c8->mem[addr], NULL));
+			printf("$%03x: %04x\t%s\n", addr, c8->mem[addr], c8_decode_instruction(c8->mem[addr], NULL));
 			break;
 		default: break; // Should not be reached
 	}
@@ -588,7 +588,7 @@ static int set_value(c8_t *c8, cmd_t *cmd) {
 		case ARG_VK: c8->VK = cmd->arg.value.i; return 1;
 		case ARG_BG: c8->colors[0] = cmd->arg.value.i; return 1;
 		case ARG_FG: c8->colors[1] = cmd->arg.value.i; return 1;
-		case ARG_QUIRKS: c8_load_quirks(&c8->flags, cmd->arg.value.s); return 1;
+		case ARG_QUIRKS: c8_load_quirks(c8, cmd->arg.value.s); return 1;
 		case ARG_BFONT: c8_set_big_font(c8, cmd->arg.value.s); return 1;
 		case ARG_SFONT: c8_set_small_font(c8, cmd->arg.value.s); return 1;
 		default: printf("Invalid argument\n"); return 0;

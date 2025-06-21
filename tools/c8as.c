@@ -1,5 +1,5 @@
-#include "libc8/encode.h"
-#include "libc8/defs.h"
+#include "c8/encode.h"
+#include "c8/defs.h"
 
 #include <stdint.h>
 #include <stdio.h>

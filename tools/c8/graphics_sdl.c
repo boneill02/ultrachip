@@ -17,14 +17,14 @@ static SDL_Renderer *renderer;
 static SDL_Rect pix = {
 	.x = 0,
 	.y = 0,
-	.w = WINDOW_SCALE_X,
-	.h = WINDOW_SCALE_Y,
+	.w = C8_WINDOW_SCALE_X,
+	.h = C8_WINDOW_SCALE_Y,
 };
 static SDL_Rect winRect = {
 	.x = 0,
 	.y = 0,
-	.w = DEFAULT_WINDOW_WIDTH,
-	.h = DEFAULT_WINDOW_HEIGHT,
+	.w = C8_LOW_DISPLAY_WIDTH,
+	.h = C8_LOW_DISPLAY_HEIGHT,
 };
 
 /**
@@ -73,8 +73,14 @@ void deinit_graphics(void) {
  */
 int init_graphics(void) {
 	SDL_Init(SDL_INIT_VIDEO);
-	window = SDL_CreateWindow("CHIP8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
-	if (!window) return 0;
+	window = SDL_CreateWindow("CHIP8",
+	                          SDL_WINDOWPOS_UNDEFINED,
+	                          SDL_WINDOWPOS_UNDEFINED,
+						      C8_DEFAULT_WINDOW_WIDTH, C8_DEFAULT_WINDOW_HEIGHT,
+							  SDL_WINDOW_RESIZABLE);
+	if (!window) {
+		return 0;
+	}
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	return renderer != NULL;
 }
@@ -96,16 +102,16 @@ void render(c8_display_t *display, int *colors) {
 	SDL_SetRenderDrawColor(renderer, RGB_R(colors[1]), RGB_G(colors[1]),
 	                       RGB_B(colors[1]), SDL_ALPHA_OPAQUE);
 
-	if (display->mode == DISPLAY_EXTENDED) {
+	if (display->mode == C8_DISPLAYMODE_HIGH) {
 		dx = display->x;
 		dy = display->y;
 	}
 
-	for (int i = 0; i < STANDARD_DISPLAY_WIDTH; i++) {
-		for (int j = 0; j < STANDARD_DISPLAY_HEIGHT; j++) {
-			if (*get_pixel(display, i + dx, j + dy)) {
-				pix.x = i * WINDOW_SCALE_X;
-				pix.y = j * WINDOW_SCALE_Y;
+	for (int i = 0; i < C8_LOW_DISPLAY_WIDTH; i++) {
+		for (int j = 0; j < C8_LOW_DISPLAY_HEIGHT; j++) {
+			if (*c8_get_pixel(display, i + dx, j + dy)) {
+				pix.x = i * C8_WINDOW_SCALE_X;
+				pix.y = j * C8_WINDOW_SCALE_Y;
 				SDL_RenderFillRect(renderer, &pix);
 			}
 		}
