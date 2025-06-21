@@ -4,6 +4,10 @@
  * SDL2 graphics implementation.
  */
 
+static int makeCompilerWork;
+
+#ifdef SDL2
+
 #include "../graphics.h"
 
 #include <SDL2/SDL.h>
@@ -171,3 +175,5 @@ static int get_key(SDL_Keycode k) {
 	}
 	return -1;
 }
+
+#endif

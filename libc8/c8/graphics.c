@@ -27,7 +27,7 @@ void __attribute__((weak)) c8_render(c8_display_t *display, int *colors) {
 	fprintf(stderr, "c8_render() not implemented.");
 }
 
-int tick(int *key, int clockSpeed) {
+int __attribute__((weak)) c8_tick(int *key, int clockSpeed) {
 	fprintf(stderr, "tick() not implemented.\n");
 	return -1;
 }

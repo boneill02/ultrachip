@@ -1,27 +1,28 @@
 include config.mk
 
-C8 = $(BINDIR)/c8
-C8_SRC = $(TOOLSDIR)/c8.c
-C8_OBJ = $(patsubst $(TOOLSDIR)/%.c, $(OBJDIR)/%.o, $(C8_SRC))
+C8            = $(BINDIR)/c8
+C8_SRC        = $(TOOLSDIR)/c8.c
+C8_OBJ        = $(patsubst $(TOOLSDIR)/%.c, $(OBJDIR)/%.o, $(C8_SRC))
 
-C8AS = $(BINDIR)/c8as
-C8AS_SRC = $(TOOLSDIR)/c8as.c
-C8AS_OBJ = $(patsubst $(TOOLSDIR)/%.c,$(OBJDIR)/%.o,$(C8AS_SRC))
+C8AS          = $(BINDIR)/c8as
+C8AS_SRC      = $(TOOLSDIR)/c8as.c
+C8AS_OBJ      = $(patsubst $(TOOLSDIR)/%.c,$(OBJDIR)/%.o,$(C8AS_SRC))
 
-C8DIS = $(BINDIR)/c8dis
-C8DIS_SRC = $(TOOLSDIR)/c8dis.c
-C8DIS_OBJ = $(patsubst $(TOOLSDIR)/%.c,$(OBJDIR)/%.o,$(C8DIS_SRC))
+C8DIS         = $(BINDIR)/c8dis
+C8DIS_SRC     = $(TOOLSDIR)/c8dis.c
+C8DIS_OBJ     = $(patsubst $(TOOLSDIR)/%.c,$(OBJDIR)/%.o,$(C8DIS_SRC))
 
-LIBC8 = $(LIBDIR)/libc8.a
-LIBC8_SRC = $(LIBC8_SRCDIR)/chip8.c $(LIBC8_SRCDIR)/decode.c \
-            $(LIBC8_SRCDIR)/encode.c $(LIBC8_SRCDIR)/font.c \
-			$(LIBC8_SRCDIR)/graphics.c \
-			$(LIBC8_SRCDIR)/internal/debug.c \
-			$(LIBC8_SRCDIR)/internal/exception.c \
-			$(LIBC8_SRCDIR)/internal/graphics_sdl.c \
-			$(LIBC8_SRCDIR)/internal/symbol.c \
-			$(LIBC8_SRCDIR)/internal/util.c
-LIBC8_OBJ = $(patsubst $(LIBC8_SRCDIR)/%.c,$(LIBOBJDIR)/%.o,$(LIBC8_SRC))
+LIBC8         = $(LIBDIR)/libc8.so
+LIBC8_STATIC  = $(LIBDIR)/libc8.a
+LIBC8_SRC     = $(LIBC8_SRCDIR)/chip8.c $(LIBC8_SRCDIR)/decode.c \
+                $(LIBC8_SRCDIR)/encode.c $(LIBC8_SRCDIR)/font.c \
+			    $(LIBC8_SRCDIR)/graphics.c \
+			    $(LIBC8_SRCDIR)/internal/debug.c \
+			    $(LIBC8_SRCDIR)/internal/exception.c \
+			    $(LIBC8_SRCDIR)/internal/graphics_sdl.c \
+			    $(LIBC8_SRCDIR)/internal/symbol.c \
+			    $(LIBC8_SRCDIR)/internal/util.c
+LIBC8_OBJ     = $(patsubst $(LIBC8_SRCDIR)/%.c,$(LIBOBJDIR)/%.o,$(LIBC8_SRC))
 LIBC8_INCLUDE = $(LIBC8_SRCDIR)/chip8.h $(LIBC8_SRCDIR)/decode.h \
                 $(LIBC8_SRCDIR)/defs.h $(LIBC8_SRCDIR)/encode.h \
 				$(LIBC8_SRCDIR)/graphics.h
@@ -29,18 +30,16 @@ LIBC8_INCLUDE = $(LIBC8_SRCDIR)/chip8.h $(LIBC8_SRCDIR)/decode.h \
 all: c8 c8as c8dis libc8
 
 c8: $(C8)
-	@echo c8 built to $(LIBC8)
-
+	@echo $@ built to $<
 c8as: $(C8AS)
-	@echo c8as built to $(LIBC8)
+	@echo $@ built to $<
 c8dis: $(C8DIS)
-	@echo c8dis built to $(LIBC8)
-
+	@echo $@ built to $<
 libc8: $(LIBC8)
-	@echo libc8 built to $(LIBC8)
+	@echo $@ built to $<
 
 $(LIBOBJDIR)/%.o: $(LIBC8_SRCDIR)/%.c $(LIBOBJDIR)
-	$(CC) $(CFLAGS) -o $@ -c $<
+	$(CC) $(LIBC8_CFLAGS) -o $@ -c $<
 
 $(OBJDIR)/%.o: $(TOOLSDIR)/%.c $(OBJDIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
@@ -54,21 +53,17 @@ $(C8AS): $(C8AS_OBJ) $(LIBC8) $(C8AS_OBJ) $(BINDIR)
 $(C8DIS): $(C8DIS_OBJ) $(LIBC8) $(BINDIR)
 	$(CC) -o $@ $< $(LDFLAGS)
 
-$(LIBC8): $(INCLUDEDIR) $(LIBDIR) $(LIBC8_OBJ)
-	$(AR) $@ $(LIBC8_OBJ) $(SDL2_PATH)
-	cp $(LIBC8_INCLUDE) $(INCLUDEDIR)
+$(LIBC8): $(LIBC8_OBJ) $(LIBC8_STATIC) $(LIBDIR)
+	$(CC) $(LIBC8_LDFLAGS) -o $@ $(LIBC8_OBJ)
 
-print-%:
-	@echo '$*=$($*)'
+$(LIBC8_STATIC): $(LIBC8_OBJ) $(LIBDIR)
+	$(AR) $@ $(LIBC8_OBJ) $(SDL2_PATH)
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
 $(LIBOBJDIR):
 	mkdir -p $(LIBOBJDIR)/internal
-
-$(INCLUDEDIR):
-	mkdir -p $(INCLUDEDIR)
 
 $(BINDIR):
 	mkdir -p $(BINDIR)
@@ -85,7 +80,7 @@ install: $(C8) $(C8DIS) $(C8AS) $(LIBC8)
 	chmod 755 $(INSTALLDIR)/bin/c8as
 	chmod 755 $(INSTALLDIR)/bin/c8dis
 	cp $(LIBC8_INCLUDE) $(INSTALLDIR)/include
-	cp $(LIBC8) $(INSTALLDIR)/lib
+	cp $(LIBC8) $(LIBC8_STATIC) $(INSTALLDIR)/lib
 
 uninstall:
 	rm -rf $(INSTALLDIR)/bin/c8 \
@@ -93,6 +88,7 @@ uninstall:
 		   $(INSTALLDIR)/bin/c8dis \
 		   $(INSTALLDIR)/include/c8 \
 		   $(INSTALLDIR)/lib/libc8.a
+		   $(INSTALLDIR)/lib/libc8.so
 
 .PHONY: all clean install uninstall
 .PHONY: c8 c8as c8dis libc8

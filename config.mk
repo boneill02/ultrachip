@@ -2,9 +2,10 @@ VERSION      = $(shell git rev-parse --short HEAD)
 
 UNITY_PATH   = Unity
 
-# SDL2 stuff (comment for no SDL2 support)
-SDL2_PATH      = SDL2-2.32.8/build/libSDL2.la
-SDL2FLAGS      = -lSDL2
+# SDL2 stuff (uncomment for SDL2 support in libc8)
+#SDL2_PATH      = 
+#SDL2_CFLAGS    = -DSDL2
+#SDL2_LDFLAGS   = -lSDL2
 
 # source paths
 TOOLSDIR       = tools
@@ -27,8 +28,10 @@ MAN_SRCDIR     = doc/man
 INCLUDE_PATHS  = -I$(LIBC8_SRCPREFIX)
 CPPFLAGS       = -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700 \
                  -D_POSIX_C_SOURCE=200809L -DVERSION=\"$(VERSION)\"
-CFLAGS         = -std=gnu99 -pedantic -Werror -O2 -Ilibc8 $(INCLUDES) $(CPPFLAGS)
-LDFLAGS        = -L$(LIBDIR) -lc8 $(SDL2FLAGS)
+CFLAGS         = -std=gnu99 -pedantic -Werror -O2 -Ilibc8 $(INCLUDES) $(CPPFLAGS) $(SDL2_CFLAGS)
+LDFLAGS        = -L$(LIBDIR) -lc8 $(SDL2_LDFLAGS)
+LIBC8_CFLAGS   = $(CFLAGS) -fPIC
+LIBC8_LDFLAGS  = -fPIC -shared -Wl,--version-script=libc8/libc8.version $(SDL2_LDFLAGS)
 
 CC = gcc
 AR = ar rcs
