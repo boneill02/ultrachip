@@ -42,8 +42,8 @@ void handle_exception(int code) {
 		fprintf(stderr, "libc8: %s\n", exception_messages[(code * -1) - 2]);
 	}
 
-	if (strlen(exception)) {
-		fprintf(stderr, "libc8: %s\n", exception);
+	if (strlen(c8_exception)) {
+		fprintf(stderr, "libc8: %s\n", c8_exception);
 	}
 	exit(code);
 }

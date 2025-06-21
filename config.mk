@@ -2,18 +2,22 @@ VERSION      = $(shell git rev-parse --short HEAD)
 
 UNITY_PATH   = Unity
 
+# SDL2 stuff (remove for no SDL2 support)
+SDL2_PATH      = SDL2-2.32.8/build/libSDL2.la
+SDL2FLAGS      = -lSDL2
+
 # source paths
-C8_SRCDIR      = tools/c8
-C8AS_SRCDIR    = tools
-C8DIS_SRCDIR   = tools
+TOOLSDIR       = tools
 LIBC8_SRCDIR   = libc8/c8
 
 # build paths
 BUILDDIR       = build
 OBJDIR         = $(BUILDDIR)/obj
+LIBOBJDIR      = $(BUILDDIR)/obj/libc8
 BINDIR         = $(BUILDDIR)/bin
 INCLUDEDIR     = $(BUILDDIR)/include
 LIBDIR         = $(BUILDDIR)/lib
+SDL2_PATH      = SDL2-2.32.8/build/libSDL2.la
 
 # install paths
 INSTALLDIR     = /usr/local
@@ -25,8 +29,7 @@ INCLUDE_PATHS  = -I$(LIBC8_SRCPREFIX)
 CPPFLAGS       = -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700 \
                  -D_POSIX_C_SOURCE=200809L -DVERSION=\"$(VERSION)\"
 CFLAGS         = -std=gnu99 -pedantic -Werror -O2 -Ilibc8 $(INCLUDES) $(CPPFLAGS)
-LDFLAGS        = -L$(LIBDIR) -lc8
-C8_LIBS        = -lSDL2
+LDFLAGS        = -L$(LIBDIR) -lc8 $(SDL2FLAGS)
 
 CC = gcc
 AR = ar rcs

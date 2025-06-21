@@ -35,5 +35,5 @@ int main(int argc, char *argv[]) {
 	if (outp) {
 		fclose(outf);
 	}
-	safe_exit(1);
+	return 0;
 }

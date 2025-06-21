@@ -4,7 +4,7 @@
  * SDL2 graphics implementation.
  */
 
-#include "c8/graphics.h"
+#include "../graphics.h"
 
 #include <SDL2/SDL.h>
 
@@ -61,7 +61,7 @@ static int get_key(SDL_Keycode k);
 /**
  * @brief Deinitialize the graphics library.
  */
-void deinit_graphics(void) {
+void c8_deinit_graphics(void) {
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
@@ -71,7 +71,7 @@ void deinit_graphics(void) {
  *
  * @return 1 if successful, 0 otherwise.
  */
-int init_graphics(void) {
+int c8_init_graphics(void) {
 	SDL_Init(SDL_INIT_VIDEO);
 	window = SDL_CreateWindow("CHIP8",
 	                          SDL_WINDOWPOS_UNDEFINED,
@@ -91,7 +91,7 @@ int init_graphics(void) {
  * @param display `display_t` to render
  * @param colors colors t
  */
-void render(c8_display_t *display, int *colors) {
+void c8_render(c8_display_t *display, int *colors) {
 	int dx = 0;
 	int dy = 0;
 
@@ -132,7 +132,7 @@ void render(c8_display_t *display, int *colors) {
  * @return -2 if quitting, -1 if no key was pressed/released, else returns value
  * of key pressed/released.
  */
-int tick(int *key, int clockSpeed) {
+int c8_tick(int *key, int clockSpeed) {
 	SDL_Delay(1000 / clockSpeed);
 	SDL_Event e;
 	int ret = -1;

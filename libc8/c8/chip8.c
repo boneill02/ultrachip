@@ -133,14 +133,14 @@ int c8_load_palette_f(c8_t *c8, const char *path) {
 	int c;
 	FILE *f = fopen(path, "r");
 	if (!f) {
-		sprintf(exception, "Failed to open color palette.\n");
+		sprintf(c8_exception, "Failed to open color palette.\n");
 		handle_exception(INVALID_COLOR_PALETTE_EXCEPTION);
 		return 0;
 	}
 	for (int i = 0; i < 2; i++) {
 		fgets(buf + 1, BUFSIZ - 1, f);
 		if ((c = parse_int(buf)) == -1) {
-			sprintf(exception,
+			sprintf(c8_exception,
 			       "Integer parse error while loading color palette\n");
 			handle_exception(INVALID_COLOR_PALETTE_EXCEPTION);
 			return 0;
@@ -350,7 +350,7 @@ static int parse_instruction(c8_t *c8) {
 		case 0x2:
 			/* CALL nnn */
 			if (c8->sp == 15) {
-				sprintf(exception, "PC: %03x", c8->pc);
+				sprintf(c8_exception, "PC: %03x", c8->pc);
 				return STACK_OVERFLOW_EXCEPTION;
 			}
 			c8->stack[c8->sp] = c8->pc;

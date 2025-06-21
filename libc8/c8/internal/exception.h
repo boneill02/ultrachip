@@ -13,17 +13,17 @@
 #define EXCEPTION_MESSAGE_SIZE 64
 
 #define NULLCHECK1(a) if (!(a)) { \
-	sprintf(exception, "At %s", __func__); \
+	sprintf(c8_exception, "At %s", __func__); \
 	handle_exception(NULL_ARGUMENT_EXCEPTION); \
 }
 
 #define NULLCHECK2(a,b) if (!(a) || !(b)) { \
-	sprintf(exception, "At %s", __func__);\
+	sprintf(c8_exception, "At %s", __func__);\
 	handle_exception(NULL_ARGUMENT_EXCEPTION); \
 }
 
 #define NULLCHECK3(a,b,c) if (!(a) || !(b) || !(c)) { \
-	sprintf(exception, "At %s", __func__); \
+	sprintf(c8_exception, "At %s", __func__); \
 	handle_exception(NULL_ARGUMENT_EXCEPTION); \
 }
 
@@ -66,7 +66,7 @@
 /**
  * Message to print when calling `safe_exit` with a non-zero code
  */
-extern char exception[EXCEPTION_MESSAGE_SIZE];
+extern char c8_exception[EXCEPTION_MESSAGE_SIZE];
 
 void handle_exception(int);
 

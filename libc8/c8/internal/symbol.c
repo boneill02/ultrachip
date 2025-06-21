@@ -159,7 +159,7 @@ int build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) {
 			case SYM_INT4:
 				max = max == 0 ? 0xF : max;
 				if (symbols->s[i].value > max) {
-					sprintf(exception, "Line %d: Integer argument too big", symbols->s[i].ln);
+					sprintf(c8_exception, "Line %d: Integer argument too big", symbols->s[i].ln);
 					return INVALID_INSTRUCTION_EXCEPTION;
 				}
 				ins->p[j] = symbols->s[i].value;
@@ -189,7 +189,7 @@ int build_instruction(instruction_t *ins, symbol_list_t *symbols, int idx) {
 
 	ret = parse_instruction(ins);
 	if (ret < 1) {
-		sprintf(exception, "Line: %d\n", ins->line);
+		sprintf(c8_exception, "Line: %d\n", ins->line);
 	}
 
 	return ret;
@@ -236,8 +236,8 @@ int is_dw(const char *s) {
 int is_instruction(const char *s) {
 	NULLCHECK1(s);
 
-	for (int i = 0; instructionStrings[i]; i++) {
-		if (!strcmp(s, instructionStrings[i])) {
+	for (int i = 0; c8InstructionStrings[i]; i++) {
+		if (!strcmp(s, c8InstructionStrings[i])) {
 			return i;
 		}
 	}
@@ -306,8 +306,8 @@ int is_register(const char *s) {
 int is_reserved_identifier(const char *s) {
 	NULLCHECK1(s);
 
-	for (int i = 0; identifierStrings[i]; i++) {
-		if (!strcmp(s, identifierStrings[i])) {
+	for (int i = 0; c8IdentifierStrings[i]; i++) {
+		if (!strcmp(s, c8IdentifierStrings[i])) {
 			return i;
 		}
 	}
@@ -351,7 +351,7 @@ int populate_labels(char **lines, int lineCount, label_list_t *labels) {
 
 	for (int i = 0; i < lineCount; i++) {
 		if (labels->len == labels->ceil) {
-			sprintf(exception, "Line: %d\n", i+1);
+			sprintf(c8_exception, "Line: %d\n", i+1);
 			return TOO_MANY_LABELS_EXCEPTION;
 		}
 
@@ -368,7 +368,7 @@ int populate_labels(char **lines, int lineCount, label_list_t *labels) {
 		if (is_label_definition(lines[i])) {
 			for (int j = 0; j < labels->len; j++) {
 				if (!strncmp(labels->l[j].identifier, lines[i], strlen(labels->l[j].identifier))) {
-					sprintf(exception, "Line: %d\n", i+1);
+					sprintf(c8_exception, "Line: %d\n", i+1);
 					return DUPLICATE_LABEL_EXCEPTION;
 				}
 			}
@@ -433,7 +433,7 @@ int substitute_labels(symbol_list_t *symbols, label_list_t *labels) {
 	for (int i = 0; i < symbols->len; i++) {
 		if (symbols->s[i].type == SYM_LABEL) {
 			if (symbols->s[i].value >= labels->len) {
-				sprintf(exception, "Line: %d\n", symbols->s[i].ln);
+				sprintf(c8_exception, "Line: %d\n", symbols->s[i].ln);
 				return INVALID_SYMBOL_EXCEPTION;
 			}
 			symbols->s[i].type = SYM_INT12;

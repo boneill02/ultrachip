@@ -265,7 +265,7 @@ static int parse_word(char *s, char *next, int ln, symbol_t *sym, label_list_t *
 		return 0;
 	}
 
-	sprintf(exception, "(line %d): %s\n", ln, s);
+	sprintf(c8_exception, "(line %d): %s\n", ln, s);
 	return INVALID_SYMBOL_EXCEPTION;
 }
 
@@ -373,13 +373,13 @@ static int write(uint8_t *output, symbol_list_t *symbols, int args) {
 					}
 					byte += 2;
 				} else {
-					sprintf(exception, "(line %d)\n", ins.line);
+					sprintf(c8_exception, "(line %d)\n", ins.line);
 					return ret;
 				}
 				break;
 			case SYM_DB:
 				if (symbols->s[i].value > UINT8_MAX) {
-					sprintf(exception, "(line %d): DB value too big\n", symbols->s[i].ln);
+					sprintf(c8_exception, "(line %d): DB value too big\n", symbols->s[i].ln);
 					return INVALID_ARGUMENT_EXCEPTION;
 				} else {
 					output[byte] = symbols->s[i].value;

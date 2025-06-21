@@ -38,10 +38,12 @@ typedef struct {
 	int x, y;
 } c8_display_t;
 
-void c8_deinit_graphics(void);
 int *c8_get_pixel(c8_display_t *, int, int);
-int c8_init_graphics(void);
-void c8_render(c8_display_t *, int *);
-int c8_tick(int *, int);
+
+extern void c8_beep(void);
+extern void c8_deinit_graphics(void);
+extern int c8_init_graphics(void);
+extern void c8_render(c8_display_t *, int *);
+extern int c8_tick(int *, int);
 
 #endif
