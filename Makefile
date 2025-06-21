@@ -26,7 +26,18 @@ LIBC8_INCLUDE = $(LIBC8_SRCDIR)/chip8.h $(LIBC8_SRCDIR)/decode.h \
                 $(LIBC8_SRCDIR)/defs.h $(LIBC8_SRCDIR)/encode.h \
 				$(LIBC8_SRCDIR)/graphics.h
 
-all: $(C8) $(C8DIS) $(C8AS) $(LIBC8)
+all: c8 c8as c8dis libc8
+
+c8: $(C8)
+	@echo c8 built to $(LIBC8)
+
+c8as: $(C8AS)
+	@echo c8as built to $(LIBC8)
+c8dis: $(C8DIS)
+	@echo c8dis built to $(LIBC8)
+
+libc8: $(LIBC8)
+	@echo libc8 built to $(LIBC8)
 
 $(LIBOBJDIR)/%.o: $(LIBC8_SRCDIR)/%.c $(LIBOBJDIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
@@ -51,35 +62,37 @@ print-%:
 	@echo '$*=$($*)'
 
 $(OBJDIR):
-	mkdir -pv $(OBJDIR)
+	mkdir -p $(OBJDIR)
 
 $(LIBOBJDIR):
-	mkdir -pv $(LIBOBJDIR)/internal
+	mkdir -p $(LIBOBJDIR)/internal
 
 $(INCLUDEDIR):
-	mkdir -pv $(INCLUDEDIR)
+	mkdir -p $(INCLUDEDIR)
 
 $(BINDIR):
-	mkdir -pv $(BINDIR)
+	mkdir -p $(BINDIR)
 
 $(LIBDIR):
-	mkdir -pv $(LIBDIR)
+	mkdir -p $(LIBDIR)
 
 clean:
-	rm -rfv $(BUILDDIR)
+	rm -rf $(BUILDDIR)
 
 install: $(C8) $(C8DIS) $(C8AS) $(LIBC8)
-	cp -v $(C8) $(C8DIS) $(C8AS_TARG) $(INSTALLDIR)/bin
-	chmod 755 $(INSTALLDIR)/bin/$(C8)
-	chmod 755 $(INSTALLDIR)/bin/$(C8AS)
-	chmod 755 $(INSTALLDIR)/bin/$(C8DIS)
+	cp $(C8) $(C8AS) $(C8DIS) $(INSTALLDIR)/bin
+	chmod 755 $(INSTALLDIR)/bin/c8
+	chmod 755 $(INSTALLDIR)/bin/c8as
+	chmod 755 $(INSTALLDIR)/bin/c8dis
+	cp $(LIBC8_INCLUDE) $(INSTALLDIR)/include
+	cp $(LIBC8) $(INSTALLDIR)/lib
 
 uninstall:
-	rm -rfv $(INSTALLDIR)/bin/$(C8) \
-	      $(INSTALLDIR)/bin/$(C8DIS) \
-		  $(INSTALLDIR)/bin/$(C8AS) \
-		  $(INSTALLDIR)/include/c8 \
-		  $(INSTALLDIR)/lib/$(LIBC8)
+	rm -rf $(INSTALLDIR)/bin/c8 \
+	       $(INSTALLDIR)/bin/c8as \
+		   $(INSTALLDIR)/bin/c8dis \
+		   $(INSTALLDIR)/include/c8 \
+		   $(INSTALLDIR)/lib/libc8.a
 
 .PHONY: all clean install uninstall
-.PHONY: $(C8) $(C8DIS) $(C8AS) $(LIBC8)
+.PHONY: c8 c8as c8dis libc8

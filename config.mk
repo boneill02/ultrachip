@@ -2,7 +2,7 @@ VERSION      = $(shell git rev-parse --short HEAD)
 
 UNITY_PATH   = Unity
 
-# SDL2 stuff (remove for no SDL2 support)
+# SDL2 stuff (comment for no SDL2 support)
 SDL2_PATH      = SDL2-2.32.8/build/libSDL2.la
 SDL2FLAGS      = -lSDL2
 
@@ -17,7 +17,6 @@ LIBOBJDIR      = $(BUILDDIR)/obj/libc8
 BINDIR         = $(BUILDDIR)/bin
 INCLUDEDIR     = $(BUILDDIR)/include
 LIBDIR         = $(BUILDDIR)/lib
-SDL2_PATH      = SDL2-2.32.8/build/libSDL2.la
 
 # install paths
 INSTALLDIR     = /usr/local
