@@ -1,7 +1,7 @@
-#include "chip8.h"
-#include "font.h"
-#include "util/exception.h"
-#include "util/util.h"
+#include "c8/chip8.h"
+#include "c8/interpret/font.h"
+#include "c8/exception.h"
+#include "c8/util.h"
 
 #include <stdio.h>
 #include <stdlib.h>

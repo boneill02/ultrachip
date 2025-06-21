@@ -4,9 +4,7 @@
  * SDL2 graphics implementation.
  */
 
-#include "graphics.h"
-
-#include "util/util.h"
+#include "c8/graphics.h"
 
 #include <SDL2/SDL.h>
 
@@ -69,22 +67,6 @@ void deinit_graphics(void) {
 }
 
 /**
- * @brief Convert the given SDL Keycode to a CHIP-8 keycode.
- *
- * @param k the SDL_Keycode
- *
- * @return the CHIP-8 keycode
- */
-static int get_key(SDL_Keycode k) {
-	for (int i = 0; i < 18; i++) {
-		if (keyMap[i][0] == k) {
-			return keyMap[i][1];
-		}
-	}
-	return -1;
-}
-
-/**
  * @brief Initialize the graphics library.
  *
  * @return 1 if successful, 0 otherwise.
@@ -103,7 +85,7 @@ int init_graphics(void) {
  * @param display `display_t` to render
  * @param colors colors t
  */
-void render(display_t *display, int *colors) {
+void render(c8_display_t *display, int *colors) {
 	int dx = 0;
 	int dy = 0;
 
@@ -166,4 +148,20 @@ int tick(int *key, int clockSpeed) {
 	}
 
 	return ret > 15 ? -1 : ret;
+}
+
+/**
+ * @brief Convert the given SDL Keycode to a CHIP-8 keycode.
+ *
+ * @param k the SDL_Keycode
+ *
+ * @return the CHIP-8 keycode
+ */
+static int get_key(SDL_Keycode k) {
+	for (int i = 0; i < 18; i++) {
+		if (keyMap[i][0] == k) {
+			return keyMap[i][1];
+		}
+	}
+	return -1;
 }

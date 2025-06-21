@@ -1,64 +1,63 @@
-include mk/config/config.mk
+include config.mk
 
-C8_SRC = $(C8_SRCPREFIX)/chip8.c $(C8_SRCPREFIX)/debug.c \
-		 $(C8_SRCPREFIX)/font.c $(C8_SRCPREFIX)/graphics.c \
-		 $(C8_SRCPREFIX)/graphics_sdl.c $(C8_SRCPREFIX)/main.c \
-		 $(UTILPREFIX)/decode.c $(UTILPREFIX)/exception.c $(UTILPREFIX)/util.c
+C8 = c8
+C8_SRC = $(C8_SRCDIR)/main.c $(C8_SRCDIR)/graphics_sdl.c
 C8_OBJ = $(patsubst %.c, %.o, $(C8_SRC))
-C8_TARG = c8
 
-C8AS_SRC = $(C8AS_SRCPREFIX)/main.c $(C8AS_SRCPREFIX)/parse.c \
-           $(C8AS_SRCPREFIX)/symbol.c $(UTILPREFIX)/exception.c \
-		   $(UTILPREFIX)/util.c
-C8AS_OBJ = $(patsubst %.c, %.o, $(C8AS_SRC))
-C8AS_TARG = c8as
+C8AS = c8as
+C8AS_SRC = c8as.c
+C8DIS_OBJ = $(patsubst $(C8DIS_SRCDIR)/%.c,$(OBJDIR)/%.o,$(LIBC8_SRC))
 
-C8DIS_SRC = $(C8DIS_SRCPREFIX)/dis.c $(C8DIS_SRCPREFIX)/main.c \
-            $(UTILPREFIX)/decode.c $(UTILPREFIX)/exception.c \
-			$(UTILPREFIX)/util.c
-C8DIS_OBJ = $(patsubst %.c, %.o, $(C8DIS_SRC))
-C8DIS_TARG = c8dis
+C8DIS = c8dis
+C8DIS_SRC = c8dis.c
+C8DIS_OBJ = $(patsubst $(C8DIS_SRCDIR)/%.c,$(OBJDIR)/%.o,$(LIBC8_SRC))
 
-all: $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG)
+LIBC8 = libc8.a
+LIBC8_SRC = $(LIBC8_SRCDIR)/decode.c $(LIBC8_SRCDIR)/encode.c \
+			$(LIBC8_SRCDIR)/font.c $(LIBC8_SRCIR)/graphics.c \
+			$(LIBC8_SRCDIR)/symbol.c $(LIBC8_SRCDIR)/util.c \
+			$(LIBC8_SRCDIR)/internal/debug.c \
+			$(LIBC8_SRCDIR)/internal/exception.c \
+			$(LIBC8_SRCDIR)/internal/symbol.c \
+			$(LIBC8_SRCDIR)/internal/util.c
+LIBC8_OBJ = $(patsubst $(LIBC8_SRCDIR)/%.c,$(OBJDIR)/%.o,$(LIBC8_SRC))
+LIBC8_INCLUDE = chip8.h decode.h defs.h encode.h graphics.h
+
+all: $(C8) $(C8DIS) $(C8AS) $(LIBC8)
 
 .c.o:
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-$(C8_TARG): $(C8_OBJ)
+$(C8): $(C8_OBJ) $(LIBC8)
 	$(CC) -o $@ $(C8_OBJ) $(LDFLAGS) $(C8_LIBS)
 
-$(C8AS_TARG): $(C8AS_OBJ)
+$(C8AS): $(C8AS_OBJ) $(LIBC8)
 	$(CC) -o $@ $(C8AS_OBJ) $(LDFLAGS)
 
-$(C8DIS_TARG): $(C8DIS_OBJ)
+$(C8DIS): $(C8DIS_OBJ) $(LIBC8)
 	$(CC) -o $@ $(C8DIS_OBJ) $(LDFLAGS)
 
+$(LIBC8_INCLUDE):
+	cp -f $(LIBC8_INCLUDE) $(INCLUDE_PATH)
+
+$(LIBC8): $(LIBC8_OBJ) $(LIBC8_INCLUDE)
+	$(AR) $@ $(LIBC8_OBJ)
+
 clean:
-	rm -rf $(C8_TARG) $(C8_OBJ) $(C8DIS_TARG) $(C8DIS_OBJ) $(C8AS_TARG) \
-	      $(C8AS_OBJ) build/
+	rm -f $(OBJDIR)/* $(BINDIR)/* $(LIBDIR)/* $(INCLUDEDIR)/*
 
-install: $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG)
-	cp $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG) $(PREFIX)/bin
-	chmod 755 $(DESTDIR)$(PREFIX)/bin/$(C8_TARG)
-	chmod 755 $(DESTDIR)$(PREFIX)/bin/$(C8AS_TARG)
-	chmod 755 $(DESTDIR)$(PREFIX)/bin/$(C8DIS_TARG)
-
-
-test-util: $(UNITY_PATH)
-	@make -f mk/test-util.mk
-
-test-c8as: $(UNITY_PATH)
-	@make -f mk/test-c8as.mk
-
-test-c8: $(UNITY_PATH)
-	@make -f mk/test-c8.mk
-
-test: test-util test-c8as test-c8
+install: $(C8) $(C8DIS) $(C8AS) $(LIBC8)
+	cp $(C8) $(C8DIS) $(C8AS_TARG) $(INSTALLDIR)/bin
+	chmod 755 $(INSTALLDIR)/bin/$(C8)
+	chmod 755 $(INSTALLDIR)/bin/$(C8AS)
+	chmod 755 $(INSTALLDIR)/bin/$(C8DIS)
 
 uninstall:
-	rm -f $(DESTDIR)$(PREFIX)/bin/$(C8_TARG) \
-	      $(DESTDIR)$(PREFIX)/bin/$(C8DIS_TARG) \
-		  $(DESTDIR)$(PREFIX)/bin/
+	rm -rf $(INSTALLDIR)/bin/$(C8) \
+	      $(INSTALLDIR)/bin/$(C8DIS) \
+		  $(INSTALLDIR)/bin/$(C8AS) \
+		  $(INSTALLDIR)/include/c8 \
+		  $(INSTALLDIR)/lib/$(LIBC8)
 
-.PHONY: all $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG) clean install uninstall
-.PHONY: test-c8 test-c8as test-util
+.PHONY: all clean install uninstall
+.PHONY: $(C8_TARG) $(C8DIS_TARG) $(C8AS_TARG) $(LIBC8_TARG)
