@@ -1,8 +1,8 @@
 /**
- * @file exception.c
- *
- * Stuff for safe handling of files and mallocs, and debug-friendly error codes
- * and messages when something goes wrong.
+ * @file libc8/internal/exception.c
+ * @note NOT EXPORTED
+ * 
+ * Stuff for handling exceptions.
  */
 
 #include "exception.h"
@@ -34,8 +34,6 @@ char exception_messages[19][EXCEPTION_MESSAGE_SIZE] = {
 	FAILED_GRAPHICS_INITIALIZATION_EXCEPTION_MESSAGE,
 	INVALID_FONT_EXCEPTION_MESSAGE,
 };
-
-int c8_exit_on_exception = 1;
 
 void handle_exception(int code) {
 	if (code < -3 && code >= -19) {

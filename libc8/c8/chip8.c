@@ -1,7 +1,7 @@
 /**
- * @file chip8.c
+ * @file libc8/chip8.c
  *
- * Stuff for simulating and modifying `chip8_t`s.
+ * Stuff for simulating and modifying `c8_t`s.
  */
 
 #include "chip8.h"
@@ -58,16 +58,16 @@ void c8_deinit(c8_t *c8) {
 }
 
 /**
- * @brief Initialize and return a `chip8_t` with the given flags
+ * @brief Initialize and return a `c8_t` with the given flags
  *
- * This function allocates memory for a new `chip8_t` with all values set to 0
+ * This function allocates memory for a new `c8_t` with all values set to 0
  * or their default values, adds the font to memory, inititializes the graphics
- * system, and returns a pointer to the `chip8_t`.
+ * system, and returns a pointer to the `c8_t`.
  *
  * @param path path to ROM file
  * @param flags flags
  *
- * @return pointer to initialized `chip8_t`.
+ * @return pointer to initialized `c8_t`.
  */
 c8_t *c8_init(const char *path, int flags) {
 	NULLCHECK1(path);
@@ -177,7 +177,7 @@ void c8_load_quirks(c8_t *c8, const char *s) {
 /**
  * @brief Main interpreter simulation loop. Exits when `c8->running` is 0.
  *
- * @param c8 the `chip8_t` to simulate
+ * @param c8 the `c8_t` to simulate
  */
 void c8_simulate(c8_t * c8) {
 	int t;
@@ -259,7 +259,7 @@ void c8_simulate(c8_t * c8) {
 /**
  * @brief Load a ROM to `c8->mem` at path `addr`.
  *
- * @param c8 `chip8_t` to store the ROM's contents
+ * @param c8 `c8_t` to store the ROM's contents
  * @param addr path to the ROM
  *
  * @return 1 if success.
@@ -294,7 +294,7 @@ static int load_rom(c8_t *c8, const char *addr) {
  *
  * If verbose flag is set, this will print the instruction to `stdout` as well.
  *
- * @param c8 the `chip8_t` to execute the instruction from
+ * @param c8 the `c8_t` to execute the instruction from
  * @return amount to increase PC or exception code
  */
 static int parse_instruction(c8_t *c8) {

@@ -1,6 +1,7 @@
 /**
- * @file debug.c
- *
+ * @file libc8/internal/debug.c
+ * @note NOT EXPORTED
+ * 
  * Stuff related to debug mode.
  */
 
@@ -217,7 +218,7 @@ int debug_repl(c8_t *c8) {
 /**
  * @brief Check if breakpoint exists at address pc
  *
- * @param c8 `chip8_t` to check breakpoints of
+ * @param c8 `c8_t` to check breakpoints of
  * @param pc address to check for breakpoint at
  * @return 1 if yes, 0 if no
  */
@@ -283,7 +284,7 @@ static void load_flags(c8_t *c8, const char *path) {
 }
 
 /**
- * @brief Load `chip8_t` from file.
+ * @brief Load `c8_t` from file.
  *
  * @param c8 struct to load to
  * @param path path to load from
@@ -326,6 +327,7 @@ static int load_file_arg(cmd_t *cmd, char *arg) {
 static int parse_arg(cmd_t *cmd, char *s) {
 	arg_t *arg = &cmd->arg;
 	char *value;
+	int argsCount = sizeof(args) / sizeof(args[0]);
 
 	arg->type = ARG_NONE;
 
@@ -340,7 +342,7 @@ static int parse_arg(cmd_t *cmd, char *s) {
 	}
 
 	/* Try to match with keywords */
-	for (int i = 0; i < sizeof(args) / sizeof(args[0]); i++) {
+	for (int i = 0; i < argsCount; i++) {
 		if (!strcmp(s, args[i])) {
 			printf("%s", s);
 			arg->type = (Argument) i;
@@ -361,7 +363,7 @@ static int parse_arg(cmd_t *cmd, char *s) {
 		}
 	}
 
-	for (int i = 0; i < sizeof(args) / sizeof(args[0]); i++) {
+	for (int i = 0; i < argsCount; i++) {
 		if (!strcmp(s, args[i])) {
 			arg->type = (Argument) i;
 		}
@@ -402,6 +404,11 @@ static void print_help(void) {
 	printf("%s\n", DEBUG_HELP_STRING);
 }
 
+/**
+ * @brief print quirk identifiers in `flags`
+ * 
+ * @param flags flags to get enabled quirks from
+ */
 static void print_quirks(int flags) {
 	int f = 0;
 	printf("Quirks: ");
@@ -537,7 +544,7 @@ static void print_value(c8_t *c8, cmd_t *cmd) {
 /**
  * @brief Save flag registers to file.
  *
- * @param c8 `chip8_t` to grab flag registers from
+ * @param c8 `c8_t` to grab flag registers from
  * @param path path to save to
  */
 static void save_flags(c8_t *c8, const char *path) {
@@ -551,9 +558,9 @@ static void save_flags(c8_t *c8, const char *path) {
 }
 
 /**
- * @brief Save `chip8_t` to file.
+ * @brief Save `c8_t` to file.
  *
- * @param c8 `chip8_t` to save
+ * @param c8 `c8_t` to save
  * @param path path to save to
  */
 static void save_state(c8_t *c8, const char *path) {

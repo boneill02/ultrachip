@@ -1,5 +1,5 @@
 /**
- * @file decode.h
+ * @file libc8/decode.h
  *
  * Stuff for disassembling bytecode.
  */

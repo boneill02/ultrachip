@@ -1,10 +1,11 @@
 /**
- * @file graphics_sdl.c
- *
- * SDL2 graphics implementation.
+ * @file libc8/internal/graphics_sdl.c
+ * 
+ * SDL2 graphics implementation. When `SDL2` is defined, overrides weak
+ * graphics utility function definitions in `graphics.c`.
  */
 
-static int makeCompilerWork;
+static int makeCompilerWork; // Suppress empty translation unit error
 
 #ifdef SDL2
 

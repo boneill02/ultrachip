@@ -1,5 +1,5 @@
 /**
- * @file font.h
+ * @file libc8/font.h
  *
  * Stuff related to loading fonts.
  */

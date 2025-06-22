@@ -1,9 +1,9 @@
 /**
- * @file graphics.h
+ * @file libc8/graphics.h
  *
  * Function declarations for graphics display are here.
  *
- * Only `get_pixel` is defined in graphics.c. Declarations are library
+ * Only `get_pixel` is strongly defined in graphics.c. Declarations are library
  * agnostic so a different graphics backend can be used.
  */
 

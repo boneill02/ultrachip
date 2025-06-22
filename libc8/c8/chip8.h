@@ -1,7 +1,7 @@
 /**
- * @file chip8.h
+ * @file libc8/chip8.h
  *
- * Stuff for simulating and modifying `chip8_t`s.
+ * Stuff for simulating and modifying `c8_t`s.
  */
 
 #ifndef LIBC8_CHIP8_H
@@ -24,7 +24,7 @@
 #define C8_FLAG_QUIRK_JUMP 0x40
 
 /**
- * @struct chip8_t
+ * @struct c8_t
  * @brief Represents current state of the CHIP-8 interpreter
  *
  * @param mem CHIP-8 memory

@@ -1,6 +1,7 @@
 /**
- * @file util.h
- *
+ * @file libc8/internal/util.h
+ * @note NOT EXPORTED
+ * 
  * Miscellaneous useful functions.
  */
 

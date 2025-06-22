@@ -1,8 +1,8 @@
 /**
- * @file exception.h
- *
- * Stuff for safe handling of files and mallocs, and debug-friendly error codes
- * and messages when something goes wrong.
+ * @file libc8/internal/exception.h
+ * @note NOT EXPORTED
+ * 
+ * Stuff for handling exceptions.
  */
 
 #ifndef LIBC8_EXCEPTION_H
@@ -64,7 +64,7 @@
 #define INVALID_FONT_EXCEPTION_MESSAGE "Invalid font."
 
 /**
- * Message to print when calling `safe_exit` with a non-zero code
+ * Message to print when calling `handle_exception` with a non-zero code
  */
 extern char c8_exception[EXCEPTION_MESSAGE_SIZE];
 

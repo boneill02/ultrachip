@@ -1,5 +1,6 @@
 /**
- * @file debug.h
+ * @file libc8/internal/debug.h
+ * @note NOT EXPORTED
  *
  * Stuff related to debug mode.
  */
