@@ -94,7 +94,7 @@ int c8_init_graphics(void) {
  * Render the given display to the SDL2 window.
  *
  * @param display `display_t` to render
- * @param colors colors t
+ * @param colors colors to render
  */
 void c8_render(c8_display_t *display, int *colors) {
 	int dx = 0;
