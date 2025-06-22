@@ -35,7 +35,7 @@ c8as: $(C8AS)
 	@echo $@ built to $<
 c8dis: $(C8DIS)
 	@echo $@ built to $<
-libc8: $(LIBC8)
+libc8: $(LIBC8) $(LIBC8_STATIC)
 	@echo $@ built to $<
 
 $(LIBOBJDIR)/%.o: $(LIBC8_SRCDIR)/%.c $(LIBOBJDIR)
@@ -53,7 +53,7 @@ $(C8AS): $(C8AS_OBJ) $(LIBC8) $(C8AS_OBJ) $(BINDIR)
 $(C8DIS): $(C8DIS_OBJ) $(LIBC8) $(BINDIR)
 	$(CC) -o $@ $< $(LDFLAGS)
 
-$(LIBC8): $(LIBC8_OBJ) $(LIBC8_STATIC) $(LIBDIR)
+$(LIBC8): $(LIBC8_OBJ) $(LIBDIR)
 	$(CC) $(LIBC8_LDFLAGS) -o $@ $(LIBC8_OBJ)
 
 $(LIBC8_STATIC): $(LIBC8_OBJ) $(LIBDIR)
@@ -74,7 +74,7 @@ $(LIBDIR):
 clean:
 	rm -rf $(BINDIR) $(LIBDIR) $(OBJDIR)
 
-install: $(C8) $(C8DIS) $(C8AS) $(LIBC8)
+install: $(C8) $(C8DIS) $(C8AS) $(LIBC8) $(LIBC8_STATIC)
 	cp $(C8) $(C8AS) $(C8DIS) $(INSTALLDIR)/bin
 	chmod 755 $(INSTALLDIR)/bin/c8
 	chmod 755 $(INSTALLDIR)/bin/c8as

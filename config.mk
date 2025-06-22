@@ -2,10 +2,10 @@ VERSION      = $(shell git rev-parse --short HEAD)
 
 UNITY_PATH   = Unity
 
-# SDL2 stuff (comment for no SDL2 support in libc8)
-SDL2_PATH      = 
-SDL2_CFLAGS    = -DSDL2
-SDL2_LDFLAGS   = -lSDL2
+# SDL2 stuff (uncomment for SDL2 support in libc8)
+#SDL2_PATH      = /usr/lib
+#SDL2_CFLAGS    = -DSDL2
+#SDL2_LDFLAGS   = -lSDL2
 
 # source paths
 TOOLSDIR       = tools
