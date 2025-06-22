@@ -1,23 +1,35 @@
-# CHIP-8 Toolkit
+# libc8
 
-This is a interpreter, assembler, and disassembler for the CHIP-8 written in C,
-utilizing the SDL2 library for graphics.
+This is a C library for interpreting, assembling, and disassembling CHIP-8 and
+SCHIP code, optionally utilizing the SDL2 library for graphics.
 
-## Installation
+An example assembler, disassembler, and interpreter is located in `tools/`.
 
-Make sure you have the following dependencies installed:
+## Building
 
-* libsdl2
+`make libc8`
 
-```
-make
-sudo make install
-```
+### SDL2
+
+SDL2 support is disabled by default. To enable, uncomment the SDL2-related flags
+in `config.mk` and set `SDL2_PATH` to the directory containing your `libsdl2.so`
+and `libsdl2.la` (if building libc8 statically) files.
+
+### Other graphics libraries
+
+Any C graphics library can be used with libc8. To use a graphics library other
+than SDL2, make sure the SDL2 flags in `config.mk` are commented out before
+building libc8, and implement the following functions in your code:
+
+* `void c8_deinit_graphics(void)`
+* `int c8_init_graphics(void)`
+* `void c8_render(c8_display_t *, int *)`
+* `int c8_tick(int *, int)`
 
 ## CHIP-8 Interpreter
 
 This is a fully functional CHIP-8 and SCHIP interpreter with an
-integrated debug mode.
+integrated debug mode, utilizing libc8 with SDL2.
 
 ### Usage
 
@@ -117,7 +129,7 @@ except for address values.
 
 ## Assembler
 
-The assembler converts CHIP-8 and SCHIP assembly language into bytecode.
+This is an assembler for the CHIP-8 and SCHIP, utilizing libc8.
 
 ### Usage
 
@@ -134,8 +146,7 @@ insensitive. See `examples/c8as` for example code.
 
 ## Disassembler
 
-The disassembler converts a ROM's bytecode into human-readable assembly
-instructions.
+This is a disassembler for the CHIP-8 and SCHIP, utilizing libc8.
 
 ### Usage
 
@@ -153,7 +164,6 @@ By default, `c8dis` will write to `stdout`.
 ## Testing
 
 Build [Unity](https://github.com/ThrowTheSwitch/Unity), then `make test`.
-
 
 ## Further Reading
 
