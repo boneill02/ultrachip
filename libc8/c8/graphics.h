@@ -1,5 +1,5 @@
 /**
- * @file libc8/graphics.h
+ * @file c8/graphics.h
  *
  * Function declarations for graphics display are here.
  *

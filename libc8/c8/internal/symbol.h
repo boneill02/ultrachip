@@ -1,5 +1,5 @@
 /**
- * @file libc8/internal/symbol.h
+ * @file c8/internal/symbol.h
  * @note NOT EXPORTED
  *
  * Stuff for parsing symbols and instructions for encoding CHIP-8 "assembly".

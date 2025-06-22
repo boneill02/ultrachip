@@ -1,5 +1,5 @@
 /**
- * @file libc8/chip8.h
+ * @file c8/chip8.h
  *
  * Stuff for simulating and modifying `c8_t`s.
  */

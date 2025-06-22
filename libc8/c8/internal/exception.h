@@ -1,5 +1,5 @@
 /**
- * @file libc8/internal/exception.h
+ * @file c8/internal/exception.h
  * @note NOT EXPORTED
  * 
  * Stuff for handling exceptions.

@@ -1,5 +1,5 @@
 /**
- * @file libc8/chip8.c
+ * @file c8/chip8.c
  *
  * Stuff for simulating and modifying `c8_t`s.
  */
@@ -86,7 +86,7 @@ c8_t *c8_init(const char *path, int flags) {
 /**
  * @brief Load palette from the given string into `colors`.
  *
- * @param colors where to store the color codes
+ * @param c8 where to store the color codes
  * @param s string to load
  *
  * @return 1 if success
@@ -120,7 +120,7 @@ int c8_load_palette_s(c8_t *c8, char *s) {
 /**
  * @brief Load palette from the given path into `colors`.
  *
- * @param colors where to store the color codes
+ * @param c8 where to store the color codes
  * @param path palette file location
  *
  * @return 1 if success

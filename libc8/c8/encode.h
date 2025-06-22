@@ -1,5 +1,5 @@
 /**
- * @file libc8/encode.h
+ * @file c8/encode.h
  *
  * Base assembler code
  */

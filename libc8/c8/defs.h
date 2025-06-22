@@ -1,5 +1,5 @@
 /**
- * @file libc8/defs.h
+ * @file c8/defs.h
  *
  * Base CHIP-8 definitions/macros
  */

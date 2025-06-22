@@ -1,5 +1,5 @@
 /**
- * @file libc8/graphics.c
+ * @file c8/graphics.c
  *
  * Backend-agnostic graphics-related functions
  */
