@@ -72,7 +72,7 @@ $(LIBDIR):
 	mkdir -p $(LIBDIR)
 
 clean:
-	rm -rf $(BUILDDIR)
+	rm -rf $(BINDIR) $(LIBDIR) $(OBJDIR)
 
 install: $(C8) $(C8DIS) $(C8AS) $(LIBC8)
 	cp $(C8) $(C8AS) $(C8DIS) $(INSTALLDIR)/bin
@@ -87,7 +87,7 @@ uninstall:
 	       $(INSTALLDIR)/bin/c8as \
 		   $(INSTALLDIR)/bin/c8dis \
 		   $(INSTALLDIR)/include/c8 \
-		   $(INSTALLDIR)/lib/libc8.a
+		   $(INSTALLDIR)/lib/libc8.a \
 		   $(INSTALLDIR)/lib/libc8.so
 
 .PHONY: all clean install uninstall
