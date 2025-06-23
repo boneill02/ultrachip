@@ -10,8 +10,6 @@
 int main(int argc, char *argv[]) {
 	c8_t *c8 = c8_init(argv[argc - 1], 0);
 	int opt;
-	int cs = 0;
-	int flags = 0;
 	char *fontstr = NULL;
 
 	srand(time(NULL));
@@ -19,12 +17,12 @@ int main(int argc, char *argv[]) {
 	/* Parse args */
 	while ((opt = getopt(argc, argv, "c:df:p:P:q:vV")) != -1) {
 		switch (opt) {
-			case 'c': cs = atoi(optarg); break;
-			case 'd': flags |= C8_FLAG_DEBUG; break;
+			case 'c': c8->cs = atoi(optarg); break;
+			case 'd': c8->flags |= C8_FLAG_DEBUG; break;
 			case 'f': fontstr = optarg; break;
 			case 'p': c8_load_palette_f(c8, optarg); break;
 			case 'P': c8_load_palette_s(c8, optarg); break;
-			case 'v': flags |= C8_FLAG_VERBOSE; break;
+			case 'v': c8->flags |= C8_FLAG_VERBOSE; break;
 			case 'q': c8_load_quirks(c8, optarg); break;
 			case 'V': printf("%s %d", argv[0], VERSION); exit(0);
 			default:
@@ -36,11 +34,6 @@ int main(int argc, char *argv[]) {
 	if (fontstr) {
 		c8_set_fonts_s(c8, fontstr);
 	}
-
-	if (cs) {
-		c8->cs = cs;
-	}
-
 
 	c8_simulate(c8);
 	c8_deinit(c8);
