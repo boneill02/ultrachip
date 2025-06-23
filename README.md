@@ -24,19 +24,6 @@ code, you must implement these functions with your preferred graphics library:
 * `void c8_render(c8_display_t *, int *)`
 * `int c8_tick(int *, int)`
 
-## Testing
-
-Testing is done using
-[ctest](https://cmake.org/cmake/help/latest/manual/ctest.1.html) and
-[Unity](https://github.com/ThrowTheSwitch/Unity) (See
-[here](https://honeytreelabs.com/posts/cmake-unity-integration) for an
-overview).
-
-```
-cmake -DTARGET_GROUP=test
-make && ctest --verbose
-```
-
 ## Example Tools
 
 * See [here](doc/c8.md) for information about the example libc8 interpreter,
@@ -52,7 +39,16 @@ Full documentation for libc8 is available [here](https://oneill.sh/docs/libc8).
 
 ## Testing
 
-Build [Unity](https://github.com/ThrowTheSwitch/Unity), then `make test`.
+Testing is done using
+[ctest](https://cmake.org/cmake/help/latest/manual/ctest.1.html) and
+[Unity](https://github.com/ThrowTheSwitch/Unity) (See
+[here](https://honeytreelabs.com/posts/cmake-unity-integration) for an
+overview).
+
+```
+cmake -DTARGET_GROUP=test
+make && ctest --verbose
+```
 
 ## Further Reading
 
