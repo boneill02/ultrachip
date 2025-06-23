@@ -40,7 +40,7 @@ void __attribute__((weak)) c8_deinit_graphics(void) {
  *
  * In libc8, this should be overridden by the user if c8_simulate() is called.
  */
-int __attribute__((weak)) c8_init_graphics(void) {
+uint8_t __attribute__((weak)) c8_init_graphics(void) {
 	fprintf(stderr, "c8_init_graphics() not implemented.\n");
 	return -1;
 }
@@ -79,7 +79,7 @@ int __attribute__((weak)) c8_tick(int *key, int clockSpeed) {
  *
  * @return pointer to value of (x,y) in `display`
  */
-int *c8_get_pixel(c8_display_t *display, int x, int y) {
+uint8_t *c8_get_pixel(c8_display_t *display, int x, int y) {
 	if (display->mode == C8_DISPLAYMODE_HIGH) {
 		x += display->x;
 		y += display->y;

@@ -311,7 +311,7 @@ static int parse_instruction(c8_t *c8) {
 			if (y == 0xC) {
 				/* SCD n */
 				c8->display.y += b;
-				if (c8->display.y > C8_DISPLAYMODE_HIGH) {
+				if (c8->display.y > C8_HIGH_DISPLAY_HEIGHT) {
 					c8->display.y -= C8_HIGH_DISPLAY_HEIGHT;
 				}
 				return 2;
@@ -320,8 +320,7 @@ static int parse_instruction(c8_t *c8) {
 				case 0xE0:
 					/* CLS */
 					memset(&c8->display.p, 0,
-						   C8_HIGH_DISPLAY_WIDTH * C8_HIGH_DISPLAY_HEIGHT
-						   * sizeof(int));
+						   C8_HIGH_DISPLAY_WIDTH * C8_HIGH_DISPLAY_HEIGHT);
 					return 2;
 				case 0xEE:
 					/* RET */
@@ -387,12 +386,12 @@ static int parse_instruction(c8_t *c8) {
 				case 0x0: c8->V[x] = c8->V[y]; return 2; // LD Vx, Vy
 				case 0x1:
 					/* OR Vx, Vy */
-					c8->V[x] = c8->V[x] | c8->V[y];
+					c8->V[x] |= c8->V[y];
 					QUIRK_BITWISE(c8);
 					return 2;
 				case 0x2:
 					/* AND Vx, Vy */
-					c8->V[x] = c8->V[x] & c8->V[y];
+					c8->V[x] &= c8->V[y];
 					QUIRK_BITWISE(c8);
 					return 2;
 				case 0x3:
@@ -426,7 +425,7 @@ static int parse_instruction(c8_t *c8) {
 					/* SHL Vx, Vy */
 					QUIRK_SHIFT(c8);
 					c8->V[x] = c8->V[y] << 1;
-					c8->V[0xF] = (c8->V[x] >> 7) & 0x80;
+					c8->V[0xF] = (c8->V[x] >> 7) & 1;
 					return 2;
 			}
 			break;

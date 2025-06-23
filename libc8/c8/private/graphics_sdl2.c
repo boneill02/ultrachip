@@ -8,6 +8,7 @@
 #include "../graphics.h"
 
 #include <SDL2/SDL.h>
+#include <stdint.h>
 
 #define RGB_R(i) ((i >> 16) & 0xFF)
 #define RGB_G(i) ((i >> 8) & 0xFF)
@@ -72,7 +73,7 @@ void c8_deinit_graphics(void) {
  *
  * @return 1 if successful, 0 otherwise.
  */
-int c8_init_graphics(void) {
+uint8_t c8_init_graphics(void) {
 	SDL_Init(SDL_INIT_VIDEO);
 	window = SDL_CreateWindow("CHIP8",
 	                          SDL_WINDOWPOS_UNDEFINED,
