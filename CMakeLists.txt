@@ -3,6 +3,7 @@
 cmake_minimum_required(VERSION 4.0)
 project("libc8" C)
 
+option(SDL2 "Use SDL2 in libc8" ON)
 set(TARGET_GROUP lib CACHE STRING "Group to build")
 
 add_subdirectory(libc8)

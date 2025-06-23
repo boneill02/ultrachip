@@ -1,5 +1,5 @@
 /**
- * @file c8/internal/util.h
+ * @file c8/private/util.h
  * @note NOT EXPORTED
  * 
  * Miscellaneous useful functions.

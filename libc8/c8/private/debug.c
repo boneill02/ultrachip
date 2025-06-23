@@ -1,5 +1,5 @@
 /**
- * @file c8/internal/debug.c
+ * @file c8/private/debug.c
  * @note NOT EXPORTED
  * 
  * Stuff related to debug mode.

@@ -48,6 +48,10 @@ set(LIBRARY_PRIVATE_HEADERS
 	"${LIBRARY_BASE_PATH}/c8/private/util.h"
 )
 
+if(SDL2)
+    list(APPEND LIBRARY_PRIVATE_SRC "${LIBRARY_BASE_PATH}/c8/private/graphics_sdl2.c")
+endif()
+
 add_library (
 	${LIBRARY_NAME} SHARED ${LIBRARY_PUBLIC_SRC} ${LIBRARY_PRIVATE_SRC}
 )
