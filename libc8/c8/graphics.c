@@ -6,14 +6,15 @@
 
 #include "graphics.h"
 
-#ifndef SDL2
-
 #include <stdio.h>
 
 /**
  * @brief Play sound
- * 
- * This definition should be overridden by `SDL2` flag or user implementation.
+ *
+ * This definition is overridden in libc8_sdl2 by definition in
+ * internal/graphics_sdl.c.
+ *
+ * In libc8, this should be overridden by the user if c8_simulate() is called.
  */
 void __attribute__((weak)) c8_beep(void) { 
 	fprintf(stderr, "c8_beep() not implemented.");
@@ -21,8 +22,11 @@ void __attribute__((weak)) c8_beep(void) {
 
 /**
  * @brief Deinitialize graphics system
- * 
- * This definition should be overridden by `SDL2` flag or user implementation.
+ *
+ * This definition is overridden in libc8_sdl2 by definition in
+ * internal/graphics_sdl.c.
+ *
+ * In libc8, this should be overridden by the user if c8_simulate() is called.
  */
 void __attribute__((weak)) c8_deinit_graphics(void) {
 	fprintf(stderr, "c8_deinit_graphics() not implemented.");
@@ -30,8 +34,11 @@ void __attribute__((weak)) c8_deinit_graphics(void) {
 
 /**
  * @brief Initialize graphics system
- * 
- * This definition should be overridden by `SDL2` flag or user implementation.
+ *
+ * This definition is overridden in libc8_sdl2 by definition in
+ * internal/graphics_sdl.c.
+ *
+ * In libc8, this should be overridden by the user if c8_simulate() is called.
  */
 int __attribute__((weak)) c8_init_graphics(void) {
 	fprintf(stderr, "c8_init_graphics() not implemented.\n");
@@ -40,8 +47,11 @@ int __attribute__((weak)) c8_init_graphics(void) {
 
 /**
  * @brief Render graphics
- * 
- * This definition should be overridden by `SDL2` flag or user implementation.
+ *
+ * This definition is overridden in libc8_sdl2 by definition in
+ * internal/graphics_sdl.c.
+ *
+ * In libc8, this should be overridden by the user if c8_simulate() is called.
  */
 void __attribute__((weak)) c8_render(c8_display_t *display, int *colors) { 
 	fprintf(stderr, "c8_render() not implemented.");
@@ -49,15 +59,16 @@ void __attribute__((weak)) c8_render(c8_display_t *display, int *colors) {
 
 /**
  * @brief Grab current keypresses and delay execution to match clockspeed
- * 
- * This definition should be overridden by `SDL2` flag or user implementation.
+ *
+ * This definition is overridden in libc8_sdl2 by definition in
+ * internal/graphics_sdl.c.
+ *
+ * In libc8, this should be overridden by the user if c8_simulate() is called.
  */
 int __attribute__((weak)) c8_tick(int *key, int clockSpeed) {
 	fprintf(stderr, "tick() not implemented.\n");
 	return -1;
 }
-
-#endif
 
 /**
  * @brief Get the value of (x,y) from `display`

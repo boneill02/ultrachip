@@ -1,13 +1,9 @@
 /**
  * @file c8/internal/graphics_sdl.c
- * 
+ *
  * SDL2 graphics implementation. When `SDL2` is defined, overrides weak
  * graphics utility function definitions in `graphics.c`.
  */
-
-static int makeCompilerWork; // Suppress empty translation unit error
-
-#ifdef SDL2
 
 #include "../graphics.h"
 
@@ -112,6 +108,7 @@ void c8_render(c8_display_t *display, int *colors) {
 		dy = display->y;
 	}
 
+
 	for (int i = 0; i < C8_LOW_DISPLAY_WIDTH; i++) {
 		for (int j = 0; j < C8_LOW_DISPLAY_HEIGHT; j++) {
 			if (*c8_get_pixel(display, i + dx, j + dy)) {
@@ -176,5 +173,3 @@ static int get_key(SDL_Keycode k) {
 	}
 	return -1;
 }
-
-#endif
