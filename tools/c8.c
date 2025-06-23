@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 			case 'P': c8_load_palette_s(c8, optarg); break;
 			case 'v': c8->flags |= C8_FLAG_VERBOSE; break;
 			case 'q': c8_load_quirks(c8, optarg); break;
-			case 'V': printf("%s %d", argv[0], VERSION); exit(0);
+			case 'V': printf("%s %d", argv[0], VERSION); return 0;
 			default:
 			  fprintf(stderr, "Usage: %s [-dvV] [-c clockspeed] [-f small,big] [-p file] [-P colors] [-q quirks] file\n", argv[0]);
 			  exit(1);
