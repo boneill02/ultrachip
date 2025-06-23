@@ -1,8 +1,22 @@
-/c8
-*.o
-/c8dis
-.vscode/
-/c8as
-/a.c8
+# c8as output
+a.c8
+
+# targets
+*.so
+*.a
+
+# debug
 vgcore*
-build/
+
+# cmake
+CMakeFiles
+CMakeCache.txt
+*.cmake
+*.tcl
+Makefile
+
+# generated docs
+doc/html
+
+# etc
+.vscode

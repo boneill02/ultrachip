@@ -1,7 +1,7 @@
 #include "unity.h"
-#include "util/decode.c"
-#include "util/exception.c"
-#include "util/defs.h"
+#include "c8/decode.c"
+#include "c8/private/exception.c"
+#include "c8/defs.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -30,7 +30,7 @@
 #define BUILD_INSTRUCTION_ANNN(a, nnn) \
 	(FORMAT_A(a) | FORMAT_NNN(nnn))
 
-uint8_t label_map[MEMSIZE];
+uint8_t label_map[C8_MEMSIZE];
 char buf[64];
 
 void setUp(void) {

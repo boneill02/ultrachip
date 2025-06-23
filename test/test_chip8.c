@@ -1,11 +1,11 @@
 #include "unity.h"
-#include "util/decode.c"
-#include "util/exception.c"
-#include "util/util.c"
-#include "c8/chip8.c"
-#include "c8/font.c"
-#include "debug.h"
-#include "util/defs.h"
+/* #include "c8/decode.c"
+#include "c8/private/exception.c"
+#include "c8/private/util.c" */
+#include "c8/chip8.h"
+/* #include "c8/font.c"
+#include "c8/private/debug.h" */
+#include "c8/defs.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -44,27 +44,27 @@
 #define AXYB(a, x, y, b) INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(a, x, y, b))
 
 #define RESET \
-	memset(&c8, 0, sizeof(chip8_t)); \
+	memset(&c8, 0, sizeof(c8_t)); \
 	int pc = 0x200; \
 	c8.pc = 0x200; \
 	GENERATE_RANDOMS;
 
-chip8_t c8;
+c8_t c8;
 
 int tick(int *a, int b) {}
-void render(display_t *a , int *b) {}
+void render(c8_display_t *a , int *b) {}
 void deinit_graphics(void) { }
 int init_graphics(void) { }
-int *get_pixel(display_t *display, int x, int y) {
-	if (display->mode == DISPLAY_EXTENDED) {
+int *get_pixel(c8_display_t *display, int x, int y) {
+	if (display->mode == C8_DISPLAYMODE_HIGH) {
 		x += display->x;
 		y += display->y;
 	}
-    return &display->p[y * STANDARD_DISPLAY_WIDTH + x];
+    return &display->p[y * C8_HIGH_DISPLAY_WIDTH + x];
 }
 
-int debug_repl(chip8_t *c8) { }
-int has_breakpoint(chip8_t *c8, uint16_t pc) { }
+int debug_repl(c8_t *c8) { }
+int has_breakpoint(c8_t *c8, uint16_t pc) { }
 
 void setUp(void) {
 	srand(time(NULL));
@@ -77,8 +77,8 @@ void test_parse_instruction_WhereInstructionIsCLS(void) {
 	RESET;
 	INSERT_INSTRUCTION(pc, 0x00E0);
 
-	x %= EXTENDED_DISPLAY_WIDTH * EXTENDED_DISPLAY_HEIGHT;
-	y %= EXTENDED_DISPLAY_WIDTH * EXTENDED_DISPLAY_HEIGHT;
+	x %= C8_HIGH_DISPLAY_WIDTH * C8_HIGH_DISPLAY_HEIGHT;
+	y %= C8_HIGH_DISPLAY_WIDTH * C8_HIGH_DISPLAY_HEIGHT;
 	c8.display.p[x] = 1;
 	c8.display.p[y] = 1;
 
@@ -142,22 +142,22 @@ void test_parse_instruction_WhereInstructionIsLOW(void) {
 	RESET;
 	INSERT_INSTRUCTION(pc, 0x00FE);
 
-	c8.display.mode = DISPLAY_EXTENDED;
+	c8.display.mode = C8_DISPLAYMODE_HIGH;
 
 	int ret = parse_instruction(&c8);
 	TEST_ASSERT_EQUAL_INT(2, ret);
-	TEST_ASSERT_EQUAL_INT(DISPLAY_STANDARD, c8.display.mode);
+	TEST_ASSERT_EQUAL_INT(C8_DISPLAYMODE_LOW, c8.display.mode);
 }
 
 void test_parse_instruction_WhereInstructionIsHIGH(void) {
 	RESET;
 	INSERT_INSTRUCTION(pc, 0x00FF);
 
-	c8.display.mode = DISPLAY_STANDARD;
+	c8.display.mode = C8_DISPLAYMODE_LOW;
 
 	int ret = parse_instruction(&c8);
 	TEST_ASSERT_EQUAL_INT(2, ret);
-	TEST_ASSERT_EQUAL_INT(DISPLAY_EXTENDED, c8.display.mode);
+	TEST_ASSERT_EQUAL_INT(C8_DISPLAYMODE_HIGH, c8.display.mode);
 }
 
 void test_parse_instruction_WhereInstructionIsJPNNN(void) {
@@ -555,8 +555,8 @@ void test_parse_instruction_WhereInstructionIsDRWXYB_InStandardMode(void) {
 	}
 	AXYB(0xD, x, y, b);
 
-	vx %= STANDARD_DISPLAY_WIDTH;
-	vy %= STANDARD_DISPLAY_HEIGHT;
+	vx %= C8_LOW_DISPLAY_WIDTH;
+	vy %= C8_LOW_DISPLAY_HEIGHT;
 
 	c8.V[x] = vx;
 	c8.V[y] = vy;
@@ -569,7 +569,7 @@ void test_parse_instruction_WhereInstructionIsDRWXYB_InStandardMode(void) {
 	int ret = parse_instruction(&c8);
 	for (int i = 0; i < b; i++) {
 		TEST_ASSERT_EQUAL_INT(c8.mem[c8.I + i],
-			                  c8.display.p[vy * EXTENDED_DISPLAY_WIDTH + vx]);
+			                  c8.display.p[vy * C8_HIGH_DISPLAY_WIDTH + vx]);
 	}
 }
 

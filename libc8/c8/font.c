@@ -7,7 +7,7 @@
 #include "font.h"
 
 #include "chip8.h"
-#include "internal/exception.h"
+#include "private/exception.h"
 
 #include <stdint.h>
 #include <string.h>

@@ -6,10 +6,10 @@
 
 #include "encode.h"
 
-#include "internal/symbol.h"
+#include "private/symbol.h"
 #include "defs.h"
-#include "internal/exception.h"
-#include "internal/util.h"
+#include "private/exception.h"
+#include "private/util.h"
 
 #include <ctype.h>
 #include <stdint.h>

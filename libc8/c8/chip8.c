@@ -9,9 +9,9 @@
 #include "decode.h"
 #include "font.h"
 
-#include "internal/debug.h"
-#include "internal/exception.h"
-#include "internal/util.h"
+#include "private/debug.h"
+#include "private/exception.h"
+#include "private/util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
