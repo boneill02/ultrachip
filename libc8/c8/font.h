@@ -9,8 +9,8 @@
 
 #include "chip8.h"
 
-#define FONT_START 0x000
-#define HIGH_FONT_START FONT_START + (0x10 * 5)
+#define C8_FONT_START 0x000
+#define C8_HIGH_FONT_START C8_FONT_START + (0x10 * 5)
 
 extern const char *c8_fontNames[2][5];
 

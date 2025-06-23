@@ -224,12 +224,12 @@ void c8_set_fonts(c8_t *c8, int small, int big) {
 
 	if (small > -1 && small < 5) {
 		c8->fonts[0] = small;
-		memcpy(&c8->mem[FONT_START], smallFonts[small], 80);
+		memcpy(&c8->mem[C8_FONT_START], smallFonts[small], 80);
 	}
 
 	if (big > -1 && big < 3) {
 		c8->fonts[1] = big;
-		memcpy(&c8->mem[HIGH_FONT_START], bigFonts[big], 160);
+		memcpy(&c8->mem[C8_HIGH_FONT_START], bigFonts[big], 160);
 	}
 }
 

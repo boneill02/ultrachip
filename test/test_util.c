@@ -1,7 +1,7 @@
 #include "unity.h"
-#include "util/util.c"
-#include "util/exception.c"
-#include "util/defs.h"
+#include "c8/private/util.c"
+#include "c8/private/exception.c"
+#include "c8/defs.h"
 
 #include <stdint.h>
 #include <stdlib.h>

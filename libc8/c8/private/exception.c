@@ -43,8 +43,4 @@ void handle_exception(int code) {
 	if (strlen(c8_exception)) {
 		fprintf(stderr, "libc8: %s\n", c8_exception);
 	}
-
-	#ifndef TEST
-	exit(code);
-	#endif
 }

@@ -1,14 +1,12 @@
 #include "unity.h"
-/* #include "c8/decode.c"
-#include "c8/private/exception.c"
-#include "c8/private/util.c" */
-#include "c8/chip8.h"
-/* #include "c8/font.c"
-#include "c8/private/debug.h" */
+#include "c8/chip8.c"
+#include "c8/private/exception.h"
 #include "c8/defs.h"
+#include "c8/font.h"
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #define FORMAT_A(a) ((a << 12) & 0xF000)
@@ -690,7 +688,7 @@ void test_parse_instruction_WhereInstructionIsLDFX(void) {
 
 	int ret = parse_instruction(&c8);
 	TEST_ASSERT_EQUAL_INT(2, ret);
-	TEST_ASSERT_EQUAL_INT(FONT_START + (y * 5), c8.I);
+	TEST_ASSERT_EQUAL_INT(C8_FONT_START + (y * 5), c8.I);
 }
 
 void test_parse_instruction_WhereInstructionIsLDHFX(void) {
@@ -701,7 +699,7 @@ void test_parse_instruction_WhereInstructionIsLDHFX(void) {
 
 	int ret = parse_instruction(&c8);
 	TEST_ASSERT_EQUAL_INT(2, ret);
-	TEST_ASSERT_EQUAL_INT(HIGH_FONT_START + (y * 10), c8.I);
+	TEST_ASSERT_EQUAL_INT(C8_HIGH_FONT_START + (y * 10), c8.I);
 }
 
 void test_parse_instruction_WhereInstructionIsLDBX(void) {

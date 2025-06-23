@@ -1,12 +1,11 @@
 #include "unity.h"
 
-#include "util/exception.c"
-#include "util/util.c"
-#include "parse.c"
-#include "symbol.c"
-#include "parse.h"
-#include "util/defs.h"
-#include "util/util.h"
+#include "c8/private/symbol.c"
+#include "c8/private/exception.h"
+#include "c8/private/util.h"
+#include "c8/encode.h"
+#include "c8/defs.h"
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -227,12 +226,12 @@ void test_is_dw_WhereStringIsEmpty(void) {
 void test_is_instruction_WhereStringIsInstruction(void) {
 	RESET;
 	int ic = 0;
-	for (ic = 0; instructionStrings[ic] != NULL; ic++);
+	for (ic = 0; c8_instructionStrings[ic] != NULL; ic++);
 
 	int ins = rand() % ic;
 
 	char s[16];
-	strcpy(s, instructionStrings[ins]);
+	strcpy(s, c8_instructionStrings[ins]);
 
 	TEST_ASSERT_EQUAL_INT(ins, is_instruction(s));
 }
@@ -329,12 +328,12 @@ void test_is_register_WhereStringIsEmpty(void) {
 void test_is_reserved_identifier_WhereStringIsReservedIdentifier(void) {
 	RESET;
 	int ic = 0;
-	for (ic = 0; identifierStrings[ic] != NULL; ic++);
+	for (ic = 0; c8_identifierStrings[ic] != NULL; ic++);
 
 	int ident = rand() % ic;
 
 	char s[16];
-	strcpy(s, identifierStrings[ident]);
+	strcpy(s, c8_identifierStrings[ident]);
 
 	TEST_ASSERT_EQUAL_INT(ident, is_reserved_identifier(s));
 }

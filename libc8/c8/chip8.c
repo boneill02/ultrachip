@@ -476,11 +476,11 @@ static int parse_instruction(c8_t *c8) {
 				case 0x1E: c8->I += c8->V[x]; return 2; // ADD I, Vx
 				case 0x29:
 					/* LD F, Vx */
-					c8->I = FONT_START + (c8->V[x] * 5);
+					c8->I = C8_FONT_START + (c8->V[x] * 5);
 					return 2;
 				case 0x30:
 					/* LD HF, Vx */
-					c8->I = HIGH_FONT_START + (c8->V[x] * 10);
+					c8->I = C8_HIGH_FONT_START + (c8->V[x] * 10);
 					return 2;
 				case 0x33:
 					/* LD B, Vx */

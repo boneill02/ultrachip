@@ -18,7 +18,7 @@
 /**
  * Reserved identifier strings. Has to match `Symbol`.
  */
-const char *c8IdentifierStrings[] = {
+const char *c8_identifierStrings[] = {
 	"",
 	S_DT,
 	S_ST,
@@ -38,7 +38,7 @@ const char *c8IdentifierStrings[] = {
 /**
  * Instruction strings. Has to match `Instruction`.
  */
-const char *c8InstructionStrings[] = {
+const char *c8_instructionStrings[] = {
 	S_CLS,
 	S_RET,
 	S_JP,
@@ -237,8 +237,8 @@ int is_dw(const char *s) {
 int is_instruction(const char *s) {
 	NULLCHECK1(s);
 
-	for (int i = 0; c8InstructionStrings[i]; i++) {
-		if (!strcmp(s, c8InstructionStrings[i])) {
+	for (int i = 0; c8_instructionStrings[i]; i++) {
+		if (!strcmp(s, c8_instructionStrings[i])) {
 			return i;
 		}
 	}
@@ -307,8 +307,8 @@ int is_register(const char *s) {
 int is_reserved_identifier(const char *s) {
 	NULLCHECK1(s);
 
-	for (int i = 0; c8IdentifierStrings[i]; i++) {
-		if (!strcmp(s, c8IdentifierStrings[i])) {
+	for (int i = 0; c8_identifierStrings[i]; i++) {
+		if (!strcmp(s, c8_identifierStrings[i])) {
 			return i;
 		}
 	}

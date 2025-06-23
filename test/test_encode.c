@@ -1,21 +1,23 @@
 #include "unity.h"
 
-#include "c8/private/exception.c"
-#include "c8/private/util.c"
-#include "c8/private/symbol.c"
 #include "c8/encode.c"
+#include "c8/private/exception.c"
+#include "c8/private/symbol.c"
+
+#include "c8/private/util.h"
 #include "c8/defs.h"
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-#define BYTECODE_SIZE (MEMSIZE - PROG_START)
-#define BUF_SIZE (BYTECODE_SIZE * MAX_LINE_LENGTH)
+#define BYTECODE_SIZE (C8_MEMSIZE - C8_PROG_START)
+#define BUF_SIZE (BYTECODE_SIZE * C8_ENCODE_MAX_LINE_LENGTH)
 
 #define CLEAR_BYTECODE for(int i=0;i<BYTECODE_SIZE;i++){bytecode[i]=0;}
 #define CLEAR_BUF for(int i=0;i<BUF_SIZE;i++){buf[i]='\0';}
-#define CLEAR_EXCEPTION for(int i=0;i<EXCEPTION_MESSAGE_SIZE;i++){exception[i]='\0';}
+#define CLEAR_EXCEPTION for(int i=0;i<EXCEPTION_MESSAGE_SIZE;i++){c8_exception[i]='\0';}
 #define CLEAR_LABELS \
 	memset(labels.l,0,LABEL_CEILING*sizeof(label_t)); \
 	labels.len=0; \
@@ -39,7 +41,7 @@ void setUp(void) {
 	srand(time(NULL));
 	bytecode = calloc(BYTECODE_SIZE, 1);
 	for (fmtCount = 0; formats[fmtCount].cmd != I_NULL; fmtCount++);
-	for (insCount = 0; instructionStrings[insCount] != NULL; insCount++);
+	for (insCount = 0; c8_instructionStrings[insCount] != NULL; insCount++);
 	symbols.s = calloc(SYMBOL_CEILING, sizeof(symbol_t));
 	symbols.ceil = SYMBOL_CEILING;
 	labels.l = calloc(LABEL_CEILING, sizeof(label_t));
@@ -57,7 +59,7 @@ void generate_valid_instruction_string(void) {
 
 	f = &formats[rand() % fmtCount];
 
-	sprintf(buf, "%s", instructionStrings[f->cmd]);
+	sprintf(buf, "%s", c8_instructionStrings[f->cmd]);
 	for (int i = 0; i < f->pcount; i++) {
 		switch (f->ptype[i]) {
 			case SYM_INT4:
@@ -73,7 +75,7 @@ void generate_valid_instruction_string(void) {
 				sprintf(buf, " V%01x", rand() % 0x10);
 				break;
 			default:
-				sprintf(buf, " %s", identifierStrings[f->ptype[i]]);
+				sprintf(buf, " %s", c8_identifierStrings[f->ptype[i]]);
 		}
 	}
 	sprintf(buf, "\n");
@@ -84,7 +86,7 @@ void generate_invalid_instruction_string(void) {
 
 	f = &formats[rand() % fmtCount];
 
-	sprintf(buf, "%s", instructionStrings[f->cmd]);
+	sprintf(buf, "%s", c8_instructionStrings[f->cmd]);
 	if (f->pcount == 0) {
 		sprintf(buf, " $10");
 	}
@@ -115,74 +117,74 @@ void test_remove_comment_WhereStringIsOnlyComment(void) {
 	TEST_ASSERT_EQUAL_INT(0, strlen(remove_comment(buf)));
 }
 
-void test_parse_WhereStringIsOnlyComment(void) {
+void test_c8_encode_WhereStringIsOnlyComment(void) {
 	RESET;
 
 	char *s = "; A comment";
 	sprintf(buf, "%s\n", s);
-	int r = parse(buf, bytecode, ARG_VERBOSE);
+	int r = c8_encode(buf, bytecode, ARG_VERBOSE);
 	TEST_ASSERT_EQUAL_INT(0, r);
 	TEST_ASSERT_EQUAL_INT(0, bytecode[0]);
 }
 
-void test_parse_WhereOneValidInstructionExists(void) {
+void test_c8_encode_WhereOneValidInstructionExists(void) {
 	RESET;
 
 	/* Test specific instruction to match bytecode */
 	char *s = "ADD V5, V3";
 	sprintf(buf, "%s\n", s);
-	int r = parse(buf, bytecode, 1);
+	int r = c8_encode(buf, bytecode, 1);
 	printf("%s\n", buf);
 	TEST_ASSERT_EQUAL_INT(2, r);
 	TEST_ASSERT_EQUAL_INT(0x85, bytecode[0]);
 	TEST_ASSERT_EQUAL_INT(0x34, bytecode[1]);
-	TEST_ASSERT_EQUAL_INT(0, strlen(exception));
+	TEST_ASSERT_EQUAL_INT(0, strlen(c8_exception));
 }
 
-void test_parse_WhereMultipleValidInstructionsExist(void) {
+void test_c8_encode_WhereMultipleValidInstructionsExist(void) {
 	RESET;
 
 	char *s = "AND VF, $31\nOR V1, V9\nDRW V1, V9, $8\n";
 	sprintf(buf, "%s", s);
-	int r = parse(buf, bytecode, 1);
+	int r = c8_encode(buf, bytecode, 1);
 	TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, r);
 }
 
-void test_parse_WhereInvalidInstructionsExist(void) {
+void test_c8_encode_WhereInvalidInstructionsExist(void) {
 	RESET;
 
 	char *s = "OR V1, V9\nAND $31\nDRW V1, V9, $8";
 	sprintf(buf, "%s", s);
-	int r = parse(buf, bytecode, 1);
+	int r = c8_encode(buf, bytecode, 1);
 	TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, r);
 }
 
-void test_parse_WhereInvalidSymbolsExist(void) {
+void test_c8_encode_WhereInvalidSymbolsExist(void) {
 	RESET;
 
 	sprintf(buf, "invalid\n");
-	int r = parse(buf, bytecode, 1);
+	int r = c8_encode(buf, bytecode, 1);
 	TEST_ASSERT_EQUAL_INT(INVALID_SYMBOL_EXCEPTION, r);
 }
 
-void test_parse_WhereResultingBytecodeIsTooBig(void) {
+void test_c8_encode_WhereResultingBytecodeIsTooBig(void) {
 	RESET;
 
 	const char *s = "AND V1, V9\n";
 	int len = 0;
 	int slen = strlen(s);
 
-	for (int i = 0; i < ((MEMSIZE - PROG_START) / 2) + 1; i++) {
+	for (int i = 0; i < ((C8_MEMSIZE - C8_PROG_START) / 2) + 1; i++) {
 		sprintf(buf + len, "%s", s);
 		len += slen;
 		
 		
 	}
-	int r = parse(buf, bytecode, 1);
+	int r = c8_encode(buf, bytecode, 1);
 	TEST_ASSERT_EQUAL_INT(TOO_MANY_SYMBOLS_EXCEPTION, r);
 }
 
-void test_parse_WhereTooManyLabelsAreDefined(void) {
+void test_c8_encode_WhereTooManyLabelsAreDefined(void) {
 	RESET;
 	int len = 0;
 	const char *s = "l";
@@ -195,14 +197,14 @@ void test_parse_WhereTooManyLabelsAreDefined(void) {
 
 	sprintf(buf + len, "ADD V1 V2\n");
 
-	int r = parse(buf, bytecode, ARG_VERBOSE);
+	int r = c8_encode(buf, bytecode, ARG_VERBOSE);
 	TEST_ASSERT_EQUAL_INT(TOO_MANY_LABELS_EXCEPTION, r);
 }
 
-void test_parse_WhereStringIsEmpty(void) {
+void test_c8_encode_WhereStringIsEmpty(void) {
 	RESET;
 
-	int r = parse(buf, bytecode, ARG_VERBOSE);
+	int r = c8_encode(buf, bytecode, ARG_VERBOSE);
 	TEST_ASSERT_EQUAL_INT(0, r);
 }
 
@@ -253,7 +255,7 @@ void test_parse_word_WhereWordIsInstruction(void) {
 
 	int ins = rand() % insCount;
 
-	sprintf(buf, "%s", instructionStrings[ins]);
+	sprintf(buf, "%s", c8_instructionStrings[ins]);
 	int r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
 
 	TEST_ASSERT_EQUAL_INT(0, r);
@@ -378,14 +380,14 @@ int main(void) {
 	RUN_TEST(test_remove_comment_WhereStringHasNoComment);
 	RUN_TEST(test_remove_comment_WhereStringHasCommentAtEnd);
 	RUN_TEST(test_remove_comment_WhereStringIsOnlyComment);
-	RUN_TEST(test_parse_WhereStringIsOnlyComment);
-	RUN_TEST(test_parse_WhereOneValidInstructionExists);
-	RUN_TEST(test_parse_WhereMultipleValidInstructionsExist);
-	RUN_TEST(test_parse_WhereInvalidInstructionsExist);
-	RUN_TEST(test_parse_WhereInvalidSymbolsExist);
-	RUN_TEST(test_parse_WhereResultingBytecodeIsTooBig);
-	RUN_TEST(test_parse_WhereTooManyLabelsAreDefined);
-	RUN_TEST(test_parse_WhereStringIsEmpty);
+	RUN_TEST(test_c8_encode_WhereStringIsOnlyComment);
+	RUN_TEST(test_c8_encode_WhereOneValidInstructionExists);
+	RUN_TEST(test_c8_encode_WhereMultipleValidInstructionsExist);
+	RUN_TEST(test_c8_encode_WhereInvalidInstructionsExist);
+	RUN_TEST(test_c8_encode_WhereInvalidSymbolsExist);
+	RUN_TEST(test_c8_encode_WhereResultingBytecodeIsTooBig);
+	RUN_TEST(test_c8_encode_WhereTooManyLabelsAreDefined);
+	RUN_TEST(test_c8_encode_WhereStringIsEmpty);
 	RUN_TEST(test_parse_word_WhereWordIsDB);
 	RUN_TEST(test_parse_word_WhereWordIsDW);
 	RUN_TEST(test_parse_word_WhereWordIsInstruction);

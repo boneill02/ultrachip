@@ -5,7 +5,7 @@ project("libc8" C)
 
 set(PROJECT_NAME "libc8")
 
-set(LIBRARY_NAME "libc8")
+set(LIBRARY_NAME "c8")
 set(LIBRARY_VERSION_MAJOR 0)
 set(LIBRARY_VERSION_STRING 0.0)
 

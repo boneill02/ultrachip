@@ -6,6 +6,7 @@ project("libc8" C)
 set(TARGET_GROUP lib CACHE STRING "Group to build")
 
 add_subdirectory(libc8)
+include_directories(libc8)
 
 if(TARGET_GROUP STREQUAL test)
   include(CTest)

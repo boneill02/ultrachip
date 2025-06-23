@@ -1,6 +1,6 @@
 #include "unity.h"
 #include "c8/decode.c"
-#include "c8/private/exception.c"
+#include "c8/private/exception.h"
 #include "c8/defs.h"
 
 #include <stdint.h>
@@ -41,7 +41,7 @@ void tearDown(void) {
 }
 
 void test_decode_instruction_should_parse(char *expected, uint16_t ins) {
-	TEST_ASSERT_EQUAL_STRING(expected, decode_instruction(ins, label_map));
+	TEST_ASSERT_EQUAL_STRING(expected, c8_decode_instruction(ins, label_map));
 }
 
 void test_decode_instruction_WhereInstructionIsCLS(void) {

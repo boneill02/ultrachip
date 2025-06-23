@@ -1,6 +1,6 @@
 #include "unity.h"
 #include "c8/graphics.c"
-#include "util/defs.h"
+#include "c8/defs.h"
 
 #include <stdint.h>
 #include <stdlib.h>
