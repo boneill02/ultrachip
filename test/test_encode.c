@@ -122,7 +122,7 @@ void test_c8_encode_WhereStringIsOnlyComment(void) {
 
 	char *s = "; A comment";
 	sprintf(buf, "%s\n", s);
-	int r = c8_encode(buf, bytecode, ARG_VERBOSE);
+	int r = c8_encode(buf, bytecode, 0);
 	TEST_ASSERT_EQUAL_INT(0, r);
 	TEST_ASSERT_EQUAL_INT(0, bytecode[0]);
 }
@@ -133,8 +133,7 @@ void test_c8_encode_WhereOneValidInstructionExists(void) {
 	/* Test specific instruction to match bytecode */
 	char *s = "ADD V5, V3";
 	sprintf(buf, "%s\n", s);
-	int r = c8_encode(buf, bytecode, 1);
-	printf("%s\n", buf);
+	int r = c8_encode(buf, bytecode, 0);
 	TEST_ASSERT_EQUAL_INT(2, r);
 	TEST_ASSERT_EQUAL_INT(0x85, bytecode[0]);
 	TEST_ASSERT_EQUAL_INT(0x34, bytecode[1]);
@@ -146,7 +145,7 @@ void test_c8_encode_WhereMultipleValidInstructionsExist(void) {
 
 	char *s = "AND VF, $31\nOR V1, V9\nDRW V1, V9, $8\n";
 	sprintf(buf, "%s", s);
-	int r = c8_encode(buf, bytecode, 1);
+	int r = c8_encode(buf, bytecode, 0);
 	TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, r);
 }
 
@@ -155,7 +154,7 @@ void test_c8_encode_WhereInvalidInstructionsExist(void) {
 
 	char *s = "OR V1, V9\nAND $31\nDRW V1, V9, $8";
 	sprintf(buf, "%s", s);
-	int r = c8_encode(buf, bytecode, 1);
+	int r = c8_encode(buf, bytecode, 0);
 	TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, r);
 }
 
@@ -163,7 +162,7 @@ void test_c8_encode_WhereInvalidSymbolsExist(void) {
 	RESET;
 
 	sprintf(buf, "invalid\n");
-	int r = c8_encode(buf, bytecode, 1);
+	int r = c8_encode(buf, bytecode, 0);
 	TEST_ASSERT_EQUAL_INT(INVALID_SYMBOL_EXCEPTION, r);
 }
 
@@ -180,7 +179,7 @@ void test_c8_encode_WhereResultingBytecodeIsTooBig(void) {
 		
 		
 	}
-	int r = c8_encode(buf, bytecode, 1);
+	int r = c8_encode(buf, bytecode, 0);
 	TEST_ASSERT_EQUAL_INT(TOO_MANY_SYMBOLS_EXCEPTION, r);
 }
 
@@ -197,14 +196,14 @@ void test_c8_encode_WhereTooManyLabelsAreDefined(void) {
 
 	sprintf(buf + len, "ADD V1 V2\n");
 
-	int r = c8_encode(buf, bytecode, ARG_VERBOSE);
+	int r = c8_encode(buf, bytecode, 0);
 	TEST_ASSERT_EQUAL_INT(TOO_MANY_LABELS_EXCEPTION, r);
 }
 
 void test_c8_encode_WhereStringIsEmpty(void) {
 	RESET;
 
-	int r = c8_encode(buf, bytecode, ARG_VERBOSE);
+	int r = c8_encode(buf, bytecode, 0);
 	TEST_ASSERT_EQUAL_INT(0, r);
 }
 

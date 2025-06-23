@@ -49,27 +49,12 @@
 
 c8_t c8;
 
-int tick(int *a, int b) {}
-void render(c8_display_t *a , int *b) {}
-void deinit_graphics(void) { }
-int init_graphics(void) { }
-int *get_pixel(c8_display_t *display, int x, int y) {
-	if (display->mode == C8_DISPLAYMODE_HIGH) {
-		x += display->x;
-		y += display->y;
-	}
-    return &display->p[y * C8_HIGH_DISPLAY_WIDTH + x];
-}
-
-int debug_repl(c8_t *c8) { }
-int has_breakpoint(c8_t *c8, uint16_t pc) { }
 
 void setUp(void) {
 	srand(time(NULL));
 }
 
 void tearDown(void) { }
-
 
 void test_parse_instruction_WhereInstructionIsCLS(void) {
 	RESET;
@@ -101,7 +86,7 @@ void test_parse_instruction_WhereInstructionIsRET(void) {
 
 void test_parse_instruction_WhereInstructionIsSCD(void) {
 	RESET;
-	AXYB(0,0, 0xC, b);
+	AXYB(0, 0, 0xC, b);
 
 	int ret = parse_instruction(&c8);
 	TEST_ASSERT_EQUAL_INT(2, ret);
@@ -472,7 +457,7 @@ void test_parse_instruction_WhereInstructionIsSHLXY_WithFlag(void) {
 
 	int ret = parse_instruction(&c8);
 	TEST_ASSERT_EQUAL_INT(2, ret);
-	TEST_ASSERT_EQUAL_INT(vy << 1, c8.V[x]);
+	TEST_ASSERT_EQUAL_INT((uint8_t) (vy << 1), c8.V[x]);
 	TEST_ASSERT_EQUAL_INT(1, c8.V[0xF]);
 }
 
@@ -485,7 +470,7 @@ void test_parse_instruction_WhereInstructionIsSHLXY_WithoutFlag(void) {
 
 	int ret = parse_instruction(&c8);
 	TEST_ASSERT_EQUAL_INT(2, ret);
-	TEST_ASSERT_EQUAL_INT(vy << 1, c8.V[x]);
+	TEST_ASSERT_EQUAL_INT((uint8_t) (vy << 1), c8.V[x]);
 	TEST_ASSERT_EQUAL_INT(0, c8.V[0xF]);
 }
 
