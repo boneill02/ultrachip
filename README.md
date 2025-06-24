@@ -59,3 +59,8 @@ make && ctest --verbose
 * [S-CHIP 1.1 Reference](http://devernay.free.fr/hacks/chip8/schip.txt)
 * [Octo](https://github.com/JohnEarnest/Octo)
 * [CHIP-8 Extensions and Compatibility](https://chip-8.github.io/extensions/)
+
+## License
+
+Copyright (c) 2019-2025 Ben O'Neill <ben@oneill.sh>. Licensed under the
+MIT License. See LICENSE.
