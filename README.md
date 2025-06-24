@@ -24,6 +24,9 @@ code, you must implement these functions with your preferred graphics library:
 * `void c8_render(c8_display_t *, int *)`
 * `int c8_tick(int *, int)`
 
+See [this page](https://oneill.sh/doc/libc8/graphics__sdl2_8c.html#a04f712dc6e338364ae5e43e0b6ae9762)
+for more information about these functions.
+
 ## Example Tools
 
 * See [here](doc/c8.md) for information about the example libc8 interpreter,
