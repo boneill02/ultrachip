@@ -63,4 +63,4 @@ make && ctest --verbose
 ## License
 
 Copyright (c) 2019-2025 Ben O'Neill <ben@oneill.sh>. Licensed under the
-MIT License. See LICENSE.
+MIT License. See [LICENSE](LICENSE).
