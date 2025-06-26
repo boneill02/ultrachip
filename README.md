@@ -1,5 +1,7 @@
 # libc8
 
+![Build status](https://github.com/boneill02/libc8/actions/workflows/cmake-single-platform.yml/badge.svg?branch=master)
+
 This is a C library for interpreting, assembling, and disassembling CHIP-8 and
 SCHIP code, optionally utilizing the [SDL2](https://www.libsdl.org/) library
 for graphics.
