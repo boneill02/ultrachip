@@ -50,7 +50,7 @@ Testing is done using
 overview).
 
 ```
-cmake -DTARGET_GROUP=test
+cmake -DTARGET_GROUP=test -DSDL2=OFF
 make && ctest --verbose
 ```
 
