@@ -49,5 +49,8 @@ jobs:
         name: build
         path: ${{ github.workspace }}/build
 
+    - name: Restore execute permissions to test binaries
+      run: chmod -R +x ${{ github.workspace }}/build
+
     - name: Run tests
       run: ctest --test-dir ${{github.workspace}}/build --output-on-failure --verbose
