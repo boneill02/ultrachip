@@ -28,7 +28,6 @@ set(LIBRARY_PUBLIC_SRC
 set(LIBRARY_PRIVATE_SRC
 	"${LIBRARY_BASE_PATH}/c8/private/debug.c"
 	"${LIBRARY_BASE_PATH}/c8/private/exception.c"
-	"${LIBRARY_BASE_PATH}/c8/private/graphics_sdl2.c"
 	"${LIBRARY_BASE_PATH}/c8/private/symbol.c"
 	"${LIBRARY_BASE_PATH}/c8/private/util.c"
 )
