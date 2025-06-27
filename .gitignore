@@ -4,6 +4,9 @@ a.c8
 # targets
 *.so
 *.a
+tools/chip8
+tools/chip8as
+tools/chip8dis
 
 # debug
 vgcore*

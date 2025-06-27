@@ -32,12 +32,12 @@ for more information about these functions.
 
 ## Example Tools
 
-* See [here](doc/c8.md) for information about the example libc8 interpreter,
-  `c8`.
-* See [here](doc/c8as.md) for information about the example libc8 assembler,
-  `c8as`.
-* See [here](doc/c8dis.md) for information about the example libc8 disassembler,
-  `c8dis`.
+* See [here](doc/chip8.md) for information about the example libc8 interpreter,
+  `chip8`.
+* See [here](doc/chip8as.md) for information about the example libc8 assembler,
+  `chip8as`.
+* See [here](doc/chip8dis.md) for information about the example libc8 disassembler,
+  `chip8dis`.
 
 ## Documentation
 

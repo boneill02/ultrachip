@@ -55,6 +55,10 @@ add_library (
 	${LIBRARY_NAME} SHARED ${LIBRARY_PUBLIC_SRC} ${LIBRARY_PRIVATE_SRC}
 )
 
+if(SDL2)
+    target_link_libraries(${LIBRARY_NAME} PRIVATE SDL2)
+endif()
+
 set_target_properties(
 	${BINARY_NAME} PROPERTIES
 	VERSION		${LIBRARY_VERSION_STRING}

@@ -10,24 +10,12 @@
 #include <SDL2/SDL.h>
 #include <stdint.h>
 
-#define RGB_R(i) ((i >> 16) & 0xFF)
+#define RGB_R(i) ((i >> 12) & 0xFF)
 #define RGB_G(i) ((i >> 8) & 0xFF)
 #define RGB_B(i) (i & 0xFF)
 
 static SDL_Window* window;
 static SDL_Renderer* renderer;
-static SDL_Rect pix = {
-    .x = 0,
-    .y = 0,
-    .w = C8_WINDOW_SCALE_X,
-    .h = C8_WINDOW_SCALE_Y,
-};
-static SDL_Rect winRect = {
-    .x = 0,
-    .y = 0,
-    .w = C8_LOW_DISPLAY_WIDTH,
-    .h = C8_LOW_DISPLAY_HEIGHT,
-};
 
 /**
  * Map of all keys to track.
@@ -94,6 +82,19 @@ uint8_t c8_init_graphics(void) {
  * @param colors colors to render
  */
 void c8_render(c8_display_t* display, int* colors) {
+    SDL_Rect pix = {
+        .x = 0,
+        .y = 0,
+        .w = C8_WINDOW_SCALE_X,
+        .h = C8_WINDOW_SCALE_Y,
+    };
+    SDL_Rect winRect = {
+        .x = 0,
+        .y = 0,
+        .w = C8_LOW_DISPLAY_WIDTH,
+        .h = C8_LOW_DISPLAY_HEIGHT,
+    };
+
     int dx = 0;
     int dy = 0;
 
@@ -109,7 +110,6 @@ void c8_render(c8_display_t* display, int* colors) {
         dy = display->y;
     }
 
-
     for (int i = 0; i < C8_LOW_DISPLAY_WIDTH; i++) {
         for (int j = 0; j < C8_LOW_DISPLAY_HEIGHT; j++) {
             if (*c8_get_pixel(display, i + dx, j + dy)) {
@@ -119,6 +119,10 @@ void c8_render(c8_display_t* display, int* colors) {
             }
         }
     }
+
+    SDL_SetRenderDrawColor(renderer, RGB_R(colors[0]), RGB_G(colors[0]),
+        RGB_B(colors[0]), SDL_ALPHA_OPAQUE);
+    SDL_RenderFillRect(renderer, &winRect);
 
     SDL_RenderPresent(renderer);
 }

@@ -549,10 +549,14 @@ void test_parse_instruction_WhereInstructionIsDRWXYB_InStandardMode(void) {
         c8.mem[c8.I + i] = 1;
     }
 
+    c8_display_t oldDisplay = c8.display;
     int ret = parse_instruction(&c8);
     for (int i = 0; i < b; i++) {
-        TEST_ASSERT_EQUAL_INT(c8.mem[c8.I + i],
-            c8.display.p[vy * C8_HIGH_DISPLAY_WIDTH + vx]);
+        int toDraw = c8.mem[c8.I + i];
+        int cur = c8.display.p[(vy + i) * C8_LOW_DISPLAY_WIDTH + vx];
+        int old = oldDisplay.p[(vy + i) * C8_LOW_DISPLAY_WIDTH + vx];
+
+        TEST_ASSERT_EQUAL_INT(old ^ toDraw, cur);
     }
 }
 

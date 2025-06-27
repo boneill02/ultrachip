@@ -558,12 +558,13 @@ static void draw(c8_t* c8, uint16_t in) {
             }
 
             int before = *c8_get_pixel(&c8->display, dx, dy);
-            if ((c8->mem[c8->I + i] >> (7 - j)) & 1) {
-                c8_get_pixel(&c8->display, dx, dy)[0] ^= 1;
-            }
+            int pix = c8->mem[c8->I + i];
 
-            if (before != *c8_get_pixel(&c8->display, dx, dy)) {
-                c8->V[0xF] = 1;
+            if (pix & (0x80 >> j)) {
+                if (before) {
+                    c8->V[0xF] = 1;
+                }
+                c8_get_pixel(&c8->display, dx, dy)[0] ^= 1;
             }
         }
     }
