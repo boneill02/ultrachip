@@ -187,10 +187,10 @@ void test_c8_encode_WhereTooManyLabelsAreDefined(void) {
     RESET;
     int len = 0;
     const char* s = "l";
-    int slen = 5;
+    int slen = 5; // "lXX:\n"
 
-    for (int i = 0; i < LABEL_CEILING + 3; i++) {
-        sprintf(&buf[len], "%s%02d: ", s, i);
+    for (int i = 0; i < LABEL_CEILING; i++) {
+        sprintf(&buf[len], "%s%02d:\n", s, i);
         len += slen;
     }
 

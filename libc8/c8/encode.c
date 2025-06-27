@@ -79,12 +79,14 @@ int c8_encode(const char* s, uint8_t* out, int args) {
     lines = (char**)malloc(lineCount * sizeof(char*));
     if ((lineCount = tokenize(lines, scpy, "\n", lineCount)) < 0) {
         handle_exception(lineCount);
+        return lineCount;
     }
 
 
     VERBOSE_PRINT("Populating identifiers in label map");
     if ((ret = populate_labels(lines, lineCount, &labels)) < 1) {
         handle_exception(ret);
+        return ret;
     }
 
     VERBOSE_PRINT("Building symbol table");
@@ -98,11 +100,13 @@ int c8_encode(const char* s, uint8_t* out, int args) {
     VERBOSE_PRINT("Resolving label addresses");
     if ((ret = resolve_labels(&symbols, &labels)) < 1) {
         handle_exception(ret);
+        return ret;
     }
 
     VERBOSE_PRINT("Substituting label addresses in symbol table");
     if ((ret = substitute_labels(&symbols, &labels)) < 1) {
         handle_exception(ret);
+        return ret;
     }
 
     VERBOSE_PRINT("Writing output");
