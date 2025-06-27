@@ -14,12 +14,12 @@
 #define C8_B(i) (i & 0x000F)
 #define C8_KK(i) (i & 0x00FF)
 #define C8_EXPAND(i) \
-	int x = C8_X(i); \
-	int y = C8_Y(i); \
-	int nnn = C8_NNN(i); \
-	int a = C8_A(i); \
-	int b = C8_B(i); \
-	int kk = C8_KK(i);
+	uint8_t x = C8_X(i); \
+	uint8_t y = C8_Y(i); \
+	uint16_t nnn = C8_NNN(i); \
+	uint8_t a = C8_A(i); \
+	uint8_t b = C8_B(i); \
+	uint8_t kk = C8_KK(i);
 
 #define C8_PROG_START 0x200
 #define C8_MEMSIZE 0x1000
