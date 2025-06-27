@@ -1,6 +1,6 @@
 # See https://honeytreelabs.com/posts/cmake-unity-integration
 
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.31.6)
 project("libc8" C)
 
 option(SDL2 "Use SDL2 in libc8" ON)

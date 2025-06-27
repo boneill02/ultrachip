@@ -1,7 +1,10 @@
 # libc8
 
+[![Build Status](https://github.com/boneill02/libc8/actions/workflows/cmake-single-platform.yml/badge.svg?branch=master)](https://github.com/boneill02/libc8/actions/workflows/cmake-single-platform.yml).
+
 This is a C library for interpreting, assembling, and disassembling CHIP-8 and
-SCHIP code, optionally utilizing the SDL2 library for graphics.
+SCHIP code, optionally utilizing the [SDL2](https://www.libsdl.org/) library
+for graphics.
 
 An example assembler, disassembler, and interpreter is located in `tools/`.
 
@@ -23,6 +26,9 @@ code, you must implement these functions with your preferred graphics library:
 * `int c8_init_graphics(void)`
 * `void c8_render(c8_display_t *, int *)`
 * `int c8_tick(int *, int)`
+
+See [this page](https://oneill.sh/doc/libc8/graphics__sdl2_8c.html#a04f712dc6e338364ae5e43e0b6ae9762)
+for more information about these functions.
 
 ## Example Tools
 
@@ -46,7 +52,7 @@ Testing is done using
 overview).
 
 ```
-cmake -DTARGET_GROUP=test
+cmake -DTARGET_GROUP=test -DSDL2=OFF
 make && ctest --verbose
 ```
 
@@ -56,3 +62,12 @@ make && ctest --verbose
 * [S-CHIP 1.1 Reference](http://devernay.free.fr/hacks/chip8/schip.txt)
 * [Octo](https://github.com/JohnEarnest/Octo)
 * [CHIP-8 Extensions and Compatibility](https://chip-8.github.io/extensions/)
+
+## Bugs
+
+If you find a bug, submit an issue, PR, or email me with a description and/or patch.
+
+## License
+
+Copyright (c) 2019-2025 Ben O'Neill <ben@oneill.sh>. This work is released under the
+terms of the MIT License. See [LICENSE](LICENSE) for the license terms.
