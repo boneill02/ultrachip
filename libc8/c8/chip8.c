@@ -337,7 +337,7 @@ static int parse_instruction(c8_t* c8) {
             /* RET */
             c8->sp--;
             c8->pc = c8->stack[c8->sp];
-            return 0;
+            return 2;
         case 0xFB:
             /* SCR */
             c8->display.x += 4;
