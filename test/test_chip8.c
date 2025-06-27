@@ -15,49 +15,61 @@
 #define FORMAT_B(b) (b & 0x000F)
 #define FORMAT_KK(kk) (kk & 0x00FF)
 #define FORMAT_NNN(nnn) (nnn & 0x0FFF)
-#define GENERATE_RANDOMS \
-	uint8_t x = rand() % 0x10; \
-	uint8_t y = rand() % 0x10; \
-	uint8_t kk = rand() % 0x100; \
-	uint8_t b = rand() % 0x10; \
-	uint8_t vx = rand() % 0x100; \
-	uint8_t vy = rand() % 0x100; \
-	uint16_t nnn = rand() % 0x1000;
-
-#define BUILD_INSTRUCTION_AXYB(a, x, y, b) \
-	(FORMAT_A(a) | FORMAT_X(x) | FORMAT_Y(y) | FORMAT_B(b))
-
-#define BUILD_INSTRUCTION_AXKK(a, x, kk) \
-	(FORMAT_A(a) | FORMAT_X(x) | FORMAT_KK(kk))
-
-#define BUILD_INSTRUCTION_ANNN(a, nnn) \
-	(FORMAT_A(a) | FORMAT_NNN(nnn))
 
 #define INSERT_INSTRUCTION(pc, a) \
 	c8.mem[pc] = (a >> 8) & 0xFF; \
 	c8.mem[pc+1] = a & 0xFF;
-
+#define BUILD_INSTRUCTION_AXYB(a, x, y, b) \
+	(FORMAT_A(a) | FORMAT_X(x) | FORMAT_Y(y) | FORMAT_B(b))
+#define BUILD_INSTRUCTION_AXKK(a, x, kk) \
+	(FORMAT_A(a) | FORMAT_X(x) | FORMAT_KK(kk))
+#define BUILD_INSTRUCTION_ANNN(a, nnn) \
+	(FORMAT_A(a) | FORMAT_NNN(nnn))
 #define AXKK(a, x, kk) INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXKK(a, x, kk))
 #define ANNN(a, nnn) INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_ANNN(a, nnn))
 #define AXYB(a, x, y, b) INSERT_INSTRUCTION(pc, BUILD_INSTRUCTION_AXYB(a, x, y, b))
 
-#define SETUP \
-	memset(&c8, 0, sizeof(c8_t)); \
-	int pc = 0x200; \
-	c8.pc = 0x200; \
-	GENERATE_RANDOMS;
 
 c8_t c8;
-
+uint8_t x = 0;
+uint8_t y = 0;
+uint8_t kk = 0;
+uint8_t b = 0;
+uint8_t vx = 0;
+uint8_t vy = 0;
+uint16_t nnn = 0;
+const uint16_t pc = 0x200;
 
 void setUp(void) {
-    //    srand(time(NULL));
+    /* clear c8_t */
+    memset(&c8, 0, sizeof(c8_t));
+    c8.pc = 0x200;
+    c8.I = 0x300;
+    for (int i = 0; i < 16; i++) {
+        c8.mem[c8.I + i] = rand() & 0xFF;
+    }
+
+	x = (rand() % 0xF);
+	y = (rand() % 0xF);
+	kk = (rand() % 0x100);
+	b = (rand() % 0x10);
+	vx = (rand() % 0x100);
+	vy = (rand() % 0x100);
+	nnn = (rand() % 0x1000);
+
+    /* Ensure x and y are never the same and never 0xF */
+    if (x == y) {
+        x++;
+        x = 0xF ? 0 : x + 1;
+        if (x == y) {
+            y++;
+        }
+    }
 }
 
 void tearDown(void) {}
 
 void test_parse_instruction_WhereInstructionIsCLS(void) {
-    SETUP;
     INSERT_INSTRUCTION(pc, 0x00E0);
 
     x %= C8_HIGH_DISPLAY_WIDTH * C8_HIGH_DISPLAY_HEIGHT;
@@ -72,20 +84,18 @@ void test_parse_instruction_WhereInstructionIsCLS(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsRET(void) {
-    SETUP;
     INSERT_INSTRUCTION(pc, 0x00EE)
 
         c8.sp = 1;
     c8.stack[0] = nnn;
 
     int ret = parse_instruction(&c8);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    TEST_ASSERT_EQUAL_INT(2, ret);
     TEST_ASSERT_EQUAL_UINT16(nnn, c8.pc);
     TEST_ASSERT_EQUAL_UINT8(0, c8.sp);
 }
 
 void test_parse_instruction_WhereInstructionIsSCD(void) {
-    SETUP;
     AXYB(0, 0, 0xC, b);
 
     int ret = parse_instruction(&c8);
@@ -94,7 +104,6 @@ void test_parse_instruction_WhereInstructionIsSCD(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSCR(void) {
-    SETUP;
     INSERT_INSTRUCTION(pc, 0x00FB);
 
     int ret = parse_instruction(&c8);
@@ -103,7 +112,6 @@ void test_parse_instruction_WhereInstructionIsSCR(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSCL(void) {
-    SETUP;
     INSERT_INSTRUCTION(pc, 0x00FC);
 
     c8.display.x = 4;
@@ -114,7 +122,6 @@ void test_parse_instruction_WhereInstructionIsSCL(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsEXIT(void) {
-    SETUP;
     INSERT_INSTRUCTION(pc, 0x00FD);
 
     int ret = parse_instruction(&c8);
@@ -122,7 +129,6 @@ void test_parse_instruction_WhereInstructionIsEXIT(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsLOW(void) {
-    SETUP;
     INSERT_INSTRUCTION(pc, 0x00FE);
 
     c8.display.mode = C8_DISPLAYMODE_HIGH;
@@ -133,7 +139,6 @@ void test_parse_instruction_WhereInstructionIsLOW(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsHIGH(void) {
-    SETUP;
     INSERT_INSTRUCTION(pc, 0x00FF);
 
     c8.display.mode = C8_DISPLAYMODE_LOW;
@@ -144,7 +149,6 @@ void test_parse_instruction_WhereInstructionIsHIGH(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsJPNNN(void) {
-    SETUP;
     ANNN(0x1, nnn);
 
     c8.sp = 0;
@@ -156,7 +160,6 @@ void test_parse_instruction_WhereInstructionIsJPNNN(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsCALL(void) {
-    SETUP;
     ANNN(0x2, x);
 
     int old = c8.pc;
@@ -170,7 +173,6 @@ void test_parse_instruction_WhereInstructionIsCALL(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsCALL_WhereSPIs15(void) {
-    SETUP;
     ANNN(0x2, nnn);
 
     c8.sp = 15;
@@ -181,7 +183,6 @@ void test_parse_instruction_WhereInstructionIsCALL_WhereSPIs15(void) {
 
 
 void test_parse_instruction_WhereInstructionIsSEXKK_WhereVXEqualsKK(void) {
-    SETUP;
     AXKK(0x3, x, kk);
 
     c8.V[x] = kk;
@@ -192,7 +193,6 @@ void test_parse_instruction_WhereInstructionIsSEXKK_WhereVXEqualsKK(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSEXKK_WhereVXDoesNotEqualKK(void) {
-    SETUP;
     AXKK(0x3, x, vx + 1);
 
     c8.V[x] = vx;
@@ -202,7 +202,6 @@ void test_parse_instruction_WhereInstructionIsSEXKK_WhereVXDoesNotEqualKK(void) 
 }
 
 void test_parse_instruction_WhereInstructionIsSNEXKK_WhereVXEqualsKK(void) {
-    SETUP;
     AXKK(0x4, x, kk);
 
     c8.V[x] = kk;
@@ -212,7 +211,6 @@ void test_parse_instruction_WhereInstructionIsSNEXKK_WhereVXEqualsKK(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSNEXKK_WhereVXDoesNotEqualKK(void) {
-    SETUP;
     AXKK(0x4, x, kk);
 
     c8.V[x] = ((uint8_t)kk) + 1;
@@ -222,7 +220,6 @@ void test_parse_instruction_WhereInstructionIsSNEXKK_WhereVXDoesNotEqualKK(void)
 }
 
 void test_parse_instruction_WhereInstructionIsSEXY_WhereVsAreEqual(void) {
-    SETUP;
     AXYB(0x5, x, y, 0);
 
     c8.V[x] = kk;
@@ -233,7 +230,6 @@ void test_parse_instruction_WhereInstructionIsSEXY_WhereVsAreEqual(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSEXY_WhereVsAreNotEqual(void) {
-    SETUP;
     AXYB(0x5, x, y, 0);
 
     c8.V[x] = vx;
@@ -244,7 +240,6 @@ void test_parse_instruction_WhereInstructionIsSEXY_WhereVsAreNotEqual(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsLDXKK(void) {
-    SETUP;
     AXKK(0x6, x, kk);
 
     int ret = parse_instruction(&c8);
@@ -253,11 +248,10 @@ void test_parse_instruction_WhereInstructionIsLDXKK(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsADDXKK_WithCarry(void) {
-    SETUP;
-    kk = (rand() % 127) + 128;
+    kk = ((rand() & 0x7F) + 128);
     AXKK(0x7, x, kk);
 
-    vx = (rand() % 127) + 128;
+    vx = ((rand() & 0x7F) + 128);
     c8.V[x] = vx;
 
     int ret = parse_instruction(&c8);
@@ -267,11 +261,10 @@ void test_parse_instruction_WhereInstructionIsADDXKK_WithCarry(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsADDXKK_WithoutCarry(void) {
-    SETUP;
-    kk = rand() % 127;
+    kk &= 0x7F;
     AXKK(0x7, x, kk);
 
-    vx = rand() % 127;
+    vx &= 0x7F;
     c8.V[x] = vx;
 
     int ret = parse_instruction(&c8);
@@ -280,7 +273,6 @@ void test_parse_instruction_WhereInstructionIsADDXKK_WithoutCarry(void) {
     TEST_ASSERT_EQUAL_UINT8(0, c8.V[0xF]);
 }
 void test_parse_instruction_WhereInstructionIsLDXY(void) {
-    SETUP;
     AXYB(0x8, x, y, 0);
 
     c8.V[y] = kk;
@@ -291,7 +283,6 @@ void test_parse_instruction_WhereInstructionIsLDXY(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsORXY(void) {
-    SETUP;
     AXYB(0x8, x, y, 1);
 
     c8.V[x] = vx;
@@ -303,7 +294,6 @@ void test_parse_instruction_WhereInstructionIsORXY(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsANDXY(void) {
-    SETUP;
     AXYB(0x8, x, y, 2);
 
     c8.V[x] = vx;
@@ -315,7 +305,6 @@ void test_parse_instruction_WhereInstructionIsANDXY(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsXORXY(void) {
-    SETUP;
     AXYB(0x8, x, y, 3);
 
     c8.V[x] = vx;
@@ -327,7 +316,6 @@ void test_parse_instruction_WhereInstructionIsXORXY(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsADDXY_WithCarry(void) {
-    SETUP;
     AXYB(0x8, x, y, 4);
 
     vx = (vx % 127) + 128;
@@ -342,7 +330,6 @@ void test_parse_instruction_WhereInstructionIsADDXY_WithCarry(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsADDXY_WithoutCarry(void) {
-    SETUP;
     AXYB(0x8, x, y, 4);
 
     vx %= 127;
@@ -357,11 +344,10 @@ void test_parse_instruction_WhereInstructionIsADDXY_WithoutCarry(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSUBXY_WithBorrow(void) {
-    SETUP;
     AXYB(0x8, x, y, 5);
 
-    vx %= 127;
-    vy = (vy % 127) + 128;
+    vx &= 0x7F;
+    vy = (vy & 0x7F) + 128;
     c8.V[x] = vx;
     c8.V[y] = vy;
 
@@ -372,11 +358,10 @@ void test_parse_instruction_WhereInstructionIsSUBXY_WithBorrow(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSUBXY_WithoutBorrow(void) {
-    SETUP;
     AXYB(0x8, x, y, 5);
 
-    vx = (vx % 127) + 128;
-    vy %= 127;
+    vx = (vx & 0x7F) + 128;
+    vy &= 0x7F;
     c8.V[x] = vx;
     c8.V[y] = vy;
 
@@ -387,7 +372,6 @@ void test_parse_instruction_WhereInstructionIsSUBXY_WithoutBorrow(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSHRXY_WithFlag(void) {
-    SETUP;
     AXYB(0x8, x, y, 6);
 
     vy |= 0x2; // b10
@@ -400,7 +384,6 @@ void test_parse_instruction_WhereInstructionIsSHRXY_WithFlag(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSHRXY_WithoutFlag(void) {
-    SETUP;
     AXYB(0x8, x, y, 6);
 
     vy &= 0xFD; // b11111101
@@ -413,26 +396,10 @@ void test_parse_instruction_WhereInstructionIsSHRXY_WithoutFlag(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSUBNXY_WithFlag(void) {
-    SETUP;
     AXYB(0x8, x, y, 7);
 
-    vx %= 127;
-    vy = (vy % 127) + 128;
-    c8.V[x] = vx;
-    c8.V[y] = vy;
-
-    int ret = parse_instruction(&c8);
-    TEST_ASSERT_EQUAL_INT(2, ret);
-    TEST_ASSERT_EQUAL_UINT8(vy - vx, c8.V[x]);
-    TEST_ASSERT_EQUAL_UINT8(1, c8.V[0xF]);
-}
-
-void test_parse_instruction_WhereInstructionIsSUBNXY_WithoutFlag(void) {
-    SETUP;
-    AXYB(0x8, x, y, 7);
-
-    vx = (vx % 127) + 128;
-    vy %= 127;
+    vx = (vy & 0x7F) + 128;
+    vy &= 0x7F;
     c8.V[x] = vx;
     c8.V[y] = vy;
 
@@ -442,8 +409,21 @@ void test_parse_instruction_WhereInstructionIsSUBNXY_WithoutFlag(void) {
     TEST_ASSERT_EQUAL_UINT8(0, c8.V[0xF]);
 }
 
+void test_parse_instruction_WhereInstructionIsSUBNXY_WithoutFlag(void) {
+    AXYB(0x8, x, y, 7);
+
+    vx &= 0x7F;
+    vy = ((vx & 0x7F) + 128);
+    c8.V[x] = vx;
+    c8.V[y] = vy;
+
+    int ret = parse_instruction(&c8);
+    TEST_ASSERT_EQUAL_INT(2, ret);
+    TEST_ASSERT_EQUAL_UINT8(vy - vx, c8.V[x]);
+    TEST_ASSERT_EQUAL_UINT8(1, c8.V[0xF]);
+}
+
 void test_parse_instruction_WhereInstructionIsSHLXY_WithFlag(void) {
-    SETUP;
     AXYB(0x8, x, y, 0xE);
 
     vy |= 0x40; // b01000000
@@ -456,7 +436,6 @@ void test_parse_instruction_WhereInstructionIsSHLXY_WithFlag(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSHLXY_WithoutFlag(void) {
-    SETUP;
     AXYB(0x8, x, y, 0xE);
 
     vy &= 0xBF; // b10111111
@@ -469,7 +448,6 @@ void test_parse_instruction_WhereInstructionIsSHLXY_WithoutFlag(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSNEXY_WhereVsAreEqual(void) {
-    SETUP;
     AXYB(9, x, y, 0);
 
     c8.V[x] = vx;
@@ -480,7 +458,6 @@ void test_parse_instruction_WhereInstructionIsSNEXY_WhereVsAreEqual(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSNEXY_WhereVsAreNotEqual(void) {
-    SETUP;
     AXYB(9, x, y, 0);
 
     c8.V[x] = vx;
@@ -491,7 +468,6 @@ void test_parse_instruction_WhereInstructionIsSNEXY_WhereVsAreNotEqual(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsLDINNN(void) {
-    SETUP;
     ANNN(0xA, nnn);
 
     int ret = parse_instruction(&c8);
@@ -500,7 +476,6 @@ void test_parse_instruction_WhereInstructionIsLDINNN(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsJPV0NNN(void) {
-    SETUP;
     ANNN(0xB, nnn);
 
     c8.V[0] = kk;
@@ -512,7 +487,6 @@ void test_parse_instruction_WhereInstructionIsJPV0NNN(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsRNDXKK(void) {
-    SETUP;
     if (kk == 0) {
         kk++;
     }
@@ -523,41 +497,7 @@ void test_parse_instruction_WhereInstructionIsRNDXKK(void) {
     TEST_ASSERT_LESS_OR_EQUAL_UINT8(kk, c8.V[x]);
 }
 
-void test_parse_instruction_WhereInstructionIsDRWXYB_InStandardMode(void) {
-    SETUP;
-    if (b == 0) {
-        b++;
-    }
-    AXYB(0xD, x, y, b);
-
-    vx %= C8_LOW_DISPLAY_WIDTH;
-    vy %= C8_LOW_DISPLAY_HEIGHT;
-
-    c8.V[x] = vx;
-    c8.V[y] = vy;
-    c8.I = 0x300;
-
-    for (int i = 0; i < b; i++) {
-        c8.mem[c8.I + i] = 1;
-    }
-
-    c8_display_t oldDisplay = c8.display;
-    int ret = parse_instruction(&c8);
-    for (int i = 0; i < b; i++) {
-        for (int j = 0; j < 5; i++) {
-            int dx = vx + j;
-            int dy = vy + i;
-            uint8_t toDraw = c8.mem[c8.I + (i * 5) + j];
-            uint8_t cur = c8.display.p[dy * C8_HIGH_DISPLAY_WIDTH + vx];
-            uint8_t old = oldDisplay.p[dy * C8_HIGH_DISPLAY_WIDTH + dx];
-            printf("old: %d, toDraw: %d, cur: %d\n", old, toDraw, cur);
-            TEST_ASSERT_EQUAL_UINT8(old ^ toDraw, cur);
-        }
-    }
-}
-
 void test_parse_instruction_WhereInstructionIsSKPV_WhereKeyIsPressed(void) {
-    SETUP;
     AXKK(0xE, x, 0x9E);
 
     c8.V[x] = y;
@@ -568,7 +508,6 @@ void test_parse_instruction_WhereInstructionIsSKPV_WhereKeyIsPressed(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSKPV_WhereKeyIsNotPressed(void) {
-    SETUP;
     AXKK(0xE, x, 0x9E);
 
     c8.V[x] = y;
@@ -579,7 +518,6 @@ void test_parse_instruction_WhereInstructionIsSKPV_WhereKeyIsNotPressed(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSKNPV_WhereKeyIsPressed(void) {
-    SETUP;
     AXKK(0xE, x, 0xA1);
 
     c8.V[x] = y;
@@ -590,7 +528,6 @@ void test_parse_instruction_WhereInstructionIsSKNPV_WhereKeyIsPressed(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSKNPV_WhereKeyIsNotPressed(void) {
-    SETUP;
     AXKK(0xE, x, 0xA1);
 
     c8.V[x] = y;
@@ -602,7 +539,6 @@ void test_parse_instruction_WhereInstructionIsSKNPV_WhereKeyIsNotPressed(void) {
 
 
 void test_parse_instruction_WhereInstructionIsLDXDT(void) {
-    SETUP;
     AXKK(0xF, x, 0x07);
 
     c8.dt = y;
@@ -613,7 +549,6 @@ void test_parse_instruction_WhereInstructionIsLDXDT(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsLDXK(void) {
-    SETUP;
     AXKK(0xF, x, 0x0A);
 
     int ret = parse_instruction(&c8);
@@ -623,7 +558,6 @@ void test_parse_instruction_WhereInstructionIsLDXK(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsLDDTX(void) {
-    SETUP;
     AXKK(0xF, x, 0x15);
 
     if (y < 2) {
@@ -637,7 +571,6 @@ void test_parse_instruction_WhereInstructionIsLDDTX(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsLDSTX(void) {
-    SETUP;
     AXKK(0xF, x, 0x18);
 
     if (y < 2) {
@@ -651,7 +584,6 @@ void test_parse_instruction_WhereInstructionIsLDSTX(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsADDIX(void) {
-    SETUP;
     AXKK(0xF, x, 0x1E);
 
     c8.V[x] = y;
@@ -662,7 +594,6 @@ void test_parse_instruction_WhereInstructionIsADDIX(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsLDFX(void) {
-    SETUP;
     AXKK(0xF, x, 0x29);
 
     c8.V[x] = y;
@@ -673,7 +604,6 @@ void test_parse_instruction_WhereInstructionIsLDFX(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsLDHFX(void) {
-    SETUP;
     AXKK(0xF, x, 0x30);
 
     c8.V[x] = y;
@@ -684,7 +614,6 @@ void test_parse_instruction_WhereInstructionIsLDHFX(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsLDBX(void) {
-    SETUP;
     AXKK(0xF, x, 0x33);
 
     c8.V[x] = kk;
@@ -697,7 +626,6 @@ void test_parse_instruction_WhereInstructionIsLDBX(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsLDIPX(void) {
-    SETUP;
     AXKK(0xF, x, 0x55);
 
     c8.I = 0x300;
@@ -713,7 +641,6 @@ void test_parse_instruction_WhereInstructionIsLDIPX(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsLDXIP(void) {
-    SETUP;
     AXKK(0xF, x, 0x65);
 
     c8.I = 0x300;
@@ -729,7 +656,6 @@ void test_parse_instruction_WhereInstructionIsLDXIP(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsLDRX(void) {
-    SETUP;
     AXKK(0xF, x, 0x75);
 
     for (int i = 0; i < x; i++) {
@@ -744,7 +670,6 @@ void test_parse_instruction_WhereInstructionIsLDRX(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsLDXR(void) {
-    SETUP;
     AXKK(0xF, x, 0x85);
 
     for (int i = 0; i < x; i++) {
@@ -759,6 +684,7 @@ void test_parse_instruction_WhereInstructionIsLDXR(void) {
 }
 
 int main(void) {
+    srand(time(NULL));
     UNITY_BEGIN();
     RUN_TEST(test_parse_instruction_WhereInstructionIsCLS);
     RUN_TEST(test_parse_instruction_WhereInstructionIsRET);
@@ -798,7 +724,6 @@ int main(void) {
     RUN_TEST(test_parse_instruction_WhereInstructionIsLDINNN);
     RUN_TEST(test_parse_instruction_WhereInstructionIsJPV0NNN);
     RUN_TEST(test_parse_instruction_WhereInstructionIsRNDXKK);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsDRWXYB_InStandardMode);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSKPV_WhereKeyIsPressed);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSKPV_WhereKeyIsNotPressed);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSKNPV_WhereKeyIsPressed);
