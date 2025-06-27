@@ -99,7 +99,7 @@ char* c8_decode_instruction(uint16_t in, uint8_t* label_map) {
             sprintf(result, "RET");
         }
         else if (x == 0x0 && y == 0xC) {
-            sprintf(result, "SCD %d", b);
+            sprintf(result, "SCD 0x%01X", b);
         }
         else if (in == 0x00FB) {
             sprintf(result, "SCR");
@@ -117,7 +117,7 @@ char* c8_decode_instruction(uint16_t in, uint8_t* label_map) {
             sprintf(result, "HIGH");
         }
         else {
-            sprintf(result, ".db %04x", in);
+            sprintf(result, ".dw %04X", in);
         }
         break;
     case 0x1:
@@ -125,7 +125,7 @@ char* c8_decode_instruction(uint16_t in, uint8_t* label_map) {
             sprintf(result, "JP label%d", label_map[nnn]);
         }
         else {
-            sprintf(result, "JP $%03x", nnn);
+            sprintf(result, "JP $%03X", nnn);
         }
         break;
     case 0x2:
@@ -133,35 +133,35 @@ char* c8_decode_instruction(uint16_t in, uint8_t* label_map) {
             sprintf(result, "CALL label%d", label_map[nnn]);
         }
         else {
-            sprintf(result, "CALL $%03x", nnn);
+            sprintf(result, "CALL $%03X", nnn);
         }
         break;
-    case 0x3: sprintf(result, "SE V%01x, $%02x", x, kk); break;
-    case 0x4: sprintf(result, "SNE V%01x, $%02x", x, kk); break;
-    case 0x5: sprintf(result, "SE V%01x, V%01x", x, y); break;
-    case 0x6: sprintf(result, "LD V%01x, $%02x", x, kk); break;
-    case 0x7: sprintf(result, "ADD V%01x, $%02x", x, kk); break;
+    case 0x3: sprintf(result, "SE V%01X, 0x%02X", x, kk); break;
+    case 0x4: sprintf(result, "SNE V%01X, 0x%02X", x, kk); break;
+    case 0x5: sprintf(result, "SE V%01X, V%01X", x, y); break;
+    case 0x6: sprintf(result, "LD V%01X, 0x%02X", x, kk); break;
+    case 0x7: sprintf(result, "ADD V%01X, 0x%02X", x, kk); break;
     case 0x8:
         switch (b) {
-        case 0x0: sprintf(result, "LD V%01x, V%01x", x, y); break;
-        case 0x1: sprintf(result, "OR V%01x, V%01x", x, y); break;
-        case 0x2: sprintf(result, "AND V%01x, V%01x", x, y); break;
-        case 0x3: sprintf(result, "XOR V%01x, V%01x", x, y); break;
-        case 0x4: sprintf(result, "ADD V%01x, V%01x", x, y); break;
-        case 0x5: sprintf(result, "SUB V%01x, V%01x", x, y); break;
-        case 0x6: sprintf(result, "SHR V%01x, V%01x", x, y); break;
-        case 0x7: sprintf(result, "SUBN V%01x, V%01x", x, y); break;
-        case 0xE: sprintf(result, "SHL V%01x, V%01x", x, y); break;
-        default: sprintf(result, ".db %04x", in); break;
+        case 0x0: sprintf(result, "LD V%01X, V%01X", x, y); break;
+        case 0x1: sprintf(result, "OR V%01X, V%01X", x, y); break;
+        case 0x2: sprintf(result, "AND V%01X, V%01X", x, y); break;
+        case 0x3: sprintf(result, "XOR V%01X, V%01X", x, y); break;
+        case 0x4: sprintf(result, "ADD V%01X, V%01X", x, y); break;
+        case 0x5: sprintf(result, "SUB V%01X, V%01X", x, y); break;
+        case 0x6: sprintf(result, "SHR V%01X, V%01X", x, y); break;
+        case 0x7: sprintf(result, "SUBN V%01X, V%01X", x, y); break;
+        case 0xE: sprintf(result, "SHL V%01X, V%01X", x, y); break;
+        default: sprintf(result, ".dw %04X", in); break;
         }
         break;
-    case 0x9: sprintf(result, "SNE V%01x, V%01x", x, y); break;
+    case 0x9: sprintf(result, "SNE V%01X, V%01X", x, y); break;
     case 0xA:
         if (label_map && label_map[nnn]) {
             sprintf(result, "LD I, label%d", label_map[nnn]);
         }
         else {
-            sprintf(result, "LD I, $%03x", nnn);
+            sprintf(result, "LD I, $%03X", nnn);
         }
         break;
     case 0xB:
@@ -169,40 +169,40 @@ char* c8_decode_instruction(uint16_t in, uint8_t* label_map) {
             sprintf(result, "JP V0, label%d", label_map[nnn]);
         }
         else {
-            sprintf(result, "JP V0, $%03x", nnn);
+            sprintf(result, "JP V0, $%03X", nnn);
         }
         break;
-    case 0xC: sprintf(result, "RND V%01x, $%02x", x, kk); break;
-    case 0xD: sprintf(result, "DRW V%01x, V%01x, $%01x", x, y, b); break;
+    case 0xC: sprintf(result, "RND V%01X, 0x%02X", x, kk); break;
+    case 0xD: sprintf(result, "DRW V%01X, V%01X, 0x%01X", x, y, b); break;
     case 0xE:
         if (kk == 0x9E) {
-            sprintf(result, "SKP V%01x", x);
+            sprintf(result, "SKP V%01X", x);
         }
         else if (kk == 0xA1) {
-            sprintf(result, "SKNP V%01x", x);
+            sprintf(result, "SKNP V%01X", x);
         }
         else {
-            sprintf(result, ".db %04x", in);
+            sprintf(result, ".dw %04X", in);
         }
         break;
     case 0xF:
         switch (kk) {
-        case 0x07: sprintf(result, "LD V%01x, DT", x); break;
-        case 0x0A: sprintf(result, "LD V%01x, K", x); break;
-        case 0x15: sprintf(result, "LD DT, V%01x", x); break;
-        case 0x18: sprintf(result, "LD ST, V%01x", x); break;
-        case 0x1E: sprintf(result, "ADD I, V%01x", x); break;
-        case 0x29: sprintf(result, "LD F, V%01x", x); break;
-        case 0x30: sprintf(result, "LD HF, V%01x", x); break;
-        case 0x33: sprintf(result, "LD B, V%01x", x); break;
-        case 0x55: sprintf(result, "LD [I], V%01x", x); break;
-        case 0x65: sprintf(result, "LD V%01x, [I]", x); break;
-        case 0x75: sprintf(result, "LD R, V%01x", x); break;
-        case 0x85: sprintf(result, "LD V%01x, R", x); break;
-        default: sprintf(result, ".db %04x", in);
+        case 0x07: sprintf(result, "LD V%01X, DT", x); break;
+        case 0x0A: sprintf(result, "LD V%01X, K", x); break;
+        case 0x15: sprintf(result, "LD DT, V%01X", x); break;
+        case 0x18: sprintf(result, "LD ST, V%01X", x); break;
+        case 0x1E: sprintf(result, "ADD I, V%01X", x); break;
+        case 0x29: sprintf(result, "LD F, V%01X", x); break;
+        case 0x30: sprintf(result, "LD HF, V%01X", x); break;
+        case 0x33: sprintf(result, "LD B, V%01X", x); break;
+        case 0x55: sprintf(result, "LD [I], V%01X", x); break;
+        case 0x65: sprintf(result, "LD V%01X, [I]", x); break;
+        case 0x75: sprintf(result, "LD R, V%01X", x); break;
+        case 0x85: sprintf(result, "LD V%01X, R", x); break;
+        default: sprintf(result, ".dw %04X", in);
         }
         break;
-    default: sprintf(result, ".db %04x", in);
+    default: sprintf(result, ".dw %04X", in);
     }
 
     return result;
