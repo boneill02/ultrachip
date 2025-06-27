@@ -190,11 +190,11 @@ void test_c8_encode_WhereTooManyLabelsAreDefined(void) {
     int slen = 5;
 
     for (int i = 0; i < LABEL_CEILING + 3; i++) {
-        sprintf(&buf[len], "%s%02d:\n", s, i);
+        sprintf(&buf[len], "%s%02d: ", s, i);
         len += slen;
     }
 
-    sprintf(buf + len, "ADD V1 V2\n");
+    sprintf(buf + len, "\nADD V1 V2\n");
 
     int r = c8_encode(buf, bytecode, 0);
     TEST_ASSERT_EQUAL_INT(TOO_MANY_LABELS_EXCEPTION, r);
