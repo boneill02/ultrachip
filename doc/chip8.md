@@ -5,7 +5,7 @@ integrated debug mode, utilizing libc8 with SDL2.
 
 ## Usage
 
-```
+```shell
 c8 [-dvV] [-c clockspeed] [-f small,big] [-p file] [-P colors] [-q quirks] file
 ```
 
@@ -21,7 +21,7 @@ c8 [-dvV] [-c clockspeed] [-f small,big] [-p file] [-P colors] [-q quirks] file
 
 Keyboard layout is the following:
 
-```
+```shell
 1 2 3 4
 q w e r
 a s d f

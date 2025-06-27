@@ -10,7 +10,7 @@ An example assembler, disassembler, and interpreter is located in `tools/`.
 
 ## Building
 
-```
+```shell
 cmake -DTARGET_GROUP=all .
 make
 ```
@@ -35,12 +35,9 @@ for more information about these functions.
 
 ## Example Tools
 
-* See [here](doc/chip8.md) for information about the example libc8 interpreter,
-  `chip8`.
-* See [here](doc/chip8as.md) for information about the example libc8 assembler,
-  `chip8as`.
-* See [here](doc/chip8dis.md) for information about the example libc8 disassembler,
-  `chip8dis`.
+* [Interpreter](doc/chip8.md)
+* [Assembler](doc/chip8as.md)
+* [Disassembler](doc/chip8dis.md)
 
 ## Documentation
 
