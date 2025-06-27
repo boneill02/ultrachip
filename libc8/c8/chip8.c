@@ -82,7 +82,7 @@ c8_t* c8_init(const char* path, int flags) {
 
     c8->flags = flags;
     c8->cs = C8_CLOCK_SPEED;
-    c8->colors[0] = 0xFFFFFF;
+    c8->colors[1] = 0xFFFFFF;
 
     load_rom(c8, path);
     c8_set_fonts(c8, 0, 0);

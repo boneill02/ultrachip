@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 
-#define C8_CLOCK_SPEED 500
+#define C8_CLOCK_SPEED 1000
 #define C8_STACK_SIZE 16
 
 #define C8_FLAG_DEBUG 0x1
