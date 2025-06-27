@@ -314,7 +314,7 @@ static int parse_instruction(c8_t* c8) {
     C8_EXPAND(in);
 
     if (VERBOSE(c8)) {
-        printf("%s\n", c8_decode_instruction(in, NULL));
+        printf("%04x: %s\n", c8->pc, c8_decode_instruction(in, NULL));
     }
 
     switch (a) {
@@ -419,7 +419,6 @@ static int parse_instruction(c8_t* c8) {
             /* SUB Vx, Vy */
             c8->V[0xF] = !BORROWS(c8->V[x], c8->V[y]);
             c8->V[x] -= c8->V[y];
-
             return 2;
         case 0x6:
             /* SHR Vx, Vy */
