@@ -26,22 +26,22 @@ static SDL_Renderer* renderer;
  * * `keyMap[17]` disables debug mode
  */
 static int keyMap[18][2] = {
-    { SDLK_1, 0 },
-    { SDLK_2, 1 },
-    { SDLK_3, 2 },
-    { SDLK_4, 3 },
+    { SDLK_1, 1 },
+    { SDLK_2, 2 },
+    { SDLK_3, 3 },
+    { SDLK_4, 0xC },
     { SDLK_q, 4 },
     { SDLK_w, 5 },
     { SDLK_e, 6 },
-    { SDLK_r, 7 },
-    { SDLK_a, 8 },
-    { SDLK_s, 9 },
-    { SDLK_d, 10 },
-    { SDLK_f, 11 },
-    { SDLK_z, 12 },
-    { SDLK_x, 13 },
-    { SDLK_c, 14 },
-    { SDLK_v, 15 },
+    { SDLK_r, 0xD },
+    { SDLK_a, 7 },
+    { SDLK_s, 8 },
+    { SDLK_d, 9 },
+    { SDLK_f, 0xE },
+    { SDLK_z, 0xA },
+    { SDLK_x, 0 },
+    { SDLK_c, 0xB },
+    { SDLK_v, 0xF },
     { SDLK_p, 16 }, // Enter debug mode
     { SDLK_m, 17 }, // Leave debug mode
 };
