@@ -45,23 +45,26 @@ int hex_to_int(char c) {
  *
  * @return -1 if failed, otherwise whatever the value is
  */
-int parse_int(const char *s) {
-	NULLCHECK1(s);
-	int len = strlen(s);
-	if (len == 0) {
-		return -1;
-	}
+int parse_int(const char* s) {
+    NULLCHECK1(s);
+    int len = strlen(s);
+    if (len == 0) {
+        return -1;
+    }
 
     int result = -1;
-	char *endptr = NULL;
+    char* endptr = NULL;
     errno = 0;
     if (s[0] == '$' || s[0] == 'x' || s[0] == 'V' || s[0] == 'v') {
-        result = strtol(s+1, &endptr, 16);
-	} else if (len > 2 && s[0] == '0' && s[1] == 'x') {
-		result = strtol(s+2, &endptr, 16);
-	} else if (len > 2 && s[0] == '0' && s[1] == 'b') {
-		result = strtol(s+2, &endptr, 2);
-	} else {
+        result = strtol(s + 1, &endptr, 16);
+    }
+    else if (len > 2 && s[0] == '0' && s[1] == 'x') {
+        result = strtol(s + 2, &endptr, 16);
+    }
+    else if (len > 2 && s[0] == '0' && s[1] == 'b') {
+        result = strtol(s + 2, &endptr, 2);
+    }
+    else {
         result = strtol(s, &endptr, 10);
     }
 
@@ -81,28 +84,28 @@ int parse_int(const char *s) {
  * @param s string to trim
  * @return pointer to first non-whitespace character after `s`.
  */
-char *trim(char *s) {
-	if (s == NULL) {
-		return NULL;
-	}
+char* trim(char* s) {
+    if (s == NULL) {
+        return NULL;
+    }
 
     int len = strlen(s);
-	int startIdx = 0;
-	int endIdx = len - 1;
+    int startIdx = 0;
+    int endIdx = len - 1;
 
     while (startIdx < len && isspace(s[startIdx])) {
         startIdx++;
     }
 
-	if (startIdx == len) {
-		return &s[len+1]; // empty string
-	}
-	while (endIdx > 0 && isspace(s[endIdx])) {
-		endIdx--;
-	}
+    if (startIdx == len) {
+        return &s[len + 1]; // empty string
+    }
+    while (endIdx > 0 && isspace(s[endIdx])) {
+        endIdx--;
+    }
 
-	if (endIdx < len) {
-		s[endIdx + 1] = '\0';
-	}
-	return &s[startIdx];
+    if (endIdx < len) {
+        s[endIdx + 1] = '\0';
+    }
+    return &s[startIdx];
 }

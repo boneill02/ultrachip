@@ -26,26 +26,26 @@
 #define C8_DISPLAYMODE_LOW 0
 #define C8_DISPLAYMODE_HIGH 1
 
-/**
- * @struct display_t
- *
- * @param p pixels (1D array)
- * @param mode display mode (`DISPLAY_STANDARD` or `DISPLAY_EXTENDED`)
- * @param x x offset (for `DISPLAY_EXTENDED`)
- * @param y y offset (for `DISPLAY_EXTENDED`)
- */
+ /**
+  * @struct display_t
+  *
+  * @param p pixels (1D array)
+  * @param mode display mode (`DISPLAY_STANDARD` or `DISPLAY_EXTENDED`)
+  * @param x x offset (for `DISPLAY_EXTENDED`)
+  * @param y y offset (for `DISPLAY_EXTENDED`)
+  */
 typedef struct {
-	uint8_t p[C8_HIGH_DISPLAY_WIDTH * C8_HIGH_DISPLAY_HEIGHT];
-	uint8_t mode;
-	uint8_t x, y;
+    uint8_t p[C8_HIGH_DISPLAY_WIDTH * C8_HIGH_DISPLAY_HEIGHT];
+    uint8_t mode;
+    uint8_t x, y;
 } c8_display_t;
 
-uint8_t *c8_get_pixel(c8_display_t *, int, int);
+uint8_t* c8_get_pixel(c8_display_t*, int, int);
 
 extern void c8_beep(void);
 extern void c8_deinit_graphics(void);
 extern uint8_t c8_init_graphics(void);
-extern void c8_render(c8_display_t *, int *);
-extern int c8_tick(int *, int);
+extern void c8_render(c8_display_t*, int*);
+extern int c8_tick(int*, int);
 
 #endif

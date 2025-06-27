@@ -1,7 +1,7 @@
 /**
  * @file c8/private/util.h
  * @note NOT EXPORTED
- * 
+ *
  * Miscellaneous useful functions.
  */
 
@@ -9,7 +9,7 @@
 #define C8_UTIL_H
 
 int hex_to_int(char);
-int parse_int(const char *);
-char *trim(char *);
+int parse_int(const char*);
+char* trim(char*);
 
 #endif

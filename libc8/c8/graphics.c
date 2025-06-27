@@ -8,16 +8,16 @@
 
 #include <stdio.h>
 
-/**
- * @brief Play sound
- *
- * This definition is overridden in libc8_sdl2 by definition in
- * internal/graphics_sdl.c.
- *
- * In libc8, this should be overridden by the user if c8_simulate() is called.
- */
-void __attribute__((weak)) c8_beep(void) { 
-	fprintf(stderr, "c8_beep() not implemented.");
+ /**
+  * @brief Play sound
+  *
+  * This definition is overridden in libc8_sdl2 by definition in
+  * internal/graphics_sdl.c.
+  *
+  * In libc8, this should be overridden by the user if c8_simulate() is called.
+  */
+void __attribute__((weak)) c8_beep(void) {
+    fprintf(stderr, "c8_beep() not implemented.");
 }
 
 /**
@@ -29,7 +29,7 @@ void __attribute__((weak)) c8_beep(void) {
  * In libc8, this should be overridden by the user if c8_simulate() is called.
  */
 void __attribute__((weak)) c8_deinit_graphics(void) {
-	fprintf(stderr, "c8_deinit_graphics() not implemented.");
+    fprintf(stderr, "c8_deinit_graphics() not implemented.");
 }
 
 /**
@@ -41,8 +41,8 @@ void __attribute__((weak)) c8_deinit_graphics(void) {
  * In libc8, this should be overridden by the user if c8_simulate() is called.
  */
 uint8_t __attribute__((weak)) c8_init_graphics(void) {
-	fprintf(stderr, "c8_init_graphics() not implemented.\n");
-	return -1;
+    fprintf(stderr, "c8_init_graphics() not implemented.\n");
+    return -1;
 }
 
 /**
@@ -53,8 +53,8 @@ uint8_t __attribute__((weak)) c8_init_graphics(void) {
  *
  * In libc8, this should be overridden by the user if c8_simulate() is called.
  */
-void __attribute__((weak)) c8_render(c8_display_t *display, int *colors) { 
-	fprintf(stderr, "c8_render() not implemented.");
+void __attribute__((weak)) c8_render(c8_display_t* display, int* colors) {
+    fprintf(stderr, "c8_render() not implemented.");
 }
 
 /**
@@ -65,9 +65,9 @@ void __attribute__((weak)) c8_render(c8_display_t *display, int *colors) {
  *
  * In libc8, this should be overridden by the user if c8_simulate() is called.
  */
-int __attribute__((weak)) c8_tick(int *key, int clockSpeed) {
-	fprintf(stderr, "tick() not implemented.\n");
-	return -1;
+int __attribute__((weak)) c8_tick(int* key, int clockSpeed) {
+    fprintf(stderr, "tick() not implemented.\n");
+    return -1;
 }
 
 /**
@@ -79,10 +79,10 @@ int __attribute__((weak)) c8_tick(int *key, int clockSpeed) {
  *
  * @return pointer to value of (x,y) in `display`
  */
-uint8_t *c8_get_pixel(c8_display_t *display, int x, int y) {
-	if (display->mode == C8_DISPLAYMODE_HIGH) {
-		x += display->x;
-		y += display->y;
-	}
+uint8_t* c8_get_pixel(c8_display_t* display, int x, int y) {
+    if (display->mode == C8_DISPLAYMODE_HIGH) {
+        x += display->x;
+        y += display->y;
+    }
     return &display->p[y * C8_LOW_DISPLAY_WIDTH + x];
 }

@@ -12,12 +12,12 @@
 #define C8_FONT_START 0x000
 #define C8_HIGH_FONT_START C8_FONT_START + (0x10 * 5)
 
-extern const char *c8_fontNames[2][5];
+extern const char* c8_fontNames[2][5];
 
-void print_fonts(c8_t *);
-void c8_set_fonts(c8_t *, int, int);
-int c8_set_fonts_s(c8_t *, char *);
-int c8_set_small_font(c8_t *, const char *);
-int c8_set_big_font(c8_t *, const char *);
+void print_fonts(c8_t*);
+void c8_set_fonts(c8_t*, int, int);
+int c8_set_fonts_s(c8_t*, char*);
+int c8_set_small_font(c8_t*, const char*);
+int c8_set_big_font(c8_t*, const char*);
 
 #endif

@@ -1,7 +1,7 @@
 /**
  * @file c8/private/exception.h
  * @note NOT EXPORTED
- * 
+ *
  * Stuff for handling exceptions.
  */
 
@@ -35,7 +35,7 @@
 #define INVALID_ARGUMENT_EXCEPTION_INTERNAL (-8)
 #define DUPLICATE_LABEL_EXCEPTION (-9)
 #define INVALID_SYMBOL_EXCEPTION (-10)
-#define TOO_MANY_MALLOCS_EXCEPTION (-11)
+#define MEMORY_ALLOCATION_EXCEPTION (-11)
 #define UNKNOWN_EXCEPTION (-12)
 #define TOO_MANY_SYMBOLS_EXCEPTION (-13)
 #define LOAD_FILE_FAILURE_EXCEPTION (-14)
@@ -53,7 +53,7 @@
 #define INVALID_ARGUMENT_EXCEPTION_INTERNAL_MESSAGE "An invalid argument was passed internally."
 #define DUPLICATE_LABEL_EXCEPTION_MESSAGE "A label was defined multiple times."
 #define INVALID_SYMBOL_EXCEPTION_MESSAGE "An invalid symbol exists in the input file."
-#define TOO_MANY_MALLOCS_EXCEPTION_MESSAGE "Too many mallocs."
+#define MEMORY_ALLOCATION_EXCEPTION_MESSAGE "Failed to allocate memory."
 #define UNKNOWN_EXCEPTION_MESSAGE "An unknown error has occurred."
 #define TOO_MANY_SYMBOLS_EXCEPTION_MESSAGE "Too many symbols exist in the input file."
 #define LOAD_FILE_FAILURE_EXCEPTION_MESSAGE "Failed to load file."
@@ -64,8 +64,8 @@
 #define INVALID_FONT_EXCEPTION_MESSAGE "Invalid font."
 
 /**
- * Message to print when calling `handle_exception` with a non-zero code
- */
+  * Message to print when calling `handle_exception` with a non-zero code
+  */
 extern char c8_exception[EXCEPTION_MESSAGE_SIZE];
 
 void handle_exception(int);

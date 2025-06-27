@@ -41,7 +41,7 @@ If no argument is given to print, it will print all of the above attributes\n\
 except for address values.\n"
 
 
-int debug_repl(c8_t *);
-int has_breakpoint(c8_t *, uint16_t);
+int debug_repl(c8_t*);
+int has_breakpoint(c8_t*, uint16_t);
 
 #endif
