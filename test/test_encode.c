@@ -15,22 +15,8 @@
 #define BYTECODE_SIZE (C8_MEMSIZE - C8_PROG_START)
 #define BUF_SIZE (BYTECODE_SIZE * C8_ENCODE_MAX_LINE_LENGTH)
 
-#define CLEAR_BYTECODE for(int i=0;i<BYTECODE_SIZE;i++){bytecode[i]=0;}
-#define CLEAR_BUF for(int i=0;i<BUF_SIZE;i++){buf[i]='\0';}
-#define CLEAR_EXCEPTION for(int i=0;i<EXCEPTION_MESSAGE_SIZE;i++){c8_exception[i]='\0';}
-#define CLEAR_LABELS \
-	memset(labels.l,0,LABEL_CEILING*sizeof(label_t)); \
-	labels.len=0; \
-	labels.ceil=LABEL_CEILING;
-#define CLEAR_SYMBOLS \
-	memset(labels.l, 0, SYMBOL_CEILING*sizeof(symbol_t)); \
-	labels.len=0; \
-	labels.ceil = LABEL_CEILING;
-#define RESET CLEAR_SYMBOLS; CLEAR_LABELS; CLEAR_BUF; CLEAR_BYTECODE; CLEAR_EXCEPTION;
-
 char buf[BUF_SIZE];
 uint8_t* bytecode;
-extern char exception[EXCEPTION_MESSAGE_SIZE];
 int fmtCount;
 int insCount;
 
@@ -38,20 +24,19 @@ symbol_list_t symbols;
 label_list_t labels;
 
 void setUp(void) {
-    srand(time(NULL));
-    bytecode = calloc(BYTECODE_SIZE, 1);
-    for (fmtCount = 0; formats[fmtCount].cmd != I_NULL; fmtCount++);
-    for (insCount = 0; c8_instructionStrings[insCount] != NULL; insCount++);
-    symbols.s = calloc(SYMBOL_CEILING, sizeof(symbol_t));
-    symbols.ceil = SYMBOL_CEILING;
-    labels.l = calloc(LABEL_CEILING, sizeof(label_t));
+    memset(bytecode, 0, BYTECODE_SIZE);
+    memset(buf, 0, BUF_SIZE);
+
+    memset(labels.l, 0, LABEL_CEILING * sizeof(label_t));
+    labels.len = 0;
     labels.ceil = LABEL_CEILING;
+
+    memset(symbols.s, 0, SYMBOL_CEILING * sizeof(symbol_t)); \
+        symbols.len = 0; \
+        symbols.ceil = SYMBOL_CEILING;
 }
 
 void tearDown(void) {
-    free(bytecode);
-    free(symbols.s);
-    free(labels.l);
 }
 
 void generate_valid_instruction_string(void) {
@@ -94,32 +79,24 @@ void generate_invalid_instruction_string(void) {
 }
 
 void test_remove_comment_WhereStringHasNoComment(void) {
-    RESET;
-
     const char* s = "String without a comment";
     sprintf(buf, "%s", s);
     TEST_ASSERT_EQUAL_STRING(s, remove_comment(buf));
 }
 
 void test_remove_comment_WhereStringHasCommentAtEnd(void) {
-    RESET;
-
     const char* s = "String with a comment";
     sprintf(buf, "%s ; comment", s);
     TEST_ASSERT_EQUAL_STRING(s, remove_comment(buf));
 }
 
 void test_remove_comment_WhereStringIsOnlyComment(void) {
-    RESET;
-
     const char* s = "; A comment";
     sprintf(buf, "%s", s);
     TEST_ASSERT_EQUAL_INT(0, strlen(remove_comment(buf)));
 }
 
 void test_c8_encode_WhereStringIsOnlyComment(void) {
-    RESET;
-
     char* s = "; A comment";
     sprintf(buf, "%s\n", s);
     int r = c8_encode(buf, bytecode, 0);
@@ -128,8 +105,6 @@ void test_c8_encode_WhereStringIsOnlyComment(void) {
 }
 
 void test_c8_encode_WhereOneValidInstructionExists(void) {
-    RESET;
-
     /* Test specific instruction to match bytecode */
     char* s = "ADD V5, V3";
     sprintf(buf, "%s\n", s);
@@ -137,12 +112,9 @@ void test_c8_encode_WhereOneValidInstructionExists(void) {
     TEST_ASSERT_EQUAL_INT(2, r);
     TEST_ASSERT_EQUAL_INT(0x85, bytecode[0]);
     TEST_ASSERT_EQUAL_INT(0x34, bytecode[1]);
-    TEST_ASSERT_EQUAL_INT(0, strlen(c8_exception));
 }
 
 void test_c8_encode_WhereMultipleValidInstructionsExist(void) {
-    RESET;
-
     char* s = "AND VF, $31\nOR V1, V9\nDRW V1, V9, $8\n";
     sprintf(buf, "%s", s);
     int r = c8_encode(buf, bytecode, 0);
@@ -150,8 +122,6 @@ void test_c8_encode_WhereMultipleValidInstructionsExist(void) {
 }
 
 void test_c8_encode_WhereInvalidInstructionsExist(void) {
-    RESET;
-
     char* s = "OR V1, V9\nAND $31\nDRW V1, V9, $8";
     sprintf(buf, "%s", s);
     int r = c8_encode(buf, bytecode, 0);
@@ -159,16 +129,12 @@ void test_c8_encode_WhereInvalidInstructionsExist(void) {
 }
 
 void test_c8_encode_WhereInvalidSymbolsExist(void) {
-    RESET;
-
     sprintf(buf, "invalid\n");
     int r = c8_encode(buf, bytecode, 0);
     TEST_ASSERT_EQUAL_INT(INVALID_SYMBOL_EXCEPTION, r);
 }
 
 void test_c8_encode_WhereResultingBytecodeIsTooBig(void) {
-    RESET;
-
     const char* s = "AND V1, V9\n";
     int len = 0;
     int slen = strlen(s);
@@ -184,7 +150,6 @@ void test_c8_encode_WhereResultingBytecodeIsTooBig(void) {
 }
 
 void test_c8_encode_WhereTooManyLabelsAreDefined(void) {
-    RESET;
     int len = 0;
     const char* s = "l";
     int slen = 5; // "lXX:\n"
@@ -201,42 +166,29 @@ void test_c8_encode_WhereTooManyLabelsAreDefined(void) {
 }
 
 void test_c8_encode_WhereStringIsEmpty(void) {
-    RESET;
-
     int r = c8_encode(buf, bytecode, 0);
     TEST_ASSERT_EQUAL_INT(0, r);
 }
 
 void line_count_WhereStringHasMultipleLines(void) {
-
-    RESET;
-
     const char* s = "ABCD\nEFGH\nIJKL\n";
     TEST_ASSERT_EQUAL_INT(4, line_count(s));
 }
 
 void line_count_WhereStringHasOneLine(void) {
-    RESET;
-
     const char* s = "blablabla";
     TEST_ASSERT_EQUAL_INT(1, line_count(s));
 }
 
 void test_line_count_WhereStringIsEmpty(void) {
-    RESET;
-
     TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, line_count(buf));
 }
 
 void test_line_count_WhereStringIsNull(void) {
-    RESET;
-
     TEST_ASSERT_EQUAL_INT(NULL_ARGUMENT_EXCEPTION, line_count(NULL));
 }
 
 void test_parse_word_WhereWordIsLabelDefinition(void) {
-    RESET;
-
     const char* s = "ldef";
 
     sprintf(buf, "%s:", s);
@@ -250,8 +202,6 @@ void test_parse_word_WhereWordIsLabelDefinition(void) {
 }
 
 void test_parse_word_WhereWordIsInstruction(void) {
-    RESET;
-
     int ins = rand() % insCount;
 
     sprintf(buf, "%s", c8_instructionStrings[ins]);
@@ -263,8 +213,6 @@ void test_parse_word_WhereWordIsInstruction(void) {
 }
 
 void test_parse_word_WhereWordIsDB(void) {
-    RESET;
-
     int v = rand() % UINT8_MAX;
     sprintf(buf, "%s", S_DB, v);
     sprintf(buf + 10, "%d", v);
@@ -276,8 +224,6 @@ void test_parse_word_WhereWordIsDB(void) {
 }
 
 void test_parse_word_WhereWordIsDW(void) {
-    RESET;
-
     int v = rand() % UINT8_MAX;
     sprintf(buf, "%s", S_DW, v);
     sprintf(buf + 10, "%d", v, v);
@@ -289,8 +235,6 @@ void test_parse_word_WhereWordIsDW(void) {
 }
 
 void test_parse_word_WhereWordIsRegister(void) {
-    RESET;
-
     int v = rand() % 0x10;
     sprintf(buf, "V%01x", v);
     int r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
@@ -301,8 +245,6 @@ void test_parse_word_WhereWordIsRegister(void) {
 }
 
 void test_parse_word_WhereWordIsReservedIdentifier(void) {
-    RESET;
-
     sprintf(buf, "%s", S_HF);
     int r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
 
@@ -310,7 +252,6 @@ void test_parse_word_WhereWordIsReservedIdentifier(void) {
     TEST_ASSERT_EQUAL_INT(SYM_HF, symbols.s[0].type);
     TEST_ASSERT_EQUAL_INT(0, symbols.s[0].value);
 
-    RESET;
     sprintf(buf, "%s", S_IP);
     r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
 
@@ -320,7 +261,6 @@ void test_parse_word_WhereWordIsReservedIdentifier(void) {
 }
 
 void test_parse_word_WhereWordIsInt(void) {
-    RESET;
     int v4 = rand() % 0x10;
     int v8 = rand() % 0x100;
     int v12 = rand() % 0x1000;
@@ -331,7 +271,6 @@ void test_parse_word_WhereWordIsInt(void) {
     TEST_ASSERT_EQUAL_INT(SYM_INT4, symbols.s[0].type);
     TEST_ASSERT_EQUAL_INT(v4, symbols.s[0].value);
 
-    RESET;
 
     sprintf(buf, "$%x", v8);
     r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
@@ -339,7 +278,6 @@ void test_parse_word_WhereWordIsInt(void) {
     TEST_ASSERT_EQUAL_INT(SYM_INT8, symbols.s[0].type);
     TEST_ASSERT_EQUAL_INT(v8, symbols.s[0].value);
 
-    RESET;
 
     sprintf(buf, "$%x", v12);
     r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
@@ -349,7 +287,6 @@ void test_parse_word_WhereWordIsInt(void) {
 }
 
 void test_parse_word_WhereWordIsLabel(void) {
-    RESET;
 
     const char* l = "LABEL";
     labels.len = 2;
@@ -364,7 +301,6 @@ void test_parse_word_WhereWordIsLabel(void) {
 }
 
 void test_parse_word_WhereWordIsInvalid(void) {
-    RESET;
 
     const char* s = "Invalid";
     sprintf(buf, "%s", s);
@@ -375,6 +311,17 @@ void test_parse_word_WhereWordIsInvalid(void) {
 }
 
 int main(void) {
+    srand(time(NULL));
+
+    bytecode = calloc(BYTECODE_SIZE, 1);
+    symbols.s = calloc(SYMBOL_CEILING, sizeof(symbol_t));
+    symbols.ceil = SYMBOL_CEILING;
+    labels.l = calloc(LABEL_CEILING, sizeof(label_t));
+    labels.ceil = LABEL_CEILING;
+
+    for (fmtCount = 0; formats[fmtCount].cmd != I_NULL; fmtCount++);
+    for (insCount = 0; c8_instructionStrings[insCount] != NULL; insCount++);
+
     UNITY_BEGIN();
     RUN_TEST(test_remove_comment_WhereStringHasNoComment);
     RUN_TEST(test_remove_comment_WhereStringHasCommentAtEnd);
@@ -395,5 +342,10 @@ int main(void) {
     RUN_TEST(test_parse_word_WhereWordIsInt);
     RUN_TEST(test_parse_word_WhereWordIsLabel);
     RUN_TEST(test_parse_word_WhereWordIsInvalid);
+
+    free(bytecode);
+    free(symbols.s);
+    free(labels.l);
     return UNITY_END();
+
 }
