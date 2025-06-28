@@ -15,6 +15,10 @@
 #define C8_CLOCK_SPEED 1000
 #define C8_STACK_SIZE 16
 
+#define C8_MODE_CHIP8 0
+#define C8_MODE_SCHIP 1
+#define C8_MODE_XOCHIP 2
+
 #define C8_FLAG_DEBUG 0x1
 #define C8_FLAG_VERBOSE 0x2
 #define C8_FLAG_QUIRK_BITWISE 0x4
@@ -47,6 +51,7 @@
   * @param colors 24 bit hex colors, background=[0] foreground=[1]
   * @param fonts font IDs (see font.c)
   * @param draw need to draw? (1 or 0)
+  * @param mode interpreter mode (C8_MODE_CHIP8, C8_MODE_SCHIP, C8_MODE_XOCHIP)
   */
 typedef struct {
     uint8_t mem[C8_MEMSIZE];
@@ -69,6 +74,7 @@ typedef struct {
     int colors[2];
     int fonts[2];
     int draw;
+    int mode;
 } c8_t;
 
 void c8_deinit(c8_t*);

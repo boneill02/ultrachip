@@ -22,6 +22,21 @@
 #define DEBUG(c) (c->flags & C8_FLAG_DEBUG)
 #define VERBOSE(c) (c->flags & C8_FLAG_VERBOSE)
 
+#define SCHIP_EXCLUSIVE(c) \
+    if (c->mode == C8_MODE_CHIP8) { \
+        sprintf(c8_exception, "SCHIP instruction detected in CHIP-8 mode.\n"); \
+        handle_exception(INVALID_INSTRUCTION_EXCEPTION); \
+        return -1; \
+    }
+
+#define XOCHIP_EXCLUSIVE(c) \
+    if (c->mode != C8_MODE_XOCHIP) { \
+        const char *modeStr = (c->mode == C8_MODE_CHIP8) ? "CHIP-8" : "SCHIP"; \
+        sprintf(c8_exception, "XOCHIP instruction detected in %s mode.\n", modeStr); \
+        handle_exception(INVALID_INSTRUCTION_EXCEPTION); \
+        return -1; \
+    }
+
 #define QUIRK_BITWISE(c) \
 	if (c->flags & C8_FLAG_QUIRK_BITWISE) { \
 		c->V[0xF] = 0; \
@@ -87,6 +102,7 @@ c8_t* c8_init(const char* path, int flags) {
     c8->cs = C8_CLOCK_SPEED;
     c8->colors[1] = 0xFFFFFF;
     c8->display.mode = C8_DISPLAYMODE_HIGH;
+    c8->mode = C8_MODE_CHIP8;
 
 
     if ((res = load_rom(c8, path)) < 0) {
@@ -339,6 +355,7 @@ static int parse_instruction(c8_t* c8) {
     case 0x0:
         if (y == 0xC) {
             /* SCD n */
+            SCHIP_EXCLUSIVE(c8);
             c8->display.y += b;
             if (c8->display.y > C8_HIGH_DISPLAY_HEIGHT) {
                 c8->display.y -= C8_HIGH_DISPLAY_HEIGHT;
@@ -349,7 +366,7 @@ static int parse_instruction(c8_t* c8) {
         case 0xE0:
             /* CLS */
             memset(&c8->display.p, 0,
-                C8_HIGH_DISPLAY_WIDTH * C8_HIGH_DISPLAY_HEIGHT);
+                   C8_HIGH_DISPLAY_WIDTH * C8_HIGH_DISPLAY_HEIGHT);
             return 2;
         case 0xEE:
             /* RET */
@@ -358,6 +375,7 @@ static int parse_instruction(c8_t* c8) {
             return 2;
         case 0xFB:
             /* SCR */
+            SCHIP_EXCLUSIVE(c8);
             c8->display.x += 4;
             if (c8->display.x > C8_HIGH_DISPLAY_WIDTH) {
                 c8->display.x -= C8_HIGH_DISPLAY_WIDTH;
@@ -365,14 +383,26 @@ static int parse_instruction(c8_t* c8) {
             return 2;
         case 0xFC:
             /* SCL */
+            SCHIP_EXCLUSIVE(c8);
             c8->display.x -= 4;
             if (c8->display.x < 0) {
                 c8->display.x += C8_HIGH_DISPLAY_WIDTH;
             }
             return 2;
-        case 0xFD: c8->running = 0; return 0; // EXIT
-        case 0xFE: c8->display.mode = C8_DISPLAYMODE_LOW; return 2; // LOW
-        case 0xFF: c8->display.mode = C8_DISPLAYMODE_HIGH; return 2; // HIGH
+        case 0xFD:
+            /* EXIT */
+            SCHIP_EXCLUSIVE(c8);
+            c8->running = 0;
+            return 0;
+        case 0xFE:
+            /* LOW */
+            SCHIP_EXCLUSIVE(c8);
+            c8->display.mode = C8_DISPLAYMODE_LOW;
+            return 2;
+        case 0xFF:
+            /* HIGH */
+            c8->display.mode = C8_DISPLAYMODE_HIGH;
+            return 2;
         }
         break;
     case 0x1: c8->pc = nnn; return 0; // JP nnn
@@ -509,6 +539,7 @@ static int parse_instruction(c8_t* c8) {
             return 2;
         case 0x30:
             /* LD HF, Vx */
+            SCHIP_EXCLUSIVE(c8);
             c8->I = C8_HIGH_FONT_START + (c8->V[x] * 10);
             return 2;
         case 0x33:
@@ -533,12 +564,14 @@ static int parse_instruction(c8_t* c8) {
             return 2;
         case 0x75:
             /* LD R, Vx */
+            SCHIP_EXCLUSIVE(c8);
             for (int i = 0; i < x; i++) {
                 c8->R[i] = c8->V[i];
             }
             return 2;
         case 0x85:
             /* LD Vx, R */
+            SCHIP_EXCLUSIVE(c8);
             for (int i = 0; i < x; i++) {
                 c8->V[i] = c8->R[i];
             }
