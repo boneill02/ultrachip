@@ -24,5 +24,4 @@
 #define C8_PROG_START 0x200
 #define C8_MEMSIZE 0x1000
 
-
 #endif

@@ -9,7 +9,7 @@ integrated debug mode, utilizing libc8 with SDL2.
 c8 [-dvV] [-c clockspeed] [-f small,big] [-p file] [-P colors] [-q quirks] file
 ```
 
-* `-c` sets the number of instructions to be executed per second (default: 500).
+* `-c` sets the number of instructions to be executed per second (default: 1000).
 * `-d` enables debug mode. This can be used to add breakpoints, display the
   current memory, and step through instructions individually.
 * `-f` loads the specified comma-separated fonts. Big font is optional.
@@ -22,10 +22,11 @@ c8 [-dvV] [-c clockspeed] [-f small,big] [-p file] [-P colors] [-q quirks] file
 Keyboard layout is the following:
 
 ```shell
-1 2 3 4
-q w e r
-a s d f
-z x c v
+  Key       CHIP-8 keycode
+1 2 3 4        1 2 3 C
+q w e r  ==>   4 5 6 D
+a s d f        7 8 9 E
+z x c v        A 0 B F
 ```
 
 ## Fonts

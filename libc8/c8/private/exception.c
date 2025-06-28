@@ -14,7 +14,7 @@
 #include <string.h>
 
 char c8_exception[EXCEPTION_MESSAGE_SIZE];
-char exception_messages[19][EXCEPTION_MESSAGE_SIZE] = {
+char exception_messages[20][EXCEPTION_MESSAGE_SIZE] = {
     UNKNOWN_EXCEPTION_MESSAGE,
     NULL_ARGUMENT_EXCEPTION_MESSAGE,
     INVALID_INSTRUCTION_EXCEPTION_MESSAGE,
@@ -33,10 +33,11 @@ char exception_messages[19][EXCEPTION_MESSAGE_SIZE] = {
     INVALID_QUIRK_EXCEPTION_MESSAGE,
     FAILED_GRAPHICS_INITIALIZATION_EXCEPTION_MESSAGE,
     INVALID_FONT_EXCEPTION_MESSAGE,
+    INVALID_CLOCK_SPEED_EXCEPTION_MESSAGE,
 };
 
 void handle_exception(int code) {
-    if (code < -3 && code >= -19) {
+    if (code < -3 && code >= -20) {
         fprintf(stderr, "libc8: %s\n", exception_messages[(code * -1) - 2]);
     }
 
