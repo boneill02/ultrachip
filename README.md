@@ -41,7 +41,8 @@ for more information about these functions.
 
 ## Documentation
 
-Full documentation for libc8 is available [here](https://oneill.sh/docs/libc8).
+[Full documentation for libc8](https://boneill02.github.io/libc8/doc/html) is
+available on the GitHub pages site.
 
 ## Testing
 
