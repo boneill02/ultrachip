@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#ifndef VERSION
+#define VERSION "dev"
+#endif
+
 static int assemble(const char*, const char*, int);
 static char* dynamic_load(FILE*);
 
@@ -19,7 +23,7 @@ int main(int argc, char* argv[]) {
         switch (opt) {
         case 'o': outpath = optarg; break;
         case 'v': args |= ARG_VERBOSE; break;
-        case 'V': printf("%s %d", argv[0], VERSION); exit(0);
+        case 'V': printf("%s %s\n", argv[0], VERSION); exit(EXIT_SUCCESS);
         default:
             fprintf(stderr, "Usage: %s [-v] [-o outputfile] file\n", argv[0]);
             exit(1);

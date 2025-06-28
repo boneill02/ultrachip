@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#ifndef VERSION
+#define VERSION "dev"
+#endif
+
 int main(int argc, char* argv[]) {
     int args = 0;
     int opt;
@@ -17,7 +21,7 @@ int main(int argc, char* argv[]) {
         case 'a': args |= C8_DECODE_PRINT_ADDRESSES; break;
         case 'l': args |= C8_DECODE_DEFINE_LABELS; break;
         case 'o': outp = optarg; break;
-        case 'V': printf("%s %d", argv[0], VERSION); exit(0);
+        case 'V': printf("%s %s\n", argv[0], VERSION); exit(EXIT_SUCCESS);
         default:
             fprintf(stderr, "Usage: %s [-al] [-o outputfile] file\n", argv[0]);
             exit(1);
