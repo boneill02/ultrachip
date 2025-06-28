@@ -67,7 +67,7 @@ void setUp(void) {
     }
 }
 
-void tearDown(void) {}
+void tearDown(void) { }
 
 void test_parse_instruction_WhereInstructionIsCLS(void) {
     INSERT_INSTRUCTION(pc, 0x00E0);
