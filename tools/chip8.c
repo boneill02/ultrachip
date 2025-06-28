@@ -19,6 +19,11 @@ int main(int argc, char* argv[]) {
     }
 
     c8_t* c8 = c8_init(argv[argc - 1], 0);
+
+    if (!c8) {
+        usage(argv[0]);
+    }
+
     int opt;
     char* fontstr = NULL;
 

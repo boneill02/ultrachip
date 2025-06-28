@@ -72,6 +72,7 @@ void c8_deinit(c8_t* c8) {
  */
 c8_t* c8_init(const char* path, int flags) {
     NULLCHECK1(path);
+    int res;
 
     c8_t* c8 = (c8_t*)calloc(1, sizeof(c8_t));
 
@@ -85,7 +86,11 @@ c8_t* c8_init(const char* path, int flags) {
     c8->cs = C8_CLOCK_SPEED;
     c8->colors[1] = 0xFFFFFF;
 
-    load_rom(c8, path);
+    if ((res = load_rom(c8, path)) < 0) {
+        free(c8);
+        return NULL;
+    }
+
     c8_set_fonts(c8, 0, 0);
     c8_init_graphics();
     return c8;
@@ -282,7 +287,7 @@ static int load_rom(c8_t* c8, const char* addr) {
     if (!f) {
         sprintf(c8_exception, "File: %s\n", addr);
         handle_exception(LOAD_FILE_FAILURE_EXCEPTION);
-        return 0;
+        return LOAD_FILE_FAILURE_EXCEPTION;
     }
 
     /* Get file size */
