@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #define DEBUG(c) (c->flags & C8_FLAG_DEBUG)
 #define VERBOSE(c) (c->flags & C8_FLAG_VERBOSE)
@@ -203,8 +204,15 @@ void c8_simulate(c8_t* c8) {
     c8->pc = C8_PROG_START;
     c8->running = 1;
 
+    if (c8->cs <= 0) {
+        sprintf(c8_exception, "Invalid clock speed: %d\n", c8->cs);
+        handle_exception(INVALID_CLOCK_SPEED_EXCEPTION);
+        return;
+    }
+
     while (c8->running) {
-        t = c8_tick(c8->key, c8->cs);
+        usleep(1000000 / c8->cs);
+        t = c8_tick(c8->key);
 
         if (t == -2) {
             /* Quit */

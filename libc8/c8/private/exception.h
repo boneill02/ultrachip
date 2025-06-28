@@ -44,6 +44,7 @@
 #define INVALID_QUIRK_EXCEPTION (-17)
 #define FAILED_GRAPHICS_INITIALIZATION_EXCEPTION (-18)
 #define INVALID_FONT_EXCEPTION (-19)
+#define INVALID_CLOCK_SPEED_EXCEPTION (-20)
 
 #define NULL_ARGUMENT_EXCEPTION_MESSAGE "A NULL argument was passed to a function."
 #define INVALID_INSTRUCTION_EXCEPTION_MESSAGE "An invalid instruction exists in the input file."
@@ -62,6 +63,7 @@
 #define INVALID_QUIRK_EXCEPTION_MESSAGE "Invalid quirk."
 #define FAILED_GRAPHICS_INITIALIZATION_EXCEPTION_MESSAGE "Failed to initialize graphics."
 #define INVALID_FONT_EXCEPTION_MESSAGE "Invalid font."
+#define INVALID_CLOCK_SPEED_EXCEPTION_MESSAGE "Clock speed cannot be less than 1."
 
 /**
   * Message to print when calling `handle_exception` with a non-zero code

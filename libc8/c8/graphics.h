@@ -46,6 +46,6 @@ extern void c8_beep(void);
 extern void c8_deinit_graphics(void);
 extern uint8_t c8_init_graphics(void);
 extern void c8_render(c8_display_t*, int*);
-extern int c8_tick(int*, int);
+extern int c8_tick(int*);
 
 #endif
