@@ -45,6 +45,7 @@ void setUp(void) {
     memset(&c8, 0, sizeof(c8_t));
     c8.pc = 0x200;
     c8.I = 0x300;
+
     for (int i = 0; i < 16; i++) {
         c8.mem[c8.I + i] = rand() & 0xFF;
     }
@@ -86,7 +87,7 @@ void test_parse_instruction_WhereInstructionIsCLS(void) {
 void test_parse_instruction_WhereInstructionIsRET(void) {
     INSERT_INSTRUCTION(pc, 0x00EE)
 
-        c8.sp = 1;
+    c8.sp = 1;
     c8.stack[0] = nnn;
 
     int ret = parse_instruction(&c8);
@@ -95,24 +96,65 @@ void test_parse_instruction_WhereInstructionIsRET(void) {
     TEST_ASSERT_EQUAL_UINT8(0, c8.sp);
 }
 
-void test_parse_instruction_WhereInstructionIsSCD(void) {
+void test_parse_instruction_WhereInstructionIsRET_WhereSPIsZero(void) {
+    INSERT_INSTRUCTION(pc, 0x00EE)
+
+    c8.sp = 0;
+
+    int ret = parse_instruction(&c8);
+    TEST_ASSERT_EQUAL_INT(STACK_UNDERFLOW_EXCEPTION, ret);
+}
+
+void test_parse_instruction_WhereInstructionIsSCD_InCHIP8Mode(void) {
     AXYB(0, 0, 0xC, b);
+    c8.mode = C8_MODE_CHIP8;
+
+    int ret = parse_instruction(&c8);
+    TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, ret);
+    TEST_ASSERT_EQUAL_UINT8(0, c8.display.y);
+}
+
+void test_parse_instruction_WhereInstructionIsSCD_InSCHIPMode(void) {
+    AXYB(0, 0, 0xC, b);
+    c8.mode = C8_MODE_SCHIP;
 
     int ret = parse_instruction(&c8);
     TEST_ASSERT_EQUAL_INT(2, ret);
     TEST_ASSERT_EQUAL_UINT8(b, c8.display.y);
 }
 
-void test_parse_instruction_WhereInstructionIsSCR(void) {
+void test_parse_instruction_WhereInstructionIsSCR_InCHIP8Mode(void) {
     INSERT_INSTRUCTION(pc, 0x00FB);
+    c8.mode = C8_MODE_CHIP8;
+
+    int ret = parse_instruction(&c8);
+    TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, ret);
+    TEST_ASSERT_EQUAL_UINT8(0, c8.display.x);
+}
+
+void test_parse_instruction_WhereInstructionIsSCR_InSCHIPMode(void) {
+    INSERT_INSTRUCTION(pc, 0x00FB);
+    c8.mode = C8_MODE_SCHIP;
 
     int ret = parse_instruction(&c8);
     TEST_ASSERT_EQUAL_INT(2, ret);
     TEST_ASSERT_EQUAL_UINT8(4, c8.display.x);
 }
 
-void test_parse_instruction_WhereInstructionIsSCL(void) {
+void test_parse_instruction_WhereInstructionIsSCL_InCHIP8Mode(void) {
     INSERT_INSTRUCTION(pc, 0x00FC);
+    c8.mode = C8_MODE_CHIP8;
+
+    c8.display.x = 4;
+
+    int ret = parse_instruction(&c8);
+    TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, ret);
+    TEST_ASSERT_EQUAL_UINT8(4, c8.display.x);
+}
+
+void test_parse_instruction_WhereInstructionIsSCL_InSCHIPMode(void) {
+    INSERT_INSTRUCTION(pc, 0x00FC);
+    c8.mode = C8_MODE_SCHIP;
 
     c8.display.x = 4;
 
@@ -121,15 +163,33 @@ void test_parse_instruction_WhereInstructionIsSCL(void) {
     TEST_ASSERT_EQUAL_UINT8(0, c8.display.x);
 }
 
-void test_parse_instruction_WhereInstructionIsEXIT(void) {
+void test_parse_instruction_WhereInstructionIsEXIT_InCHIP8Mode(void) {
     INSERT_INSTRUCTION(pc, 0x00FD);
+    c8.mode = C8_MODE_CHIP8;
+
+    int ret = parse_instruction(&c8);
+    TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, ret);
+}
+
+void test_parse_instruction_WhereInstructionIsEXIT_InSCHIPMode(void) {
+    INSERT_INSTRUCTION(pc, 0x00FD);
+    c8.mode = C8_MODE_SCHIP;
 
     int ret = parse_instruction(&c8);
     TEST_ASSERT_EQUAL_INT(0, c8.running);
 }
 
-void test_parse_instruction_WhereInstructionIsLOW(void) {
+void test_parse_instruction_WhereInstructionIsLOW_InCHIP8Mode(void) {
     INSERT_INSTRUCTION(pc, 0x00FE);
+    c8.mode = C8_MODE_CHIP8;
+
+    int ret = parse_instruction(&c8);
+    TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, ret);
+}
+
+void test_parse_instruction_WhereInstructionIsLOW_InSCHIPMode(void) {
+    INSERT_INSTRUCTION(pc, 0x00FE);
+    c8.mode = C8_MODE_SCHIP;
 
     c8.display.mode = C8_DISPLAYMODE_HIGH;
 
@@ -138,8 +198,17 @@ void test_parse_instruction_WhereInstructionIsLOW(void) {
     TEST_ASSERT_EQUAL_UINT8(C8_DISPLAYMODE_LOW, c8.display.mode);
 }
 
-void test_parse_instruction_WhereInstructionIsHIGH(void) {
+void test_parse_instruction_WhereInstructionIsHIGH_InCHIP8Mode(void) {
     INSERT_INSTRUCTION(pc, 0x00FF);
+    c8.mode = C8_MODE_CHIP8;
+
+    int ret = parse_instruction(&c8);
+    TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, ret);
+}
+
+void test_parse_instruction_WhereInstructionIsHIGH_InSCHIPMode(void) {
+    INSERT_INSTRUCTION(pc, 0x00FF);
+    c8.mode = C8_MODE_SCHIP;
 
     c8.display.mode = C8_DISPLAYMODE_LOW;
 
@@ -180,7 +249,6 @@ void test_parse_instruction_WhereInstructionIsCALL_WhereSPIs15(void) {
     int ret = parse_instruction(&c8);
     TEST_ASSERT_EQUAL_INT(STACK_OVERFLOW_EXCEPTION, ret);
 }
-
 
 void test_parse_instruction_WhereInstructionIsSEXKK_WhereVXEqualsKK(void) {
     AXKK(0x3, x, kk);
@@ -272,6 +340,7 @@ void test_parse_instruction_WhereInstructionIsADDXKK_WithoutCarry(void) {
     TEST_ASSERT_EQUAL_UINT8(vx + kk, c8.V[x]);
     TEST_ASSERT_EQUAL_UINT8(0, c8.V[0xF]);
 }
+
 void test_parse_instruction_WhereInstructionIsLDXY(void) {
     AXYB(0x8, x, y, 0);
 
@@ -537,7 +606,6 @@ void test_parse_instruction_WhereInstructionIsSKNPV_WhereKeyIsNotPressed(void) {
     TEST_ASSERT_EQUAL_INT(2, ret);
 }
 
-
 void test_parse_instruction_WhereInstructionIsLDXDT(void) {
     AXKK(0xF, x, 0x07);
 
@@ -548,11 +616,22 @@ void test_parse_instruction_WhereInstructionIsLDXDT(void) {
     TEST_ASSERT_EQUAL_UINT8(y, c8.V[x]);
 }
 
-void test_parse_instruction_WhereInstructionIsLDXK(void) {
+void test_parse_instruction_WhereInstructionIsLDXK_WhereKeyIsPressed(void) {
     AXKK(0xF, x, 0x0A);
+
+    c8.key[y] = 1;
 
     int ret = parse_instruction(&c8);
     TEST_ASSERT_EQUAL_INT(2, ret);
+    TEST_ASSERT_EQUAL_INT(y, c8.V[x]);
+    TEST_ASSERT_EQUAL_INT(0, c8.waitingForKey);
+}
+
+void test_parse_instruction_WhereInstructionIsLDXK_WhereKeyIsNotPressed(void) {
+    AXKK(0xF, x, 0x0A);
+
+    int ret = parse_instruction(&c8);
+    TEST_ASSERT_EQUAL_INT(0, ret);
     TEST_ASSERT_EQUAL_INT(x, c8.VK);
     TEST_ASSERT_EQUAL_INT(1, c8.waitingForKey);
 }
@@ -603,8 +682,19 @@ void test_parse_instruction_WhereInstructionIsLDFX(void) {
     TEST_ASSERT_EQUAL_UINT16(C8_FONT_START + (y * 5), c8.I);
 }
 
-void test_parse_instruction_WhereInstructionIsLDHFX(void) {
+void test_parse_instruction_WhereInstructionIsLDHFX_InCHIP8Mode(void) {
     AXKK(0xF, x, 0x30);
+    c8.mode = C8_MODE_CHIP8;
+
+    c8.V[x] = y;
+
+    int ret = parse_instruction(&c8);
+    TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, ret);
+}
+
+void test_parse_instruction_WhereInstructionIsLDHFX_InSCHIPMode(void) {
+    AXKK(0xF, x, 0x30);
+    c8.mode = C8_MODE_SCHIP;
 
     c8.V[x] = y;
 
@@ -655,8 +745,17 @@ void test_parse_instruction_WhereInstructionIsLDXIP(void) {
     }
 }
 
-void test_parse_instruction_WhereInstructionIsLDRX(void) {
+void test_parse_instruction_WhereInstructionIsLDRX_InCHIP8Mode(void) {
     AXKK(0xF, x, 0x75);
+    c8.mode = C8_MODE_CHIP8;
+
+    int ret = parse_instruction(&c8);
+    TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, ret);
+}
+
+void test_parse_instruction_WhereInstructionIsLDRX_InSCHIPMode(void) {
+    AXKK(0xF, x, 0x75);
+    c8.mode = C8_MODE_SCHIP;
 
     for (int i = 0; i < x; i++) {
         c8.V[i] = 0x30;
@@ -669,8 +768,17 @@ void test_parse_instruction_WhereInstructionIsLDRX(void) {
     }
 }
 
-void test_parse_instruction_WhereInstructionIsLDXR(void) {
+void test_parse_instruction_WhereInstructionIsLDXR_InCHIP8Mode(void) {
     AXKK(0xF, x, 0x85);
+    c8.mode = C8_MODE_CHIP8;
+
+    int ret = parse_instruction(&c8);
+    TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, ret);
+}
+
+void test_parse_instruction_WhereInstructionIsLDXR_InSCHIPMode(void) {
+    AXKK(0xF, x, 0x85);
+    c8.mode = C8_MODE_SCHIP;
 
     for (int i = 0; i < x; i++) {
         c8.R[i] = rand() % 0x100;
@@ -688,12 +796,18 @@ int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_parse_instruction_WhereInstructionIsCLS);
     RUN_TEST(test_parse_instruction_WhereInstructionIsRET);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsSCD);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsSCR);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsSCL);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsEXIT);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLOW);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsHIGH);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSCD_InCHIP8Mode);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSCD_InSCHIPMode);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSCR_InCHIP8Mode);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSCR_InSCHIPMode);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSCL_InCHIP8Mode);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsSCL_InSCHIPMode);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsEXIT_InCHIP8Mode);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsEXIT_InSCHIPMode);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLOW_InCHIP8Mode);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLOW_InSCHIPMode);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsHIGH_InCHIP8Mode);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsHIGH_InSCHIPMode);
     RUN_TEST(test_parse_instruction_WhereInstructionIsJPNNN);
     RUN_TEST(test_parse_instruction_WhereInstructionIsCALL);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSEXKK_WhereVXEqualsKK);
@@ -729,16 +843,18 @@ int main(void) {
     RUN_TEST(test_parse_instruction_WhereInstructionIsSKNPV_WhereKeyIsPressed);
     RUN_TEST(test_parse_instruction_WhereInstructionIsSKNPV_WhereKeyIsNotPressed);
     RUN_TEST(test_parse_instruction_WhereInstructionIsLDXDT);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDXK);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDXK_WhereKeyIsPressed);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDXK_WhereKeyIsNotPressed);
     RUN_TEST(test_parse_instruction_WhereInstructionIsLDDTX);
     RUN_TEST(test_parse_instruction_WhereInstructionIsLDSTX);
     RUN_TEST(test_parse_instruction_WhereInstructionIsADDIX);
     RUN_TEST(test_parse_instruction_WhereInstructionIsLDFX);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDHFX);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDHFX_InCHIP8Mode);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDHFX_InSCHIPMode);
     RUN_TEST(test_parse_instruction_WhereInstructionIsLDBX);
     RUN_TEST(test_parse_instruction_WhereInstructionIsLDIPX);
     RUN_TEST(test_parse_instruction_WhereInstructionIsLDXIP);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDRX);
-    RUN_TEST(test_parse_instruction_WhereInstructionIsLDXR);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDRX_InCHIP8Mode);
+    RUN_TEST(test_parse_instruction_WhereInstructionIsLDXR_InSCHIPMode);
     return UNITY_END();
 }

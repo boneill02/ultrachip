@@ -1,11 +1,11 @@
-add_executable(chip8_tests
-	test_chip8.c
+add_executable(instruction_tests
+	test_instruction.c
 )
-target_link_libraries(chip8_tests
+target_link_libraries(instruction_tests
 	c8
 	Unity
 )
-add_test(chip8 chip8_tests)
+add_test(instruction instruction_tests)
 
 add_executable(decode_tests
 	test_decode.c

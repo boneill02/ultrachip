@@ -194,9 +194,12 @@ static int misc_instruction(c8_t* c8, uint8_t x, uint8_t kk) {
     case 0x18: return i_ld_st_vx(c8, x);
     case 0x1E: return i_add_i_vx(c8, x);
     case 0x29: return i_ld_f_vx(c8, x);
+    case 0x30: return i_ld_hf_vx(c8, x);
     case 0x33: return i_ld_b_vx(c8, x);
     case 0x55: return i_ld_ip_vx(c8, x);
     case 0x65: return i_ld_vx_ip(c8, x);
+    case 0x75: return i_ld_r_vx(c8, x);
+    case 0x85: return i_ld_vx_r(c8, x);
     default: return INVALID_INSTRUCTION_EXCEPTION;
     }
 }
@@ -965,6 +968,7 @@ static inline int i_ld_f_vx(c8_t* c8, uint8_t x) {
  */
 static inline int i_ld_hf_vx(c8_t* c8, uint8_t x) {
     SCHIP_EXCLUSIVE(c8);
+
     c8->I = C8_HIGH_FONT_START + (c8->V[x] * 10);
     return 2;
 }
@@ -1066,6 +1070,7 @@ static inline int i_ld_r_vx(c8_t* c8, uint8_t x) {
  */
 static inline int i_ld_vx_r(c8_t* c8, uint8_t x) {
     SCHIP_EXCLUSIVE(c8);
+
     for (int i = 0; i < x; i++) {
         c8->V[i] = c8->R[i];
     }
