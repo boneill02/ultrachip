@@ -20,8 +20,5 @@ Makefile
 *_tests
 Testing
 
-# generated docs
-doc/html
-
 # etc
 .vscode
