@@ -85,6 +85,8 @@ c8_t* c8_init(const char* path, int flags) {
     c8->flags = flags;
     c8->cs = C8_CLOCK_SPEED;
     c8->colors[1] = 0xFFFFFF;
+    c8->display.mode = C8_DISPLAYMODE_HIGH;
+
 
     if ((res = load_rom(c8, path)) < 0) {
         free(c8);
@@ -546,17 +548,23 @@ static void draw(c8_t* c8, uint16_t in) {
     int dw = C8_LOW_DISPLAY_WIDTH;
     int dh = C8_LOW_DISPLAY_HEIGHT;
     int h = 8;
+    int ox = 0;
+    int oy = 0;
+
     if (c8->display.mode == C8_DISPLAYMODE_HIGH) {
         if (b == 0) {
             b = 16;
         }
         dw = C8_HIGH_DISPLAY_WIDTH;
         dh = C8_HIGH_DISPLAY_HEIGHT;
+        ox = c8->display.x;
+        oy = c8->display.y;
     }
+
     for (int i = 0; i < b; i++) {
         for (int j = 0; j < h; j++) {
-            int dx = (c8->V[x] + j) % dw;
-            int dy = (c8->V[y] + i) % dh;
+            int dx = (c8->V[x] + j + ox) % dw;
+            int dy = (c8->V[y] + i + oy) % dh;
 
             if (c8->flags & C8_FLAG_QUIRK_DRAW) {
                 if (((dx % dw) + b >= dw) || (dy % dh) + h >= dh) {
