@@ -23,7 +23,7 @@ SDL2 support is enabled by default. To disable it to use another graphics
 library, run `cmake` with `-DSDL2=OFF`. If `simulate()` is ever called in your
 code, you must implement these functions with your preferred graphics library:
 
-Note: the `all` and `tools` targets require `SDL2` to be `ON`.
+**Note**: the `all` and `tools` targets require `SDL2` to be `ON`.
 
 * `void c8_deinit_graphics(void)`
 * `int c8_init_graphics(void)`
