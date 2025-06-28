@@ -6,7 +6,8 @@ This is a C library for interpreting, assembling, and disassembling CHIP-8 and
 SCHIP code, optionally utilizing the [SDL2](https://www.libsdl.org/) library
 for graphics.
 
-An example assembler, disassembler, and interpreter is located in `tools/`.
+An example [assembler](doc/chip8as.md), [disassembler](doc/chip8dis.md), and
+[interpreter](doc/chip8.md) is located in `tools/`.
 
 ## Building
 
@@ -15,7 +16,7 @@ cmake -DTARGET_GROUP=all .
 make
 ```
 
-This will build libc8 as well as the example tools.
+This will build libc8 as well as the example tools and tests.
 
 ### SDL2
 
@@ -32,12 +33,6 @@ code, you must implement these functions with your preferred graphics library:
 
 See [this page](https://oneill.sh/doc/libc8/graphics__sdl2_8c.html#a04f712dc6e338364ae5e43e0b6ae9762)
 for more information about these functions.
-
-## Example Tools
-
-* [Interpreter](doc/chip8.md)
-* [Assembler](doc/chip8as.md)
-* [Disassembler](doc/chip8dis.md)
 
 ## Documentation
 
@@ -57,7 +52,7 @@ cmake -DTARGET_GROUP=test -DSDL2=OFF
 make && ctest --verbose
 ```
 
-## Screenshots
+## Showcase
 
 The libc8 CHIP-8 interpreter running [Outlaw by John Earnest](https://johnearnest.github.io/chip8Archive/play.html?p=outlaw):
 
