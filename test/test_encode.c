@@ -214,7 +214,7 @@ void test_parse_word_WhereWordIsInstruction(void) {
 
 void test_parse_word_WhereWordIsDB(void) {
     int v = rand() % UINT8_MAX;
-    sprintf(buf, "%s", S_DB, v);
+    sprintf(buf, "%s", S_DB);
     sprintf(buf + 10, "%d", v);
     int r = parse_word(buf, buf + 10, 1, &symbols.s[0], &labels);
 
@@ -225,8 +225,8 @@ void test_parse_word_WhereWordIsDB(void) {
 
 void test_parse_word_WhereWordIsDW(void) {
     int v = rand() % UINT8_MAX;
-    sprintf(buf, "%s", S_DW, v);
-    sprintf(buf + 10, "%d", v, v);
+    sprintf(buf, "%s", S_DW);
+    sprintf(buf + 10, "%d", v);
     int r = parse_word(buf, buf + 10, 1, &symbols.s[0], &labels);
 
     TEST_ASSERT_EQUAL_INT(1, r);
@@ -291,7 +291,7 @@ void test_parse_word_WhereWordIsLabel(void) {
     const char* l = "LABEL";
     labels.len = 2;
     sprintf(labels.l[0].identifier, "otherlabel");
-    sprintf(labels.l[1].identifier, l);
+    sprintf(labels.l[1].identifier, "%s", l);
     sprintf(buf, "%s", l);
 
     int r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);

@@ -9,7 +9,6 @@
 #include <time.h>
 
 #define BUF_SIZE 64
-#define CLEAR_BUF for(int i=0;i<BUF_SIZE;i++){buf[i]='\0';}
 
 char buf[BUF_SIZE];
 
@@ -63,7 +62,6 @@ void test_parse_int_WhereStringIsHexWithVPrefix(void) {
 }
 
 void test_parse_int_WhereStringIsEmpty(void) {
-    sprintf(buf, "\0");
     TEST_ASSERT_EQUAL_INT(-1, parse_int(buf));
 }
 
