@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define DEBUG(c) (c->flags & C8_FLAG_DEBUG)
 #define VERBOSE(c) (c->flags & C8_FLAG_VERBOSE)
@@ -191,6 +192,8 @@ void c8_simulate(c8_t* c8) {
     int debugRet;
     int ret;
     int step = 1;
+
+    srand(time(NULL));
 
     c8->pc = C8_PROG_START;
     c8->running = 1;
