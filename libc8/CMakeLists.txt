@@ -28,6 +28,7 @@ set(LIBRARY_PUBLIC_SRC
 set(LIBRARY_PRIVATE_SRC
 	"${LIBRARY_BASE_PATH}/c8/private/debug.c"
 	"${LIBRARY_BASE_PATH}/c8/private/exception.c"
+	"${LIBRARY_BASE_PATH}/c8/private/instruction.c"
 	"${LIBRARY_BASE_PATH}/c8/private/symbol.c"
 	"${LIBRARY_BASE_PATH}/c8/private/util.c"
 )
@@ -43,6 +44,7 @@ set(LIBRARY_PUBLIC_HEADERS
 set(LIBRARY_PRIVATE_HEADERS
 	"${LIBRARY_BASE_PATH}/c8/private/debug.h"
 	"${LIBRARY_BASE_PATH}/c8/private/exception.h"
+	"${LIBRARY_BASE_PATH}/c8/private/instruction.h"
 	"${LIBRARY_BASE_PATH}/c8/private/symbol.h"
 	"${LIBRARY_BASE_PATH}/c8/private/util.h"
 )
