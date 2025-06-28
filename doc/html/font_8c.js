@@ -1,0 +1,25 @@
+var font_8c =
+[
+    [ "BIGFONT_FISH", "font_8c.html#a2038a76799bc6c1d786d0c8b5b7f319e", null ],
+    [ "BIGFONT_OCTO", "font_8c.html#a848b054e9d278832996281bf79ab78e0", null ],
+    [ "BIGFONT_SCHIP", "font_8c.html#a03d509d6b5af6236cb91246e7c9e3929", null ],
+    [ "DREAM6800_S", "font_8c.html#a3abb0d2af4524e168ef964f359306bbc", null ],
+    [ "ETI660_S", "font_8c.html#a1515e6d65b0058a114e4131a91863d36", null ],
+    [ "FISH_S", "font_8c.html#a0860433035e5b12c2418a57a9d664b5b", null ],
+    [ "OCTO_S", "font_8c.html#a2fbdef6b789a87072643ca55d670d925", null ],
+    [ "SCHIP_S", "font_8c.html#a1e6dd636151039ea0039ccbab42e360a", null ],
+    [ "SMALLFONT_DREAM6800", "font_8c.html#a27382eea2b2d7a7371b9a4b8c1bd8299", null ],
+    [ "SMALLFONT_ETI660", "font_8c.html#a672d7c4c89a833022c50a693da3381ea", null ],
+    [ "SMALLFONT_FISH", "font_8c.html#a8685d8612eb47910e91f16d99f9ab688", null ],
+    [ "SMALLFONT_OCTO", "font_8c.html#adb48cf5c8f8101f19978dd4e74c21b2f", null ],
+    [ "SMALLFONT_VIP", "font_8c.html#a94a18325e4cfc304a33fbebeb4de547b", null ],
+    [ "VIP_S", "font_8c.html#a71e77f0df1f95d5dd9afe6623a5cef94", null ],
+    [ "c8_set_big_font", "font_8c.html#a5b53442e08c16fbe9c429cdba0834886", null ],
+    [ "c8_set_fonts", "font_8c.html#ad7ad34f5af6e9426154533687729e2e1", null ],
+    [ "c8_set_fonts_s", "font_8c.html#ad85370dab8d85be31584b9139f4e76c0", null ],
+    [ "c8_set_small_font", "font_8c.html#a02dfba9268d560b2902c810e810dd6ba", null ],
+    [ "print_fonts", "font_8c.html#a865e1231b212a08fb2c5aa9d9fe6a328", null ],
+    [ "bigFonts", "font_8c.html#a3105a55c700a531ff5e053e71bb24d93", null ],
+    [ "c8_fontNames", "font_8c.html#ac677f9c5dce232b0682cafb3c0c29554", null ],
+    [ "smallFonts", "font_8c.html#a63606ab00695e5d4e4ba9c3b3275eb6e", null ]
+];
