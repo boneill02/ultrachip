@@ -271,6 +271,7 @@ void test_parse_word_WhereWordIsInt(void) {
     TEST_ASSERT_EQUAL_INT(SYM_INT4, symbols.s[0].type);
     TEST_ASSERT_EQUAL_INT(v4, symbols.s[0].value);
 
+    memset(buf, 0, BUF_SIZE);
 
     sprintf(buf, "$%x", v8);
     r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
@@ -278,6 +279,7 @@ void test_parse_word_WhereWordIsInt(void) {
     TEST_ASSERT_EQUAL_INT(SYM_INT8, symbols.s[0].type);
     TEST_ASSERT_EQUAL_INT(v8, symbols.s[0].value);
 
+    memset(buf, 0, BUF_SIZE);
 
     sprintf(buf, "$%x", v12);
     r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
