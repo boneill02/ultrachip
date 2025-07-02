@@ -11,6 +11,7 @@ var structc8__t =
     [ "I", "structc8__t.html#a16402eaf01018447c9ddcd65ac72e1b3", null ],
     [ "key", "structc8__t.html#a51d678865b1faca5d0d8506736f2576c", null ],
     [ "mem", "structc8__t.html#a9941b55ced666cba3cc368c756fadeef", null ],
+    [ "mode", "structc8__t.html#a1ea5d0cb93f22f7d0fdf804bd68c3326", null ],
     [ "pc", "structc8__t.html#af21633fb74a6aa87c93baf3caaa58864", null ],
     [ "R", "structc8__t.html#a8faa839d139c34484a73d22ea2a7e0bd", null ],
     [ "running", "structc8__t.html#a2f45113638a0b749a8a205d2cd7fb42b", null ],

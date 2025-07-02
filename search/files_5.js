@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['symbol_2ec_0',['symbol.c',['../symbol_8c.html',1,'']]],
-  ['symbol_2eh_1',['symbol.h',['../symbol_8h.html',1,'']]]
+  ['instruction_2ec_0',['instruction.c',['../instruction_8c.html',1,'']]],
+  ['instruction_2eh_1',['instruction.h',['../instruction_8h.html',1,'']]]
 ];

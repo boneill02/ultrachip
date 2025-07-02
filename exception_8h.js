@@ -34,6 +34,8 @@ var exception_8h =
     [ "NULLCHECK3", "exception_8h.html#a34e8071fddc5c3a3cb432a271d287d9e", null ],
     [ "STACK_OVERFLOW_EXCEPTION", "exception_8h.html#af51e2c41f11b723c5c4223cc68ecff0d", null ],
     [ "STACK_OVERFLOW_EXCEPTION_MESSAGE", "exception_8h.html#a74b1d988cab3caa46e49a0ff2684d857", null ],
+    [ "STACK_UNDERFLOW_EXCEPTION", "exception_8h.html#a6f06af12dea9e3b9c7b775aaa9f0ce46", null ],
+    [ "STACK_UNDERFLOW_EXCEPTION_MESSAGE", "exception_8h.html#ae78bb3d6d735c9c09c22af1b2041e15c", null ],
     [ "TOO_MANY_LABELS_EXCEPTION", "exception_8h.html#a0f71e63d2ae6eb0a009f759493b7dfc1", null ],
     [ "TOO_MANY_LABELS_EXCEPTION_MESSAGE", "exception_8h.html#a949a0c9034584d8b0e289ede019d6ef5", null ],
     [ "TOO_MANY_SYMBOLS_EXCEPTION", "exception_8h.html#aff21bd5e19f15a4b99181baedca4ec90", null ],

@@ -28,12 +28,15 @@ var searchData=
   ['c8_5flow_5fdisplay_5fheight_25',['C8_LOW_DISPLAY_HEIGHT',['../graphics_8h.html#aaa2f365dfe9bf72cf557b796c692bde7',1,'graphics.h']]],
   ['c8_5flow_5fdisplay_5fwidth_26',['C8_LOW_DISPLAY_WIDTH',['../graphics_8h.html#a142ae690b02e240e2a678485173ca651',1,'graphics.h']]],
   ['c8_5fmemsize_27',['C8_MEMSIZE',['../defs_8h.html#a9225090846dc1403ea45590bb45804b3',1,'defs.h']]],
-  ['c8_5fnnn_28',['C8_NNN',['../defs_8h.html#af7b022502148c2b9883507a5be38e480',1,'defs.h']]],
-  ['c8_5fprog_5fstart_29',['C8_PROG_START',['../defs_8h.html#ad31055032e613d8a21356ece8394773d',1,'defs.h']]],
-  ['c8_5fstack_5fsize_30',['C8_STACK_SIZE',['../chip8_8h.html#a3daa3a7dfa3561839b1d71b7691b167e',1,'chip8.h']]],
-  ['c8_5fwindow_5fscale_5fx_31',['C8_WINDOW_SCALE_X',['../graphics_8h.html#aab70d9202bcfc983806b5c35b4e76670',1,'graphics.h']]],
-  ['c8_5fwindow_5fscale_5fy_32',['C8_WINDOW_SCALE_Y',['../graphics_8h.html#ad5255936364b46efc6190f78de0bf52b',1,'graphics.h']]],
-  ['c8_5fx_33',['C8_X',['../defs_8h.html#a1f2ffa6772e0f5daa5d0e31825613f60',1,'defs.h']]],
-  ['c8_5fy_34',['C8_Y',['../defs_8h.html#a4ebbcd3cf4554356d63bb23e26d12066',1,'defs.h']]],
-  ['carries_35',['CARRIES',['../chip8_8c.html#ab20a8bc84640ac0942e65a7fca623f2d',1,'chip8.c']]]
+  ['c8_5fmode_5fchip8_28',['C8_MODE_CHIP8',['../chip8_8h.html#ace5f100e8d06164b3cb3b0b04e5297f5',1,'chip8.h']]],
+  ['c8_5fmode_5fschip_29',['C8_MODE_SCHIP',['../chip8_8h.html#a6c0cad8caee464e16f998a2d0a2c37c3',1,'chip8.h']]],
+  ['c8_5fmode_5fxochip_30',['C8_MODE_XOCHIP',['../chip8_8h.html#acf75ba93ff6438063ec6a493e004429d',1,'chip8.h']]],
+  ['c8_5fnnn_31',['C8_NNN',['../defs_8h.html#af7b022502148c2b9883507a5be38e480',1,'defs.h']]],
+  ['c8_5fprog_5fstart_32',['C8_PROG_START',['../defs_8h.html#ad31055032e613d8a21356ece8394773d',1,'defs.h']]],
+  ['c8_5fstack_5fsize_33',['C8_STACK_SIZE',['../chip8_8h.html#a3daa3a7dfa3561839b1d71b7691b167e',1,'chip8.h']]],
+  ['c8_5fwindow_5fscale_5fx_34',['C8_WINDOW_SCALE_X',['../graphics_8h.html#aab70d9202bcfc983806b5c35b4e76670',1,'graphics.h']]],
+  ['c8_5fwindow_5fscale_5fy_35',['C8_WINDOW_SCALE_Y',['../graphics_8h.html#ad5255936364b46efc6190f78de0bf52b',1,'graphics.h']]],
+  ['c8_5fx_36',['C8_X',['../defs_8h.html#a1f2ffa6772e0f5daa5d0e31825613f60',1,'defs.h']]],
+  ['c8_5fy_37',['C8_Y',['../defs_8h.html#a4ebbcd3cf4554356d63bb23e26d12066',1,'defs.h']]],
+  ['carries_38',['CARRIES',['../instruction_8c.html#ab20a8bc84640ac0942e65a7fca623f2d',1,'instruction.c']]]
 ];

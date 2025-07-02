@@ -143,6 +143,8 @@ Data Fields</h2></td></tr>
 <tr class="separator:a24f62be0e5cb2b7cefd163ec59032090"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0dc5e0006521905cc3fd70a61e860572"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structc8__t.html#a0dc5e0006521905cc3fd70a61e860572">draw</a></td></tr>
 <tr class="separator:a0dc5e0006521905cc3fd70a61e860572"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ea5d0cb93f22f7d0fdf804bd68c3326"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structc8__t.html#a1ea5d0cb93f22f7d0fdf804bd68c3326">mode</a></td></tr>
+<tr class="separator:a1ea5d0cb93f22f7d0fdf804bd68c3326"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Represents current state of the CHIP-8 interpreter. </p>
@@ -168,6 +170,7 @@ Data Fields</h2></td></tr>
     <tr><td class="paramname">colors</td><td>24 bit hex colors, background=[0] foreground=[1] </td></tr>
     <tr><td class="paramname">fonts</td><td>font IDs (see <a class="el" href="font_8c.html">font.c</a>) </td></tr>
     <tr><td class="paramname">draw</td><td>need to draw? (1 or 0) </td></tr>
+    <tr><td class="paramname">mode</td><td>interpreter mode (C8_MODE_CHIP8, C8_MODE_SCHIP, C8_MODE_XOCHIP) </td></tr>
   </table>
   </dd>
 </dl>
@@ -320,6 +323,20 @@ Data Fields</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">uint8_t mem[<a class="el" href="defs_8h.html#a9225090846dc1403ea45590bb45804b3">C8_MEMSIZE</a>]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1ea5d0cb93f22f7d0fdf804bd68c3326" name="a1ea5d0cb93f22f7d0fdf804bd68c3326"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ea5d0cb93f22f7d0fdf804bd68c3326">&#9670;&#160;</a></span>mode</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int mode</td>
         </tr>
       </table>
 </div><div class="memdoc">

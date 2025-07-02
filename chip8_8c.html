@@ -97,10 +97,10 @@ $(document).ready(function(){initNavTree('chip8_8c.html',''); initResizable(); }
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="chip8_8h_source.html">chip8.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="decode_8h_source.html">decode.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="font_8h_source.html">font.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="debug_8h_source.html">private/debug.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="exception_8h_source.html">private/exception.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="instruction_8h_source.html">private/instruction.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="util_8h_source.html">private/util.h</a>&quot;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &lt;stdlib.h&gt;</code><br />
@@ -112,20 +112,6 @@ $(document).ready(function(){initNavTree('chip8_8c.html',''); initResizable(); }
 Macros</h2></td></tr>
 <tr class="memitem:a3529014ea4024fe32413ee52b92fe3eb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chip8_8c.html#a3529014ea4024fe32413ee52b92fe3eb">DEBUG</a>(c)&#160;&#160;&#160;(c-&gt;flags &amp; <a class="el" href="chip8_8h.html#a1e452f92855b0431bf69159754d29a68">C8_FLAG_DEBUG</a>)</td></tr>
 <tr class="separator:a3529014ea4024fe32413ee52b92fe3eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4aaf30eb16fc172dc344ab5f397e6c97"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chip8_8c.html#a4aaf30eb16fc172dc344ab5f397e6c97">VERBOSE</a>(c)&#160;&#160;&#160;(c-&gt;flags &amp; <a class="el" href="chip8_8h.html#a7b1dbd5d0a95aa96aec11cde83bd148f">C8_FLAG_VERBOSE</a>)</td></tr>
-<tr class="separator:a4aaf30eb16fc172dc344ab5f397e6c97"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af76fdbfa99670d79ba7db413c154bcd9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chip8_8c.html#af76fdbfa99670d79ba7db413c154bcd9">QUIRK_BITWISE</a>(c)</td></tr>
-<tr class="separator:af76fdbfa99670d79ba7db413c154bcd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6719559c31cece2eef6a46d363af3cd7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chip8_8c.html#a6719559c31cece2eef6a46d363af3cd7">QUIRK_DRAW</a>(c)</td></tr>
-<tr class="separator:a6719559c31cece2eef6a46d363af3cd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5d8437d6f2b13693540d12748b8e03f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chip8_8c.html#ad5d8437d6f2b13693540d12748b8e03f">QUIRK_LOADSTORE</a>(c)</td></tr>
-<tr class="separator:ad5d8437d6f2b13693540d12748b8e03f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48cfa5b68f79e47811a2e47608021f8a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chip8_8c.html#a48cfa5b68f79e47811a2e47608021f8a">QUIRK_SHIFT</a>(c)</td></tr>
-<tr class="separator:a48cfa5b68f79e47811a2e47608021f8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7fef83d3b7fa085dd7b9e7568e5b4ffd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chip8_8c.html#a7fef83d3b7fa085dd7b9e7568e5b4ffd">BORROWS</a>(x,  y)&#160;&#160;&#160;((((int) x) - y) &lt; 0)</td></tr>
-<tr class="separator:a7fef83d3b7fa085dd7b9e7568e5b4ffd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab20a8bc84640ac0942e65a7fca623f2d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chip8_8c.html#ab20a8bc84640ac0942e65a7fca623f2d">CARRIES</a>(x,  y)&#160;&#160;&#160;((((int) x) + y) &gt; UINT8_MAX)</td></tr>
-<tr class="separator:ab20a8bc84640ac0942e65a7fca623f2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -151,62 +137,6 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Stuff for simulating and modifying <code><a class="el" href="structc8__t.html" title="Represents current state of the CHIP-8 interpreter.">c8_t</a></code>s. </p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="a7fef83d3b7fa085dd7b9e7568e5b4ffd" name="a7fef83d3b7fa085dd7b9e7568e5b4ffd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7fef83d3b7fa085dd7b9e7568e5b4ffd">&#9670;&#160;</a></span>BORROWS</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define BORROWS</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">x, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">y&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td>&#160;&#160;&#160;((((int) x) - y) &lt; 0)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ab20a8bc84640ac0942e65a7fca623f2d" name="ab20a8bc84640ac0942e65a7fca623f2d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab20a8bc84640ac0942e65a7fca623f2d">&#9670;&#160;</a></span>CARRIES</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define CARRIES</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">x, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">y&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td>&#160;&#160;&#160;((((int) x) + y) &gt; UINT8_MAX)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="a3529014ea4024fe32413ee52b92fe3eb" name="a3529014ea4024fe32413ee52b92fe3eb"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3529014ea4024fe32413ee52b92fe3eb">&#9670;&#160;</a></span>DEBUG</h2>
 
@@ -219,112 +149,6 @@ Functions</h2></td></tr>
           <td class="paramtype">&#160;</td>
           <td class="paramname">c</td><td>)</td>
           <td>&#160;&#160;&#160;(c-&gt;flags &amp; <a class="el" href="chip8_8h.html#a1e452f92855b0431bf69159754d29a68">C8_FLAG_DEBUG</a>)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="af76fdbfa99670d79ba7db413c154bcd9" name="af76fdbfa99670d79ba7db413c154bcd9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af76fdbfa99670d79ba7db413c154bcd9">&#9670;&#160;</a></span>QUIRK_BITWISE</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define QUIRK_BITWISE</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">c</td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">if</span> (c-&gt;flags &amp; <a class="code hl_define" href="chip8_8h.html#a974238d8fa061c50c721fdcd4f5726e1">C8_FLAG_QUIRK_BITWISE</a>) { \</div>
-<div class="line">        c-&gt;V[0xF] = 0; \</div>
-<div class="line">    }</div>
-<div class="ttc" id="achip8_8h_html_a974238d8fa061c50c721fdcd4f5726e1"><div class="ttname"><a href="chip8_8h.html#a974238d8fa061c50c721fdcd4f5726e1">C8_FLAG_QUIRK_BITWISE</a></div><div class="ttdeci">#define C8_FLAG_QUIRK_BITWISE</div><div class="ttdef"><b>Definition:</b> chip8.h:20</div></div>
-</div><!-- fragment -->
-</div>
-</div>
-<a id="a6719559c31cece2eef6a46d363af3cd7" name="a6719559c31cece2eef6a46d363af3cd7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6719559c31cece2eef6a46d363af3cd7">&#9670;&#160;</a></span>QUIRK_DRAW</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define QUIRK_DRAW</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">c</td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">if</span> (c-&gt;flags &amp; <a class="code hl_define" href="chip8_8h.html#ae028401e02e00f6bd3df02fdc0a08087">C8_FLAG_QUIRK_DRAW</a>) { \</div>
-<div class="line">        if () \</div>
-<div class="line">    }</div>
-<div class="ttc" id="achip8_8h_html_ae028401e02e00f6bd3df02fdc0a08087"><div class="ttname"><a href="chip8_8h.html#ae028401e02e00f6bd3df02fdc0a08087">C8_FLAG_QUIRK_DRAW</a></div><div class="ttdeci">#define C8_FLAG_QUIRK_DRAW</div><div class="ttdef"><b>Definition:</b> chip8.h:21</div></div>
-</div><!-- fragment -->
-</div>
-</div>
-<a id="ad5d8437d6f2b13693540d12748b8e03f" name="ad5d8437d6f2b13693540d12748b8e03f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad5d8437d6f2b13693540d12748b8e03f">&#9670;&#160;</a></span>QUIRK_LOADSTORE</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define QUIRK_LOADSTORE</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">c</td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">if</span> (c-&gt;flags &amp; <a class="code hl_define" href="chip8_8h.html#ae3343f6f990f3e72a0d063fcbd341a66">C8_FLAG_QUIRK_LOADSTORE</a>) { \</div>
-<div class="line">        c-&gt;I += x + 1; \</div>
-<div class="line">    }</div>
-<div class="ttc" id="achip8_8h_html_ae3343f6f990f3e72a0d063fcbd341a66"><div class="ttname"><a href="chip8_8h.html#ae3343f6f990f3e72a0d063fcbd341a66">C8_FLAG_QUIRK_LOADSTORE</a></div><div class="ttdeci">#define C8_FLAG_QUIRK_LOADSTORE</div><div class="ttdef"><b>Definition:</b> chip8.h:22</div></div>
-</div><!-- fragment -->
-</div>
-</div>
-<a id="a48cfa5b68f79e47811a2e47608021f8a" name="a48cfa5b68f79e47811a2e47608021f8a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a48cfa5b68f79e47811a2e47608021f8a">&#9670;&#160;</a></span>QUIRK_SHIFT</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define QUIRK_SHIFT</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">c</td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">if</span> (c-&gt;flags &amp; <a class="code hl_define" href="chip8_8h.html#a92a870e6ca433a2ebb5164e5a62735c7">C8_FLAG_QUIRK_SHIFT</a>) { \</div>
-<div class="line">        y = x; \</div>
-<div class="line">    }</div>
-<div class="ttc" id="achip8_8h_html_a92a870e6ca433a2ebb5164e5a62735c7"><div class="ttname"><a href="chip8_8h.html#a92a870e6ca433a2ebb5164e5a62735c7">C8_FLAG_QUIRK_SHIFT</a></div><div class="ttdeci">#define C8_FLAG_QUIRK_SHIFT</div><div class="ttdef"><b>Definition:</b> chip8.h:23</div></div>
-</div><!-- fragment -->
-</div>
-</div>
-<a id="a4aaf30eb16fc172dc344ab5f397e6c97" name="a4aaf30eb16fc172dc344ab5f397e6c97"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4aaf30eb16fc172dc344ab5f397e6c97">&#9670;&#160;</a></span>VERBOSE</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define VERBOSE</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">c</td><td>)</td>
-          <td>&#160;&#160;&#160;(c-&gt;flags &amp; <a class="el" href="chip8_8h.html#a7b1dbd5d0a95aa96aec11cde83bd148f">C8_FLAG_VERBOSE</a>)</td>
         </tr>
       </table>
 </div><div class="memdoc">
