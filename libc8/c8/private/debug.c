@@ -332,7 +332,7 @@ static int load_file_arg(cmd_t* cmd, char* arg) {
  */
 static int parse_arg(cmd_t* cmd, char* s) {
     arg_t* arg = &cmd->arg;
-    char* value;
+    char* value = NULL;
     int argsCount = sizeof(args) / sizeof(args[0]);
 
     arg->type = ARG_NONE;
@@ -356,6 +356,10 @@ static int parse_arg(cmd_t* cmd, char* s) {
     }
 
     if (cmd->id == CMD_SET) {
+        if (!value || strlen(value) == 0) {
+            printf("Not enough arguments.\n");
+            return 0;
+        }
         switch (arg->type) {
         case ARG_ADDR:
             cmd->arg.value.i = parse_int(s);
@@ -527,6 +531,7 @@ static void print_value(c8_t* c8, cmd_t* cmd) {
         else {
             printf("R%01x: %02x\n", cmd->arg.value.i, c8->R[cmd->arg.value.i]);
         }
+        break;
     case ARG_PC: printf("PC: %03x\n", c8->pc); break;
     case ARG_DT: printf("DT: %02x\n", c8->dt); break;
     case ARG_ST: printf("ST: %02x\n", c8->st); break;
