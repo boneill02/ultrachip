@@ -83,21 +83,21 @@ int c8_encode(const char* s, uint8_t* out, int args) {
         }
     }
 
-    VERBOSE_PRINT(args, "Populating identifiers in label map");
+    VERBOSE_PRINT(args, "Populating identifiers in label map\n");
     populate_labels(&labels);
 
-    VERBOSE_PRINT(args, "Building symbol table");
+    VERBOSE_PRINT(args, "Building symbol table\n");
     for (int i = 0; i < c8_line_count; i++) {
         parse_line(c8_lines[i], i + 1, &symbols, &labels);
     }
 
-    VERBOSE_PRINT(args, "Resolving label addresses");
+    VERBOSE_PRINT(args, "Resolving label addresses\n");
     resolve_labels(&symbols, &labels);
 
-    VERBOSE_PRINT(args, "Substituting label addresses in symbol table");
+    VERBOSE_PRINT(args, "Substituting label addresses in symbol table\n");
     substitute_labels(&symbols, &labels);
 
-    VERBOSE_PRINT(args, "Writing output");
+    VERBOSE_PRINT(args, "Writing output\n");
     count = write(out, &symbols, args);
 
     free(scpy);
@@ -405,7 +405,6 @@ static int write(uint8_t* output, symbol_list_t* symbols, int args) {
         default:
             break;
         }
-        VERBOSE_PRINT(args, "%03x: %04x\n", byte + C8_PROG_START, symbols->s[i].value);
     }
 
     return byte;
