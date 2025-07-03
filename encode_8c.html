@@ -91,8 +91,8 @@ $(document).ready(function(){initNavTree('encode_8c.html',''); initResizable(); 
 
 <div class="header">
   <div class="summary">
-<a href="#func-members">Functions</a> &#124;
-<a href="#var-members">Variables</a>  </div>
+<a href="#define-members">Macros</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">encode.c File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -107,6 +107,11 @@ $(document).ready(function(){initNavTree('encode_8c.html',''); initResizable(); 
 <code>#include &lt;stdlib.h&gt;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
 </div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a1981bbc1fe6a6b47f5d90691077fb744"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="encode_8c.html#a1981bbc1fe6a6b47f5d90691077fb744">VERBOSE_PRINT</a>(s)&#160;&#160;&#160;if (<a class="el" href="debug_8c.html#aa987ed85a62ae9981838cf3bddd4c7fe">args</a> &amp; <a class="el" href="encode_8h.html#a95088696c8690393aef7f90cd1954c78">ARG_VERBOSE</a>) { printf(&quot;%s\n&quot;, s); }</td></tr>
+<tr class="separator:a1981bbc1fe6a6b47f5d90691077fb744"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ac3e1d3347742cd4908266fd0fb50c7c9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="encode_8c.html#ac3e1d3347742cd4908266fd0fb50c7c9">c8_encode</a> (const char *s, uint8_t *out, int <a class="el" href="debug_8c.html#aa987ed85a62ae9981838cf3bddd4c7fe">args</a>)</td></tr>
@@ -115,19 +120,29 @@ Functions</h2></td></tr>
 <tr class="memitem:afd42410221b6940e3fde2d3a66eb1739"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="encode_8c.html#afd42410221b6940e3fde2d3a66eb1739">remove_comment</a> (char *s)</td></tr>
 <tr class="memdesc:afd42410221b6940e3fde2d3a66eb1739"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove comment from string if exists.  <br /></td></tr>
 <tr class="separator:afd42410221b6940e3fde2d3a66eb1739"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:a179391db175aa866ebcd9ddbc9c3d212"><td class="memItemLeft" align="right" valign="top">char **&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="encode_8c.html#a179391db175aa866ebcd9ddbc9c3d212">c8_lines</a></td></tr>
-<tr class="separator:a179391db175aa866ebcd9ddbc9c3d212"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a960619d12ee92d6490926882da317a67"><td class="memItemLeft" align="right" valign="top">char **&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="encode_8c.html#a960619d12ee92d6490926882da317a67">c8_lines_unformatted</a></td></tr>
-<tr class="separator:a960619d12ee92d6490926882da317a67"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0d5c44852a738d6bb98d2af01418b9d1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="encode_8c.html#a0d5c44852a738d6bb98d2af01418b9d1">c8_line_count</a></td></tr>
-<tr class="separator:a0d5c44852a738d6bb98d2af01418b9d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Base assembler code </p>
-</div><h2 class="groupheader">Function Documentation</h2>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a1981bbc1fe6a6b47f5d90691077fb744" name="a1981bbc1fe6a6b47f5d90691077fb744"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1981bbc1fe6a6b47f5d90691077fb744">&#9670;&#160;</a></span>VERBOSE_PRINT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define VERBOSE_PRINT</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">s</td><td>)</td>
+          <td>&#160;&#160;&#160;if (<a class="el" href="debug_8c.html#aa987ed85a62ae9981838cf3bddd4c7fe">args</a> &amp; <a class="el" href="encode_8h.html#a95088696c8690393aef7f90cd1954c78">ARG_VERBOSE</a>) { printf(&quot;%s\n&quot;, s); }</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
 <a id="ac3e1d3347742cd4908266fd0fb50c7c9" name="ac3e1d3347742cd4908266fd0fb50c7c9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac3e1d3347742cd4908266fd0fb50c7c9">&#9670;&#160;</a></span>c8_encode()</h2>
 
@@ -199,49 +214,6 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>string without comment </dd></dl>
-
-</div>
-</div>
-<h2 class="groupheader">Variable Documentation</h2>
-<a id="a0d5c44852a738d6bb98d2af01418b9d1" name="a0d5c44852a738d6bb98d2af01418b9d1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0d5c44852a738d6bb98d2af01418b9d1">&#9670;&#160;</a></span>c8_line_count</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int c8_line_count</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a179391db175aa866ebcd9ddbc9c3d212" name="a179391db175aa866ebcd9ddbc9c3d212"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a179391db175aa866ebcd9ddbc9c3d212">&#9670;&#160;</a></span>c8_lines</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">char** c8_lines</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a960619d12ee92d6490926882da317a67" name="a960619d12ee92d6490926882da317a67"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a960619d12ee92d6490926882da317a67">&#9670;&#160;</a></span>c8_lines_unformatted</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">char** c8_lines_unformatted</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
 
 </div>
 </div>

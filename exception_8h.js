@@ -1,6 +1,5 @@
 var exception_8h =
 [
-    [ "C8_EXCEPTION", "exception_8h.html#a3049a797967abc96f1861c63dbef01f3", null ],
     [ "DUPLICATE_LABEL_EXCEPTION", "exception_8h.html#a53f84590294f4c1f1488ba7df177d9ec", null ],
     [ "DUPLICATE_LABEL_EXCEPTION_MESSAGE", "exception_8h.html#a324da6f8ce367afdc1d3c32efcabd489", null ],
     [ "EXCEPTION_MESSAGE_SIZE", "exception_8h.html#a1f8068b064071d772414a5d15a237509", null ],

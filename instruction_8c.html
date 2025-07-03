@@ -293,11 +293,13 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">if</span> (c-&gt;mode == <a class="code hl_define" href="chip8_8h.html#ace5f100e8d06164b3cb3b0b04e5297f5">C8_MODE_CHIP8</a>) { \</div>
-<div class="line">        C8_EXCEPTION(<a class="code hl_define" href="exception_8h.html#a786bb36c572fc0a737827b1372c90080">INVALID_INSTRUCTION_EXCEPTION</a>, <span class="stringliteral">&quot;SCHIP instruction detected in CHIP-8 mode.\n&quot;</span>); \</div>
+<div class="line">        sprintf(<a class="code hl_variable" href="exception_8c.html#a2b504db127ee3d58c7703aa9159c3b07">c8_exception</a>, <span class="stringliteral">&quot;SCHIP instruction detected in CHIP-8 mode.\n&quot;</span>); \</div>
+<div class="line">        handle_exception(<a class="code hl_define" href="exception_8h.html#a786bb36c572fc0a737827b1372c90080">INVALID_INSTRUCTION_EXCEPTION</a>); \</div>
 <div class="line">        <span class="keywordflow">return</span> <a class="code hl_define" href="exception_8h.html#a786bb36c572fc0a737827b1372c90080">INVALID_INSTRUCTION_EXCEPTION</a>; \</div>
 <div class="line">    }</div>
 <div class="ttc" id="achip8_8h_html_ace5f100e8d06164b3cb3b0b04e5297f5"><div class="ttname"><a href="chip8_8h.html#ace5f100e8d06164b3cb3b0b04e5297f5">C8_MODE_CHIP8</a></div><div class="ttdeci">#define C8_MODE_CHIP8</div><div class="ttdef"><b>Definition:</b> chip8.h:18</div></div>
-<div class="ttc" id="aexception_8h_html_a786bb36c572fc0a737827b1372c90080"><div class="ttname"><a href="exception_8h.html#a786bb36c572fc0a737827b1372c90080">INVALID_INSTRUCTION_EXCEPTION</a></div><div class="ttdeci">#define INVALID_INSTRUCTION_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:33</div></div>
+<div class="ttc" id="aexception_8c_html_a2b504db127ee3d58c7703aa9159c3b07"><div class="ttname"><a href="exception_8c.html#a2b504db127ee3d58c7703aa9159c3b07">c8_exception</a></div><div class="ttdeci">char c8_exception[EXCEPTION_MESSAGE_SIZE]</div><div class="ttdef"><b>Definition:</b> exception.c:16</div></div>
+<div class="ttc" id="aexception_8h_html_a786bb36c572fc0a737827b1372c90080"><div class="ttname"><a href="exception_8h.html#a786bb36c572fc0a737827b1372c90080">INVALID_INSTRUCTION_EXCEPTION</a></div><div class="ttdeci">#define INVALID_INSTRUCTION_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:31</div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -336,7 +338,8 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">if</span> (c-&gt;mode != <a class="code hl_define" href="chip8_8h.html#acf75ba93ff6438063ec6a493e004429d">C8_MODE_XOCHIP</a>) { \</div>
 <div class="line">        <span class="keyword">const</span> <span class="keywordtype">char</span> *modeStr = (c-&gt;mode == <a class="code hl_define" href="chip8_8h.html#ace5f100e8d06164b3cb3b0b04e5297f5">C8_MODE_CHIP8</a>) ? <span class="stringliteral">&quot;CHIP-8&quot;</span> : <span class="stringliteral">&quot;SCHIP&quot;</span>; \</div>
-<div class="line">        C8_EXCEPTION(<a class="code hl_define" href="exception_8h.html#a786bb36c572fc0a737827b1372c90080">INVALID_INSTRUCTION_EXCEPTION</a>, <span class="stringliteral">&quot;XOCHIP instruction detected in %s mode.\n&quot;</span>, modeStr); \</div>
+<div class="line">        sprintf(<a class="code hl_variable" href="exception_8c.html#a2b504db127ee3d58c7703aa9159c3b07">c8_exception</a>, <span class="stringliteral">&quot;XOCHIP instruction detected in %s mode.\n&quot;</span>, modeStr); \</div>
+<div class="line">        handle_exception(<a class="code hl_define" href="exception_8h.html#a786bb36c572fc0a737827b1372c90080">INVALID_INSTRUCTION_EXCEPTION</a>); \</div>
 <div class="line">        <span class="keywordflow">return</span> <a class="code hl_define" href="exception_8h.html#a786bb36c572fc0a737827b1372c90080">INVALID_INSTRUCTION_EXCEPTION</a>; \</div>
 <div class="line">    }</div>
 <div class="ttc" id="achip8_8h_html_acf75ba93ff6438063ec6a493e004429d"><div class="ttname"><a href="chip8_8h.html#acf75ba93ff6438063ec6a493e004429d">C8_MODE_XOCHIP</a></div><div class="ttdeci">#define C8_MODE_XOCHIP</div><div class="ttdef"><b>Definition:</b> chip8.h:20</div></div>
