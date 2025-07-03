@@ -53,8 +53,7 @@ c8_t* c8_init(const char* path, int flags) {
     c8_t* c8 = (c8_t*)calloc(1, sizeof(c8_t));
 
     if (!c8) {
-        snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "At %s", __func__);
-        handle_exception(MEMORY_ALLOCATION_EXCEPTION);
+        C8_EXCEPTION(MEMORY_ALLOCATION_EXCEPTION, "At %s", __func__);
         return NULL;
     }
 
@@ -97,12 +96,14 @@ int c8_load_palette_s(c8_t* c8, char* s) {
     }
 
     if (!c[1]) {
-        handle_exception(INVALID_COLOR_PALETTE_EXCEPTION);
+        C8_EXCEPTION(INVALID_COLOR_PALETTE_EXCEPTION,
+            "Invalid color palette: %s", s);
     }
 
     for (int i = 0; i < 2; i++) {
         if ((c8->colors[i] = parse_int(c[i])) == -1) {
-            handle_exception(INVALID_COLOR_PALETTE_EXCEPTION);
+            C8_EXCEPTION(INVALID_COLOR_PALETTE_EXCEPTION,
+                "Invalid color palette: %s", s);
         }
     }
 
@@ -120,24 +121,20 @@ int c8_load_palette_s(c8_t* c8, char* s) {
 int c8_load_palette_f(c8_t* c8, const char* path) {
     NULLCHECK2(c8, path);
 
-    char buf[BUFSIZ];
+    char buf[64];
     buf[0] = '$';
     int c;
     FILE* f = fopen(path, "r");
     if (!f) {
-        snprintf(c8_exception,
-            EXCEPTION_MESSAGE_SIZE,
-            "Failed to open color palette.\n");
-        handle_exception(INVALID_COLOR_PALETTE_EXCEPTION);
+        C8_EXCEPTION(LOAD_FILE_FAILURE_EXCEPTION,
+            "Could not open color palette file: %s", path);
         return 0;
     }
     for (int i = 0; i < 2; i++) {
-        fgets(buf + 1, BUFSIZ - 1, f);
+        fgets(buf + 1, 64 - 1, f);
         if ((c = parse_int(buf)) == -1) {
-            snprintf(c8_exception,
-                EXCEPTION_MESSAGE_SIZE,
-                "Integer parse error while loading color palette\n");
-            handle_exception(INVALID_COLOR_PALETTE_EXCEPTION);
+            C8_EXCEPTION(INVALID_COLOR_PALETTE_EXCEPTION,
+                "Invalid color palette: %s", buf);
             return 0;
         }
         c8->colors[i] = c;
@@ -163,8 +160,7 @@ void c8_load_quirks(c8_t* c8, const char* s) {
         case 'j': c8->flags ^= C8_FLAG_QUIRK_JUMP; break;
         case 'l': c8->flags ^= C8_FLAG_QUIRK_LOADSTORE; break;
         case 's': c8->flags ^= C8_FLAG_QUIRK_SHIFT; break;
-        default:
-            handle_exception(INVALID_QUIRK_EXCEPTION);
+        default: C8_EXCEPTION(INVALID_QUIRK_EXCEPTION, "Invalid quirk: %c", s[i]);
         }
     }
 }
@@ -185,8 +181,7 @@ void c8_simulate(c8_t* c8) {
     c8->running = 1;
 
     if (c8->cs <= 0) {
-        snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "Invalid clock speed: %d\n", c8->cs);
-        handle_exception(INVALID_CLOCK_SPEED_EXCEPTION);
+        C8_EXCEPTION(INVALID_CLOCK_SPEED_EXCEPTION, "Invalid clock speed: %d", c8->cs);
         return;
     }
 
@@ -238,7 +233,7 @@ void c8_simulate(c8_t* c8) {
             /* Not waiting for key, parse next instruction */
             ret = parse_instruction(c8);
             if (ret < 0) {
-                handle_exception(ret);
+                c8->running = 0;
             }
 
             c8->pc += ret;
@@ -273,8 +268,7 @@ static int load_rom(c8_t* c8, const char* addr) {
 
     f = fopen(addr, "r");
     if (!f) {
-        snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "File: %s\n", addr);
-        handle_exception(LOAD_FILE_FAILURE_EXCEPTION);
+        C8_EXCEPTION(LOAD_FILE_FAILURE_EXCEPTION, "Could not open ROM file: %s", addr);
         return LOAD_FILE_FAILURE_EXCEPTION;
     }
 
@@ -283,7 +277,7 @@ static int load_rom(c8_t* c8, const char* addr) {
     size = ftell(f);
     if (ftell(f) > (0x1000 - 0x200)) {
         /* File is too big, failure */
-        handle_exception(FILE_TOO_BIG_EXCEPTION);
+        C8_EXCEPTION(FILE_TOO_BIG_EXCEPTION, "ROM file too big: %s", addr);
     }
     rewind(f);
 

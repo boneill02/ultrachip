@@ -328,7 +328,7 @@ void test_next_symbol_WhereSymbolListIsFull(void) {
 }
 
 void test_populate_labels_WhereLinesIsEmpty(void) {
-    int r = populate_labels(lines, MAX_LINE_COUNT, &labels);
+    int r = populate_labels(&labels);
 
     TEST_ASSERT_EQUAL_INT(1, r);
     TEST_ASSERT_EQUAL_INT(0, labels.len);
@@ -342,7 +342,7 @@ void test_populate_labels_WhereLabelListIsEmpty(void) {
     sprintf(lines[3], "%s", "RET");
     sprintf(lines[4], "%s", "SE V1, $55");
 
-    int r = populate_labels(lines, 5, &labels);
+    int r = populate_labels(&labels);
     TEST_ASSERT_EQUAL_INT(1, r);
     TEST_ASSERT_EQUAL_INT(0, labels.len);
     TEST_ASSERT_EQUAL_STRING("\0", labels.l[0].identifier);
@@ -355,7 +355,7 @@ void test_populate_labels_WhereLinesHasMultipleLabelDefinitions(void) {
     sprintf(lines[3], "%s", "otherlabel:");
     sprintf(lines[4], "%s", "SE V1, $55");
 
-    int r = populate_labels(lines, MAX_LINE_COUNT, &labels);
+    int r = populate_labels(&labels);
 
     TEST_ASSERT_EQUAL_INT(1, r);
     TEST_ASSERT_EQUAL_INT(2, labels.len);
@@ -370,7 +370,7 @@ void test_populate_labels_WhereLinesHasDuplicateLabelDefinitions(void) {
     sprintf(lines[3], "%s", "label:");
     sprintf(lines[4], "%s", "SE V1, $55");
 
-    int r = populate_labels(lines, 5, &labels);
+    int r = populate_labels(&labels);
 
     TEST_ASSERT_EQUAL_INT(DUPLICATE_LABEL_EXCEPTION, r);
 }

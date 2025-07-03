@@ -122,7 +122,7 @@ void test_c8_encode_WhereMultipleValidInstructionsExist(void) {
 }
 
 void test_c8_encode_WhereInvalidInstructionsExist(void) {
-    char* s = "OR V1, V9\nAND $31\nDRW V1, V9, $8";
+    char* s = "OR V1, V9\nAND $31\nDRW V1, V9, $8\n";
     sprintf(buf, "%s", s);
     int r = c8_encode(buf, bytecode, 0);
     TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, r);
