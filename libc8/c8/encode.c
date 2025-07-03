@@ -410,17 +410,11 @@ static int write(uint8_t* output, symbol_list_t* symbols, int args) {
             }
             break;
         case SYM_DW:
-            if (symbols->s[i].value > UINT16_MAX) {
-                fprintf(stderr, "(line %d): DW value too big\n", symbols->s[i].ln);
-                return INVALID_ARGUMENT_EXCEPTION;
-            }
-            else {
                 put16(output, symbols->s[i].value, byte);
                 if (args & ARG_VERBOSE) {
                     printf("%03x: %04x\n", byte + C8_PROG_START, symbols->s[i].value);
                 }
                 byte += 2;
-            }
             break;
         default:
             break;
