@@ -551,6 +551,23 @@ static int reallocate_symbols(symbol_list_t* symbols) {
  * @return number of bits to shift
  */
 static int shift(uint16_t fmt) {
+    static int table[6][2] = {
+        {0xF000, 0}, // a
+        {0x000F, 0}, // b
+        {0x00FF, 4}, // kk
+        {0x0FFF, 8}, // nnn
+        {0x0F00, 12}, // x
+        {0x00F0, 12}, // y
+    };
+
+    for (int i = 0; i < 6; i++) {
+        if (fmt == table[i][0]) {
+            return table[i][1];
+        }
+    }
+
+    // Unorthodox shift
+    // FIXME remove this?
     int shift = 0;
     while ((fmt & 1) == 0) {
         fmt >>= 1;
