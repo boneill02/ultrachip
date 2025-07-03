@@ -17,8 +17,8 @@
 #define FORMAT_NNN(nnn) (nnn & 0x0FFF)
 
 #define INSERT_INSTRUCTION(pc, a) \
-	c8.mem[pc] = (a >> 8) & 0xFF; \
-	c8.mem[pc+1] = a & 0xFF;
+	c8.mem[pc] = (((a) >> 8) & 0xFF); \
+	c8.mem[pc+1] = ((a) & 0xFF);
 #define BUILD_INSTRUCTION_AXYB(a, x, y, b) \
 	(FORMAT_A(a) | FORMAT_X(x) | FORMAT_Y(y) | FORMAT_B(b))
 #define BUILD_INSTRUCTION_AXKK(a, x, kk) \
@@ -261,7 +261,7 @@ void test_parse_instruction_WhereInstructionIsSEXKK_WhereVXEqualsKK(void) {
 }
 
 void test_parse_instruction_WhereInstructionIsSEXKK_WhereVXDoesNotEqualKK(void) {
-    AXKK(0x3, x, vx + 1);
+    AXKK(0x3, x, (vx + 1));
 
     c8.V[x] = vx;
 
