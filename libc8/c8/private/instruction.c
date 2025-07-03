@@ -256,11 +256,11 @@ static inline int i_cls(c8_t* c8) {
  * or STACK_UNDERFLOW_EXCEPTION if the stack is empty.
  */
 static inline int i_ret(c8_t* c8) {
-    c8->sp--;
-    if (c8->sp < 0) {
-        sprintf(c8_exception, "Stack underflow at %03x", c8->pc);
+    if (c8->sp == 0) {
+        sprintf_s(c8_exception, EXCEPTION_MESSAGE_SIZE, "Stack underflow at %03x", c8->pc);
         return STACK_UNDERFLOW_EXCEPTION;
     }
+    c8->sp--;
     c8->pc = c8->stack[c8->sp];
     return 2;
 }
