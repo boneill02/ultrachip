@@ -53,7 +53,7 @@ c8_t* c8_init(const char* path, int flags) {
     c8_t* c8 = (c8_t*)calloc(1, sizeof(c8_t));
 
     if (!c8) {
-        sprintf_s(c8_exception, EXCEPTION_MESSAGE_SIZE, "At %s", __func__);
+        snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "At %s", __func__);
         handle_exception(MEMORY_ALLOCATION_EXCEPTION);
         return NULL;
     }
@@ -125,7 +125,7 @@ int c8_load_palette_f(c8_t* c8, const char* path) {
     int c;
     FILE* f = fopen(path, "r");
     if (!f) {
-        sprintf_s(c8_exception,
+        snprintf(c8_exception,
             EXCEPTION_MESSAGE_SIZE,
             "Failed to open color palette.\n");
         handle_exception(INVALID_COLOR_PALETTE_EXCEPTION);
@@ -134,7 +134,7 @@ int c8_load_palette_f(c8_t* c8, const char* path) {
     for (int i = 0; i < 2; i++) {
         fgets(buf + 1, BUFSIZ - 1, f);
         if ((c = parse_int(buf)) == -1) {
-            sprintf_s(c8_exception,
+            snprintf(c8_exception,
                 EXCEPTION_MESSAGE_SIZE,
                 "Integer parse error while loading color palette\n");
             handle_exception(INVALID_COLOR_PALETTE_EXCEPTION);
@@ -185,7 +185,7 @@ void c8_simulate(c8_t* c8) {
     c8->running = 1;
 
     if (c8->cs <= 0) {
-        sprintf_s(c8_exception, EXCEPTION_MESSAGE_SIZE, "Invalid clock speed: %d\n", c8->cs);
+        snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "Invalid clock speed: %d\n", c8->cs);
         handle_exception(INVALID_CLOCK_SPEED_EXCEPTION);
         return;
     }
@@ -273,7 +273,7 @@ static int load_rom(c8_t* c8, const char* addr) {
 
     f = fopen(addr, "r");
     if (!f) {
-        sprintf_s(c8_exception, EXCEPTION_MESSAGE_SIZE, "File: %s\n", addr);
+        snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "File: %s\n", addr);
         handle_exception(LOAD_FILE_FAILURE_EXCEPTION);
         return LOAD_FILE_FAILURE_EXCEPTION;
     }

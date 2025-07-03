@@ -257,7 +257,7 @@ static inline int i_cls(c8_t* c8) {
  */
 static inline int i_ret(c8_t* c8) {
     if (c8->sp == 0) {
-        sprintf_s(c8_exception, EXCEPTION_MESSAGE_SIZE, "Stack underflow at %03x", c8->pc);
+        snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "Stack underflow at %03x", c8->pc);
         return STACK_UNDERFLOW_EXCEPTION;
     }
     c8->sp--;
