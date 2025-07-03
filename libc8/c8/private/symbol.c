@@ -155,6 +155,7 @@ int build_instruction(instruction_t* ins, symbol_list_t* symbols, int idx) {
         case SYM_V:
         case SYM_INT12:
             max = 0xFFF;
+            // fall through
         case SYM_INT8:
             max = max == 0 ? 0xFF : max;
             // fall through
@@ -376,7 +377,7 @@ int populate_labels(char** lines, int lineCount, label_list_t* labels) {
                 }
             }
 
-            strncpy(labels->l[labels->len].identifier, lines[i], LABEL_IDENTIFIER_SIZE);
+            strncpy(labels->l[labels->len].identifier, lines[i], LABEL_IDENTIFIER_SIZE - 1);
 
             /* remove : */
             int labellen = strlen(lines[i]) - 1;
