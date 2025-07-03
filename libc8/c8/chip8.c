@@ -53,7 +53,7 @@ c8_t* c8_init(const char* path, int flags) {
     c8_t* c8 = (c8_t*)calloc(1, sizeof(c8_t));
 
     if (!c8) {
-        sprintf(c8_exception, "At %s", __func__);
+        sprintf_s(c8_exception, EXCEPTION_MESSAGE_SIZE, "At %s", __func__);
         handle_exception(MEMORY_ALLOCATION_EXCEPTION);
         return NULL;
     }
@@ -125,14 +125,17 @@ int c8_load_palette_f(c8_t* c8, const char* path) {
     int c;
     FILE* f = fopen(path, "r");
     if (!f) {
-        sprintf(c8_exception, "Failed to open color palette.\n");
+        sprintf_s(c8_exception,
+            EXCEPTION_MESSAGE_SIZE,
+            "Failed to open color palette.\n");
         handle_exception(INVALID_COLOR_PALETTE_EXCEPTION);
         return 0;
     }
     for (int i = 0; i < 2; i++) {
         fgets(buf + 1, BUFSIZ - 1, f);
         if ((c = parse_int(buf)) == -1) {
-            sprintf(c8_exception,
+            sprintf_s(c8_exception,
+                EXCEPTION_MESSAGE_SIZE,
                 "Integer parse error while loading color palette\n");
             handle_exception(INVALID_COLOR_PALETTE_EXCEPTION);
             return 0;
@@ -172,7 +175,6 @@ void c8_load_quirks(c8_t* c8, const char* s) {
  * @param c8 the `c8_t` to simulate
  */
 void c8_simulate(c8_t* c8) {
-    int t;
     int debugRet;
     int ret;
     int step = 1;
@@ -183,14 +185,14 @@ void c8_simulate(c8_t* c8) {
     c8->running = 1;
 
     if (c8->cs <= 0) {
-        sprintf(c8_exception, "Invalid clock speed: %d\n", c8->cs);
+        sprintf_s(c8_exception, EXCEPTION_MESSAGE_SIZE, "Invalid clock speed: %d\n", c8->cs);
         handle_exception(INVALID_CLOCK_SPEED_EXCEPTION);
         return;
     }
 
     while (c8->running) {
         usleep(1000000 / c8->cs);
-        t = c8_tick(c8->key);
+        int t = c8_tick(c8->key);
 
         if (t == -2) {
             /* Quit */
@@ -271,7 +273,7 @@ static int load_rom(c8_t* c8, const char* addr) {
 
     f = fopen(addr, "r");
     if (!f) {
-        sprintf(c8_exception, "File: %s\n", addr);
+        sprintf_s(c8_exception, EXCEPTION_MESSAGE_SIZE, "File: %s\n", addr);
         handle_exception(LOAD_FILE_FAILURE_EXCEPTION);
         return LOAD_FILE_FAILURE_EXCEPTION;
     }
