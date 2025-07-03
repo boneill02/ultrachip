@@ -262,8 +262,8 @@ void test_parse_word_WhereWordIsReservedIdentifier(void) {
 
 void test_parse_word_WhereWordIsInt(void) {
     int v4 = rand() % 0x10;
-    int v8 = rand() % 0x100;
-    int v12 = rand() % 0x1000;
+    int v8 = (rand() % (0x100 - 0x10)) + 0x10;
+    int v12 = (rand() % (0x1000 - 0x100)) + 0x100;
 
     sprintf(buf, "$%x", v4);
     int r = parse_word(buf, NULL, 1, &symbols.s[0], &labels);
