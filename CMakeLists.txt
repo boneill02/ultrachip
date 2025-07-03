@@ -5,6 +5,7 @@ project("libc8" C)
 
 option(SDL2 "Use SDL2 in libc8" ON)
 set(TARGET_GROUP lib CACHE STRING "Group to build")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall -Wextra -Wpedantic -Werror -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -Wno-missing-field-initializers")
 
 add_subdirectory(libc8)
 include_directories(libc8)
