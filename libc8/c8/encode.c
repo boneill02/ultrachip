@@ -52,12 +52,12 @@ int c8_encode(const char* s, uint8_t* out, int args) {
     char** lines;
 
     symbol_list_t symbols;
-    symbols.s = (symbol_t*)calloc(sizeof(symbol_t), SYMBOL_CEILING);
+    symbols.s = (symbol_t*)calloc(SYMBOL_CEILING, sizeof(symbol_t));
     symbols.len = 0;
     symbols.ceil = SYMBOL_CEILING;
 
     label_list_t labels;
-    labels.l = (label_t*)calloc(sizeof(label_t), LABEL_CEILING);
+    labels.l = (label_t*)calloc(LABEL_CEILING, sizeof(label_t));
     labels.len = 0;
     labels.ceil = LABEL_CEILING;
 
