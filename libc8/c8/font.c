@@ -220,8 +220,6 @@ const uint8_t bigFonts[3][160] = {
  * @param big big font identifier (-1 to not set)
  */
 void c8_set_fonts(c8_t* c8, int small, int big) {
-    NULLCHECK1(c8);
-
     if (small > -1 && small < 5) {
         c8->fonts[0] = small;
         memcpy(&c8->mem[C8_FONT_START], smallFonts[small], 80);

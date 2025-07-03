@@ -46,8 +46,6 @@ int c8_line_count;
  * @return length of resulting bytecode.
  */
 int c8_encode(const char* s, uint8_t* out, int args) {
-    NULLCHECK2(s, out);
-
     char* scpy;
     int len = strlen(s);
     int count = 0;
@@ -116,8 +114,6 @@ int c8_encode(const char* s, uint8_t* out, int args) {
  * @return string without comment
  */
 char* remove_comment(char* s) {
-    NULLCHECK1(s);
-
     if (s[0] == ';') {
         s[0] = '\0';
         return s;
@@ -140,8 +136,6 @@ char* remove_comment(char* s) {
  * @return 1 if success, exception code otherwise
  */
 static int initialize_labels(label_list_t* labels) {
-    NULLCHECK1(labels);
-
     labels->l = (label_t*)calloc(LABEL_CEILING, sizeof(label_t));
     if (!labels->l) {
         C8_EXCEPTION(MEMORY_ALLOCATION_EXCEPTION, "At function %s", __func__);
@@ -161,8 +155,6 @@ static int initialize_labels(label_list_t* labels) {
  * @return 1 if success, exception code otherwise
  */
 static int initialize_symbols(symbol_list_t* symbols) {
-    NULLCHECK1(symbols);
-
     symbols->s = (symbol_t*)calloc(SYMBOL_CEILING, sizeof(symbol_t));
     if (!symbols->s) {
         C8_EXCEPTION(MEMORY_ALLOCATION_EXCEPTION, "At function %s", __func__);
@@ -182,8 +174,6 @@ static int initialize_symbols(symbol_list_t* symbols) {
  * @return line count
  */
 static int line_count(const char* s) {
-    NULLCHECK1(s);
-
     int ln = 1;
     while (*s) {
         if (*s == '\n') {
@@ -205,8 +195,6 @@ static int line_count(const char* s) {
  * @return 1 if success, exception code otherwise
  */
 static int parse_line(char* s, int ln, symbol_list_t* symbols, label_list_t* labels) {
-    NULLCHECK3(s, symbols, labels);
-
     if (strlen(s) == 0 || strlen(remove_comment(s)) == 0 || strlen((s = trim(s))) == 0) {
         // empty line
         return 1;
@@ -242,8 +230,6 @@ static int parse_line(char* s, int ln, symbol_list_t* symbols, label_list_t* lab
  * @return number of words to skip
  */
 static int parse_word(char* s, char* next, int ln, symbol_t* sym, label_list_t* labels) {
-    NULLCHECK3(s, sym, labels);
-
     int value;
     sym->ln = ln;
     s = remove_comma(s);
@@ -316,8 +302,6 @@ static int parse_word(char* s, char* next, int ln, symbol_t* sym, label_list_t* 
  * @param n index to write to
  */
 static inline void put16(uint8_t* output, uint16_t n, int idx) {
-    NULLCHECK1(output);
-
     output[idx] = (n >> 8) & 0xFF;
     output[idx + 1] = n & 0xFF;
 }
@@ -333,8 +317,6 @@ static inline void put16(uint8_t* output, uint16_t n, int idx) {
  * @return number of tokens
  */
 static int tokenize(char** tok, char* s, const char* delim, int maxTokens) {
-    NULLCHECK3(tok, s, delim);
-
     if (maxTokens <= 0) {
         C8_EXCEPTION(INVALID_ARGUMENT_EXCEPTION_INTERNAL, "At function: %s", __func__);
         return INVALID_ARGUMENT_EXCEPTION_INTERNAL;
@@ -357,8 +339,6 @@ static int tokenize(char** tok, char* s, const char* delim, int maxTokens) {
  * @return string without comma
  */
 static char* remove_comma(char* s) {
-    NULLCHECK1(s);
-
     trim(s);
     if (s[strlen(s) - 1] == ',') {
         s[strlen(s) - 1] = '\0';
@@ -373,8 +353,6 @@ static char* remove_comma(char* s) {
  * @param s string to convert
  */
 static int to_upper(char* s) {
-    NULLCHECK1(s);
-
     while (*s) {
         *s = toupper(*s);
         s++;
@@ -392,8 +370,6 @@ static int to_upper(char* s) {
  * @return length of bytecode
  */
 static int write(uint8_t* output, symbol_list_t* symbols, int args) {
-    NULLCHECK2(output, symbols);
-
     int ret;
     instruction_t ins;
     int byte = 0;

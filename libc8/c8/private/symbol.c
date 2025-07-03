@@ -15,9 +15,9 @@
 #include <ctype.h>
 #include <string.h>
 
-/**
- * Reserved identifier strings. Has to match `Symbol`.
- */
+ /**
+  * Reserved identifier strings. Has to match `Symbol`.
+  */
 const char* c8_identifierStrings[] = {
     "",
     S_DT,
@@ -137,7 +137,6 @@ static int validate_instruction(instruction_t*);
  * @return instruction bytecode
  */
 int build_instruction(instruction_t* ins, symbol_list_t* symbols, int idx) {
-    NULLCHECK2(ins, symbols);
     if (idx < 0) {
         C8_EXCEPTION(INVALID_ARGUMENT_EXCEPTION_INTERNAL, "Invalid index for instruction: %d", idx);
         return INVALID_ARGUMENT_EXCEPTION_INTERNAL;
@@ -159,7 +158,6 @@ int build_instruction(instruction_t* ins, symbol_list_t* symbols, int idx) {
  * @return 1 if true, 0 if false
  */
 int is_comment(const char* s) {
-    NULLCHECK1(s);
     return s[0] == ';';
 }
 
@@ -169,7 +167,6 @@ int is_comment(const char* s) {
  * @return 1 if true, 0 if false
  */
 int is_db(const char* s) {
-    NULLCHECK1(s);
     return !strcmp(s, S_DB);
 }
 
@@ -179,7 +176,6 @@ int is_db(const char* s) {
  * @return 1 if true, 0 if false
  */
 int is_dw(const char* s) {
-    NULLCHECK1(s);
     return !strcmp(s, S_DW);
 }
 
@@ -190,8 +186,6 @@ int is_dw(const char* s) {
  * @return instruction enumerator if true, -1 if false
  */
 int is_instruction(const char* s) {
-    NULLCHECK1(s);
-
     for (int i = 0; c8_instructionStrings[i]; i++) {
         if (!strcmp(s, c8_instructionStrings[i])) {
             return i;
@@ -208,8 +202,6 @@ int is_instruction(const char* s) {
  * @return 1 if true, 0 if false
  */
 int is_label_definition(const char* s) {
-    NULLCHECK1(s);
-
     int len = strlen(s);
     if (len < 2) {
         return 0;
@@ -221,13 +213,19 @@ int is_label_definition(const char* s) {
 /**
  * @brief Check if given string is a label reference
  *
+ * This function checks if the given string is a label reference by
+ * comparing it against the label list.
+ * It returns the index of the label in the label list
+ * if it is found, or -1 if it is not.
+ *
+ * This function assumes that the label list has been populated
+ * (e.g. `populate_labels()` has been called).
+ *
  * @param s string to check
  * @param labels label list to check from
  * @return label index if true, -1 otherwise
  */
 int is_label(const char* s, label_list_t* labels) {
-    NULLCHECK2(s, labels);
-
     if (strlen(s) == 0) {
         return -1;
     }
@@ -244,24 +242,29 @@ int is_label(const char* s, label_list_t* labels) {
 /**
  * @brief Check if the given string represents a V register
  *
+ * This function checks if the given string starts with 'V' or 'v'
+ * and is followed by a valid hexadecimal digit (0-9, A-F, a-f).
+ * It returns the register number if it is a valid V register,
+ * or -1 if it is not.
+ *
  * @param s string to check
  * @return V register number if true, -1 otherwise
  */
 int is_register(const char* s) {
-    NULLCHECK1(s);
-
     return (*s == 'V' || *s == 'v') ? parse_int(s) : -1;
 }
 
 /**
  * @brief Check if given string is a reserved identifier
  *
+ * This function checks if the given string is one of the reserved identifiers
+ * defined in `c8_identifierStrings`. It returns the index of the identifier
+ * if it is found, or -1 if it is not.
+ *
  * @param s string to check
  * @return type of identifier if true, -1 otherwise
  */
 int is_reserved_identifier(const char* s) {
-    NULLCHECK1(s);
-
     for (int i = 0; c8_identifierStrings[i]; i++) {
         if (!strcmp(s, c8_identifierStrings[i])) {
             return i;
@@ -273,6 +276,15 @@ int is_reserved_identifier(const char* s) {
 
 /**
  * @brief Get the next symbol
+ *
+ * This function retrieves the next available symbol in the symbol list.
+ * If the symbol list is empty, it initializes the first symbol.
+ * If the symbol list is full, it reallocates the symbol list to accommodate
+ * more symbols.
+ *
+ * If symbols is `NULL` or the symbol list is `NULL`, it returns `NULL`.
+ *
+ * @param symbols symbol list to get next symbol from
  *
  * @return first empty symbol in symbol table
  */
@@ -296,6 +308,14 @@ symbol_t* next_symbol(symbol_list_t* symbols) {
 /**
  * @brief Populate label list from lines
  *
+ * This function scans through the lines of code and identifies label definitions.
+ * It checks each line for a label definition (ending with a colon) and adds it
+ * to the label list.
+ *
+ * If a duplicate label definition is found, it throws a `DUPLICATE_LABEL_EXCEPTION`.
+ *
+ * If too many labels are defined, it throws a `TOO_MANY_LABELS_EXCEPTION`.
+ *
  * @param lines lines to search
  * @param lineCount number of lines to search
  * @param labels label list to populate
@@ -303,8 +323,6 @@ symbol_t* next_symbol(symbol_list_t* symbols) {
  * @return 1 if success, 0 if failure
  */
 int populate_labels(label_list_t* labels) {
-    NULLCHECK1(labels);
-
     for (int i = 0; i < c8_line_count; i++) {
         if (strlen(c8_lines[i]) == 0) {
             continue;
@@ -323,7 +341,7 @@ int populate_labels(label_list_t* labels) {
                 }
             }
 
-            strncpy(labels->l[labels->len].identifier,c8_lines[i], LABEL_IDENTIFIER_SIZE - 1);
+            strncpy(labels->l[labels->len].identifier, c8_lines[i], LABEL_IDENTIFIER_SIZE - 1);
 
             /* remove : */
             int labellen = strlen(c8_lines[i]) - 1;
@@ -343,14 +361,30 @@ int populate_labels(label_list_t* labels) {
 /**
  * @brief Get byte indexes of label definitions from completed symbol table
  *
+ * This function resolves label definitions in the symbol list and populates
+ * the label list with the byte index of each label definition. It iterates
+ * through the symbols, keeping track of the current byte position in the
+ * program. When it encounters a label definition, it records the current byte
+ * position in the label list. It also increments the byte position based on
+ * the type of symbol encountered (e.g., `SYM_DB` increments by 1,
+ * `SYM_INSTRUCTION` and `SYM_DW` increment by 2).
+ *
+ * This function assumes that the symbol list has been populated and that
+ * the symbols have been parsed correctly. It also assumes that the label list
+ * has been initialized.
+ *
+ * This function will return 1 if all labels were resolved successfully,
+ * or 0 if there was a failure (e.g., if the label list is not fully populated).
+ *
+ * This function will throw a NULL_ARGUMENT_EXCEPTION if either
+ * `symbols` or `labels` is NULL.
+ *
  * @param symbols list of symbols
  * @param labels list of labels
  *
  * @return 1 if success, 0 if failure
  */
 int resolve_labels(symbol_list_t* symbols, label_list_t* labels) {
-    NULLCHECK2(symbols, labels);
-
     int byte = C8_PROG_START;
     int labelIdx = 0;
     for (int i = 0; i < symbols->len; i++) {
@@ -379,12 +413,17 @@ int resolve_labels(symbol_list_t* symbols, label_list_t* labels) {
 /**
  * @brief Substitute label symbols with their corresponding int value
  *
+ * This function replaces all symbols of type `SYM_LABEL` in the symbol list
+ * with their corresponding byte value from the label list. It checks if the
+ * label exists and throws an `INVALID_SYMBOL_EXCEPTION` if it does not.
+ *
+ * This function assumes that the label list has been populated and that their
+ * byte values have been set correctly.
+ *
  * @param symbols symbols to search
  * @param labels labels to search
  */
 int substitute_labels(symbol_list_t* symbols, label_list_t* labels) {
-    NULLCHECK2(symbols, labels);
-
     for (int i = 0; i < symbols->len; i++) {
         if (symbols->s[i].type == SYM_LABEL) {
             if (symbols->s[i].value >= labels->len) {
@@ -401,6 +440,13 @@ int substitute_labels(symbol_list_t* symbols, label_list_t* labels) {
 
 /**
  * @brief Get instruction arguments from symbols
+ *
+ * This function populates the instruction's parameters from the symbols
+ * starting at the given index. It checks the type of each symbol and assigns
+ * the value to the instruction's parameter array.
+ *
+ * If an integer argument is too large for the expected type, it throws an
+ * `INVALID_INSTRUCTION_EXCEPTION`.
  *
  * @param ins instruction to populate
  * @param symbols symbol list
@@ -453,13 +499,17 @@ static int get_instruction_args(instruction_t* ins, symbol_list_t* symbols, int 
 /**
  * @brief Get bytecode value of instruction
  *
+ * This function takes an instruction and returns its bytecode value.
+ * It uses the instruction format to determine how to encode the parameters
+ * and combines them with the base value of the instruction format.
+ *
+ * If ins is `NULL`, it will throw a `NULL_ARGUMENT_EXCEPTION`.
+ *
  * @param ins instruction to get bytecode of
  *
  * @return bytecode of instruction ins
  */
 static int parse_instruction(instruction_t* ins) {
-    NULLCHECK1(ins);
-
     uint16_t result = ins->format->base;
     for (int j = 0; j < ins->pcount; j++) {
         if (ins->format->pmask[j]) {
@@ -472,15 +522,15 @@ static int parse_instruction(instruction_t* ins) {
 /**
  * @brief Validate the given instruction against legal instruction formats
  *
- * If successful, ins->format will be populated with the matching format
+ * If successful, `ins->format` will be populated with the matching format.
+ * If the instruction is invalid, an `INVALID_INSTRUCTION_EXCEPTION` will be
+ * thrown.
  *
  * @param ins instruction to validate
  *
  * @return 1 if success, 0 if failure
  */
 static int validate_instruction(instruction_t* ins) {
-    NULLCHECK1(ins);
-
     int match;
     for (int i = 0; formats[i].cmd != I_NULL; i++) {
         instruction_format_t* f = &formats[i];
@@ -525,13 +575,18 @@ static int validate_instruction(instruction_t* ins) {
 /**
  * @brief Expand symbol list
  *
+ * This function expands the symbol list by allocating more memory for it.
+ * It reallocates the symbol list to a block with double the size, copying
+ * the existing symbols to the new memory location. This is necessary when
+ * the symbol list is full and more symbols need to be added.
+ *
+ * If symbols is `NULL`, it will return an `NULL_ARGUMENT_EXCEPTION`.
+ *
  * @param symbols symbol list
  *
  * @return 1 if success, exception code otherwise.
  */
 static int reallocate_symbols(symbol_list_t* symbols) {
-    NULLCHECK1(symbols);
-
     int newCeiling = symbols->ceil + SYMBOL_CEILING;
     symbol_t* oldsym = symbols->s;
     symbols->s = (symbol_t*)malloc(sizeof(symbol_t) * newCeiling);
@@ -545,13 +600,18 @@ static int reallocate_symbols(symbol_list_t* symbols) {
 /**
  * @brief Find the bits needed to shift to OR a parameter into an instruction
  *
- * FIXME find a better way to do this without having to do this every
- * time an instruction is encoded
+ * This function finds the bits needed to shift to OR a parameter into an instruction.
+ * It is used to determine the position of parameters in the instruction bytecode.
+ *
+ * This is a workaround for the fact that the instruction formats are not
+ * defined in a way that allows for easy bit manipulation.
+ *
+ * @param fmt `instruction_format_t` pformat to check
  *
  * @return number of bits to shift
  */
 static int shift(uint16_t fmt) {
-    static int table[6][2] = {
+    static const int table[6][2] = {
         {0xF000, 0}, // a
         {0x000F, 0}, // b
         {0x00FF, 4}, // kk

@@ -47,7 +47,6 @@ void c8_deinit(c8_t* c8) {
  * @return pointer to initialized `c8_t`.
  */
 c8_t* c8_init(const char* path, int flags) {
-    NULLCHECK1(path);
     int res;
 
     c8_t* c8 = (c8_t*)calloc(1, sizeof(c8_t));
@@ -79,7 +78,6 @@ c8_t* c8_init(const char* path, int flags) {
  * @return 1 if success
  */
 int c8_load_palette_s(c8_t* c8, char* s) {
-    NULLCHECK2(c8, s);
     char* c[2];
     int len = strlen(s);
 
@@ -115,8 +113,6 @@ int c8_load_palette_s(c8_t* c8, char* s) {
  * @return 1 if success
  */
 int c8_load_palette_f(c8_t* c8, const char* path) {
-    NULLCHECK2(c8, path);
-
     char buf[64];
     buf[0] = '$';
     int c;
@@ -147,8 +143,6 @@ int c8_load_palette_f(c8_t* c8, const char* path) {
  * @param s string to get quirks from
  */
 void c8_load_quirks(c8_t* c8, const char* s) {
-    NULLCHECK2(c8, s);
-
     for (size_t i = 0; i < strlen(s); i++) {
         switch (s[i]) {
         case 'b': c8->flags ^= C8_FLAG_QUIRK_BITWISE; break;

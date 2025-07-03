@@ -17,18 +17,6 @@
     handle_exception(code); \
 }
 
-#define NULLCHECK1(a) if (!(a)) { \
-    C8_EXCEPTION(NULL_ARGUMENT_EXCEPTION, "At %s", __func__); \
-}
-
-#define NULLCHECK2(a,b) if (!(a) || !(b)) { \
-    C8_EXCEPTION(NULL_ARGUMENT_EXCEPTION, "At %s", __func__); \
-}
-
-#define NULLCHECK3(a,b,c) if (!(a) || !(b) || !(c)) { \
-    C8_EXCEPTION(NULL_ARGUMENT_EXCEPTION, "At %s", __func__); \
-}
-
 #define NULL_ARGUMENT_EXCEPTION (-3)
 #define INVALID_INSTRUCTION_EXCEPTION (-4)
 #define TOO_MANY_LABELS_EXCEPTION (-5)
