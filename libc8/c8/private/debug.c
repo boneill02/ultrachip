@@ -110,11 +110,11 @@ static void load_flags(c8_t*, const char*);
 static void load_state(c8_t*, const char*);
 static int parse_arg(cmd_t*, char*);
 static void print_help(void);
-static void print_r_registers(c8_t*);
-static void print_stack(c8_t*);
-static void print_v_registers(c8_t*);
+static void print_r_registers(const c8_t*);
+static void print_stack(const c8_t*);
+static void print_v_registers(const c8_t*);
 static void print_value(c8_t*, cmd_t*);
-static void save_flags(c8_t*, const char*);
+static void save_flags(const c8_t*, const char*);
 static void save_state(c8_t*, const char*);
 static int set_value(c8_t*, cmd_t*);
 
@@ -212,7 +212,11 @@ int debug_repl(c8_t* c8) {
             printf("Invalid command\n");
         }
         printf("debug > ");
-        getchar(); // Consume newline
+
+        // Consume newline
+        if (getchar() == EOF) {
+            break;
+        }
     }
 
     return DEBUG_QUIT; // EOF
@@ -237,8 +241,6 @@ int has_breakpoint(c8_t* c8, uint16_t pc) {
  * @return 1 if successful, 0 if not
  */
 static int get_command(cmd_t* cmd, char* s) {
-    size_t len;
-    const char* full;
     int numCmds = (int)sizeof(cmds) / sizeof(cmds[0]);
 
     /* reset cmd */
@@ -249,8 +251,8 @@ static int get_command(cmd_t* cmd, char* s) {
 
     s = trim(s);
     for (int i = 0; i < numCmds; i++) {
-        full = cmds[i];
-        len = strlen(full);
+        const char* full = cmds[i];
+        size_t len = strlen(full);
 
         if (!strncmp(s, full, len)) {
             /* Full cmd */
@@ -353,7 +355,6 @@ static int parse_arg(cmd_t* cmd, char* s) {
         }
     }
 
-
     if (cmd->id == CMD_SET) {
         switch (arg->type) {
         case ARG_ADDR:
@@ -448,7 +449,7 @@ static void print_quirks(int flags) {
  *
  * @param c8 the current CHIP-8 state
  */
-static void print_r_registers(c8_t* c8) {
+static void print_r_registers(const c8_t* c8) {
     for (int i = 0; i < 4; i++) {
         printf("R%01x: %02x\t\t", i, c8->R[i]);
         printf("R%01x: %02x\n", i + 4, c8->R[i + 4]);
@@ -460,7 +461,7 @@ static void print_r_registers(c8_t* c8) {
  *
  * @param c8 the current CHIP-8 state
  */
-static void print_v_registers(c8_t* c8) {
+static void print_v_registers(const c8_t* c8) {
     for (int i = 0; i < 8; i++) {
         printf("V%01x: %02x\t\t", i, c8->V[i]);
         printf("V%01x: %02x\n", i + 8, c8->V[i + 8]);
@@ -472,7 +473,7 @@ static void print_v_registers(c8_t* c8) {
  *
  * @param c8 the current CHIP-8 state
  */
-static void print_stack(c8_t* c8) {
+static void print_stack(const c8_t* c8) {
     for (int i = 0; i < 8; i++) {
         printf("x%01x: $%03x\t\t", i, c8->stack[i]);
         printf("x%01x: $%03x\n", i + 8, c8->stack[i + 8]);
@@ -489,6 +490,7 @@ static void print_value(c8_t* c8, cmd_t* cmd) {
     uint16_t pc;
     uint16_t ins;
     int addr;
+
     switch (cmd->arg.type) {
     case ARG_NONE:
         pc = c8->pc;
@@ -532,12 +534,8 @@ static void print_value(c8_t* c8, cmd_t* cmd) {
     case ARG_VK: printf("VK: V%01x\n", c8->VK); break;
     case ARG_BG: printf("BG: %06x\n", c8->colors[0]); break;
     case ARG_FG: printf("FG: %06x\n", c8->colors[1]); break;
-    case ARG_BFONT:
-        printf("BFONT: %s\n", c8_fontNames[1][c8->fonts[1]]);
-        break;
-    case ARG_SFONT:
-        printf("SFONT: %s\n", c8_fontNames[0][c8->fonts[0]]);
-        break;
+    case ARG_BFONT: printf("BFONT: %s\n", c8_fontNames[1][c8->fonts[1]]); break;
+    case ARG_SFONT: printf("SFONT: %s\n", c8_fontNames[0][c8->fonts[0]]); break;
     case ARG_QUIRKS: print_quirks(c8->flags); break;
     case ARG_STACK: print_stack(c8); break;
     case ARG_ADDR:
@@ -554,7 +552,7 @@ static void print_value(c8_t* c8, cmd_t* cmd) {
  * @param c8 `c8_t` to grab flag registers from
  * @param path path to save to
  */
-static void save_flags(c8_t* c8, const char* path) {
+static void save_flags(const c8_t* c8, const char* path) {
     FILE* f = fopen(path, "wb");
     if (!f) {
         printf("Invalid file\n");
@@ -562,6 +560,7 @@ static void save_flags(c8_t* c8, const char* path) {
     }
 
     fwrite(&c8->R, 1, 8, f);
+    fclose(f);
 }
 
 /**
@@ -578,6 +577,7 @@ static void save_state(c8_t* c8, const char* path) {
     }
 
     fwrite(c8, sizeof(c8_t), 1, f);
+    fclose(f);
 }
 
 /**
