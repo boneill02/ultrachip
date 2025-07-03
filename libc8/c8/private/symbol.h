@@ -242,7 +242,7 @@ int is_label(const char*, label_list_t*);
 int is_register(const char*);
 int is_reserved_identifier(const char*);
 symbol_t* next_symbol(symbol_list_t*);
-int populate_labels(label_list_t*);
+int populate_labels(char**, int, label_list_t*);
 int resolve_labels(symbol_list_t*, label_list_t*);
 int substitute_labels(symbol_list_t*, label_list_t*);
 

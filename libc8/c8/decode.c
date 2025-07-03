@@ -13,11 +13,10 @@
 
 #define DEFINE_LABELS (args & C8_DECODE_DEFINE_LABELS)
 #define PRINT_ADDRESSES (args & C8_DECODE_PRINT_ADDRESSES)
-#define RESULT_SIZE 32
 
 static void find_labels(FILE*, uint8_t*);
 
-char result[RESULT_SIZE];
+char result[32];
 
 /**
  * @brief Convert bytecode from `input` to assembly and writes it to `output`.
@@ -94,116 +93,116 @@ char* c8_decode_instruction(uint16_t in, uint8_t* label_map) {
     switch (a) {
     case 0x0:
         if (in == 0x00E0) {
-            snprintf(result, RESULT_SIZE, "CLS");
+            sprintf(result, "CLS");
         }
         else if (in == 0x00EE) {
-            snprintf(result, RESULT_SIZE, "RET");
+            sprintf(result, "RET");
         }
         else if (x == 0x0 && y == 0xC) {
-            snprintf(result, RESULT_SIZE, "SCD 0x%01X", b);
+            sprintf(result, "SCD 0x%01X", b);
         }
         else if (in == 0x00FB) {
-            snprintf(result, RESULT_SIZE, "SCR");
+            sprintf(result, "SCR");
         }
         else if (in == 0x00FC) {
-            snprintf(result, RESULT_SIZE, "SCL");
+            sprintf(result, "SCL");
         }
         else if (in == 0x00FD) {
-            snprintf(result, RESULT_SIZE, "EXIT");
+            sprintf(result, "EXIT");
         }
         else if (in == 0x00FE) {
-            snprintf(result, RESULT_SIZE, "LOW");
+            sprintf(result, "LOW");
         }
         else if (in == 0x00FF) {
-            snprintf(result, RESULT_SIZE, "HIGH");
+            sprintf(result, "HIGH");
         }
         else {
-            snprintf(result, RESULT_SIZE, ".dw %04X", in);
+            sprintf(result, ".dw %04X", in);
         }
         break;
     case 0x1:
         if (label_map && label_map[nnn]) {
-            snprintf(result, RESULT_SIZE, "JP label%d", label_map[nnn]);
+            sprintf(result, "JP label%d", label_map[nnn]);
         }
         else {
-            snprintf(result, RESULT_SIZE, "JP $%03X", nnn);
+            sprintf(result, "JP $%03X", nnn);
         }
         break;
     case 0x2:
         if (label_map && label_map[nnn]) {
-            snprintf(result, RESULT_SIZE, "CALL label%d", label_map[nnn]);
+            sprintf(result, "CALL label%d", label_map[nnn]);
         }
         else {
-            snprintf(result, RESULT_SIZE, "CALL $%03X", nnn);
+            sprintf(result, "CALL $%03X", nnn);
         }
         break;
-    case 0x3: snprintf(result, RESULT_SIZE, "SE V%01X, 0x%02X", x, kk); break;
-    case 0x4: snprintf(result, RESULT_SIZE, "SNE V%01X, 0x%02X", x, kk); break;
-    case 0x5: snprintf(result, RESULT_SIZE, "SE V%01X, V%01X", x, y); break;
-    case 0x6: snprintf(result, RESULT_SIZE, "LD V%01X, 0x%02X", x, kk); break;
-    case 0x7: snprintf(result, RESULT_SIZE, "ADD V%01X, 0x%02X", x, kk); break;
+    case 0x3: sprintf(result, "SE V%01X, 0x%02X", x, kk); break;
+    case 0x4: sprintf(result, "SNE V%01X, 0x%02X", x, kk); break;
+    case 0x5: sprintf(result, "SE V%01X, V%01X", x, y); break;
+    case 0x6: sprintf(result, "LD V%01X, 0x%02X", x, kk); break;
+    case 0x7: sprintf(result, "ADD V%01X, 0x%02X", x, kk); break;
     case 0x8:
         switch (b) {
-        case 0x0: snprintf(result, RESULT_SIZE, "LD V%01X, V%01X", x, y); break;
-        case 0x1: snprintf(result, RESULT_SIZE, "OR V%01X, V%01X", x, y); break;
-        case 0x2: snprintf(result, RESULT_SIZE, "AND V%01X, V%01X", x, y); break;
-        case 0x3: snprintf(result, RESULT_SIZE, "XOR V%01X, V%01X", x, y); break;
-        case 0x4: snprintf(result, RESULT_SIZE, "ADD V%01X, V%01X", x, y); break;
-        case 0x5: snprintf(result, RESULT_SIZE, "SUB V%01X, V%01X", x, y); break;
-        case 0x6: snprintf(result, RESULT_SIZE, "SHR V%01X, V%01X", x, y); break;
-        case 0x7: snprintf(result, RESULT_SIZE, "SUBN V%01X, V%01X", x, y); break;
-        case 0xE: snprintf(result, RESULT_SIZE, "SHL V%01X, V%01X", x, y); break;
-        default: snprintf(result, RESULT_SIZE, ".dw %04X", in); break;
+        case 0x0: sprintf(result, "LD V%01X, V%01X", x, y); break;
+        case 0x1: sprintf(result, "OR V%01X, V%01X", x, y); break;
+        case 0x2: sprintf(result, "AND V%01X, V%01X", x, y); break;
+        case 0x3: sprintf(result, "XOR V%01X, V%01X", x, y); break;
+        case 0x4: sprintf(result, "ADD V%01X, V%01X", x, y); break;
+        case 0x5: sprintf(result, "SUB V%01X, V%01X", x, y); break;
+        case 0x6: sprintf(result, "SHR V%01X, V%01X", x, y); break;
+        case 0x7: sprintf(result, "SUBN V%01X, V%01X", x, y); break;
+        case 0xE: sprintf(result, "SHL V%01X, V%01X", x, y); break;
+        default: sprintf(result, ".dw %04X", in); break;
         }
         break;
-    case 0x9: snprintf(result, RESULT_SIZE, "SNE V%01X, V%01X", x, y); break;
+    case 0x9: sprintf(result, "SNE V%01X, V%01X", x, y); break;
     case 0xA:
         if (label_map && label_map[nnn]) {
-            snprintf(result, RESULT_SIZE, "LD I, label%d", label_map[nnn]);
+            sprintf(result, "LD I, label%d", label_map[nnn]);
         }
         else {
-            snprintf(result, RESULT_SIZE, "LD I, $%03X", nnn);
+            sprintf(result, "LD I, $%03X", nnn);
         }
         break;
     case 0xB:
         if (label_map && label_map[nnn]) {
-            snprintf(result, RESULT_SIZE, "JP V0, label%d", label_map[nnn]);
+            sprintf(result, "JP V0, label%d", label_map[nnn]);
         }
         else {
-            snprintf(result, RESULT_SIZE, "JP V0, $%03X", nnn);
+            sprintf(result, "JP V0, $%03X", nnn);
         }
         break;
-    case 0xC: snprintf(result, RESULT_SIZE, "RND V%01X, 0x%02X", x, kk); break;
-    case 0xD: snprintf(result, RESULT_SIZE, "DRW V%01X, V%01X, 0x%01X", x, y, b); break;
+    case 0xC: sprintf(result, "RND V%01X, 0x%02X", x, kk); break;
+    case 0xD: sprintf(result, "DRW V%01X, V%01X, 0x%01X", x, y, b); break;
     case 0xE:
         if (kk == 0x9E) {
-            snprintf(result, RESULT_SIZE, "SKP V%01X", x);
+            sprintf(result, "SKP V%01X", x);
         }
         else if (kk == 0xA1) {
-            snprintf(result, RESULT_SIZE, "SKNP V%01X", x);
+            sprintf(result, "SKNP V%01X", x);
         }
         else {
-            snprintf(result, RESULT_SIZE, ".dw %04X", in);
+            sprintf(result, ".dw %04X", in);
         }
         break;
     case 0xF:
         switch (kk) {
-        case 0x07: snprintf(result, RESULT_SIZE, "LD V%01X, DT", x); break;
-        case 0x0A: snprintf(result, RESULT_SIZE, "LD V%01X, K", x); break;
-        case 0x15: snprintf(result, RESULT_SIZE, "LD DT, V%01X", x); break;
-        case 0x18: snprintf(result, RESULT_SIZE, "LD ST, V%01X", x); break;
-        case 0x1E: snprintf(result, RESULT_SIZE, "ADD I, V%01X", x); break;
-        case 0x29: snprintf(result, RESULT_SIZE, "LD F, V%01X", x); break;
-        case 0x30: snprintf(result, RESULT_SIZE, "LD HF, V%01X", x); break;
-        case 0x33: snprintf(result, RESULT_SIZE, "LD B, V%01X", x); break;
-        case 0x55: snprintf(result, RESULT_SIZE, "LD [I], V%01X", x); break;
-        case 0x65: snprintf(result, RESULT_SIZE, "LD V%01X, [I]", x); break;
-        case 0x75: snprintf(result, RESULT_SIZE, "LD R, V%01X", x); break;
-        case 0x85: snprintf(result, RESULT_SIZE, "LD V%01X, R", x); break;
-        default: snprintf(result, RESULT_SIZE, ".dw %04X", in);
+        case 0x07: sprintf(result, "LD V%01X, DT", x); break;
+        case 0x0A: sprintf(result, "LD V%01X, K", x); break;
+        case 0x15: sprintf(result, "LD DT, V%01X", x); break;
+        case 0x18: sprintf(result, "LD ST, V%01X", x); break;
+        case 0x1E: sprintf(result, "ADD I, V%01X", x); break;
+        case 0x29: sprintf(result, "LD F, V%01X", x); break;
+        case 0x30: sprintf(result, "LD HF, V%01X", x); break;
+        case 0x33: sprintf(result, "LD B, V%01X", x); break;
+        case 0x55: sprintf(result, "LD [I], V%01X", x); break;
+        case 0x65: sprintf(result, "LD V%01X, [I]", x); break;
+        case 0x75: sprintf(result, "LD R, V%01X", x); break;
+        case 0x85: sprintf(result, "LD V%01X, R", x); break;
+        default: sprintf(result, ".dw %04X", in);
         }
         break;
-    default: snprintf(result, RESULT_SIZE, ".dw %04X", in);
+    default: sprintf(result, ".dw %04X", in);
     }
 
     return result;

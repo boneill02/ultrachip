@@ -119,7 +119,6 @@ instruction_format_t formats[] = {
     { I_NULL, 0,      0, {SYM_NULL},               {0} },
 };
 
-static int get_instruction_args(instruction_t* ins, symbol_list_t* symbols, int idx);
 static int parse_instruction(instruction_t*);
 static int reallocate_symbols(symbol_list_t* symbols);
 static int shift(uint16_t fmt);
@@ -139,18 +138,64 @@ static int validate_instruction(instruction_t*);
 int build_instruction(instruction_t* ins, symbol_list_t* symbols, int idx) {
     NULLCHECK2(ins, symbols);
     if (idx < 0) {
-        C8_EXCEPTION(INVALID_ARGUMENT_EXCEPTION_INTERNAL, "Invalid index for instruction: %d", idx);
         return INVALID_ARGUMENT_EXCEPTION_INTERNAL;
     }
 
+    int ret;
     ins->cmd = (Instruction)symbols->s[idx].value;
     ins->line = symbols->s[idx].ln;
     ins->pcount = 0;
 
-    get_instruction_args(ins, symbols, idx + 1);
-    validate_instruction(ins);
-    return parse_instruction(ins);
+    /* parse instruction args */
+    idx++;
+    int j = 0;
+    int max = 0;
+    for (int i = idx; i < symbols->len; i++) {
+        switch (symbols->s[i].type) {
+        case SYM_V:
+        case SYM_INT12:
+            max = 0xFFF;
+        case SYM_INT8:
+            max = max == 0 ? 0xFF : max;
+        case SYM_INT4:
+            max = max == 0 ? 0xF : max;
+            if (symbols->s[i].value > max) {
+                sprintf(c8_exception, "Line %d: Integer argument too big", symbols->s[i].ln);
+                return INVALID_INSTRUCTION_EXCEPTION;
+            }
+            ins->p[j] = symbols->s[i].value;
+        case SYM_B:
+        case SYM_DT:
+        case SYM_F:
+        case SYM_I:
+        case SYM_IP:
+        case SYM_K:
+        case SYM_ST:
+        case SYM_HF:
+        case SYM_R:
+            ins->ptype[j] = symbols->s[i].type;
+            ins->pcount++;
+            break;
+        default:
+            i = symbols->len;
+            break;
+        }
+        j++;
+    }
+
+    ret = validate_instruction(ins);
+    if (ret < 1) {
+        return ret;
+    }
+
+    ret = parse_instruction(ins);
+    if (ret < 1) {
+        sprintf(c8_exception, "Line: %d\n", ins->line);
+    }
+
+    return ret;
 }
+
 
 /**
  * @brief Check if the given string is a comment
@@ -302,41 +347,42 @@ symbol_t* next_symbol(symbol_list_t* symbols) {
  *
  * @return 1 if success, 0 if failure
  */
-int populate_labels(label_list_t* labels) {
-    NULLCHECK1(labels);
+int populate_labels(char** lines, int lineCount, label_list_t* labels) {
+    NULLCHECK2(lines, labels);
 
-    for (int i = 0; i < c8_line_count; i++) {
-        if (strlen(c8_lines[i]) == 0) {
+    for (int i = 0; i < lineCount; i++) {
+        if (labels->len == labels->ceil) {
+            sprintf(c8_exception, "Line: %d\n", i + 1);
+            return TOO_MANY_LABELS_EXCEPTION;
+        }
+
+        if (strlen(lines[i]) == 0) {
             continue;
         }
 
-        c8_lines[i] = remove_comment(c8_lines[i]);
-        trim(c8_lines[i]);
-        if (strlen(remove_comment(c8_lines[i])) == 0) {
+        lines[i] = remove_comment(lines[i]);
+        trim(lines[i]);
+        if (strlen(remove_comment(lines[i])) == 0) {
             continue;
         }
 
-        if (is_label_definition(c8_lines[i])) {
+        if (is_label_definition(lines[i])) {
             for (int j = 0; j < labels->len; j++) {
-                if (!strncmp(labels->l[j].identifier, c8_lines[i], strlen(labels->l[j].identifier))) {
-                    C8_EXCEPTION(DUPLICATE_LABEL_EXCEPTION, "Duplicate label definition.\nLine %d: %s", i + 1, c8_lines_unformatted[i + 1]);
+                if (!strncmp(labels->l[j].identifier, lines[i], strlen(labels->l[j].identifier))) {
+                    sprintf(c8_exception, "Line: %d\n", i + 1);
+                    return DUPLICATE_LABEL_EXCEPTION;
                 }
             }
 
-            strncpy(labels->l[labels->len].identifier,c8_lines[i], LABEL_IDENTIFIER_SIZE - 1);
+            strncpy(labels->l[labels->len].identifier, lines[i], LABEL_IDENTIFIER_SIZE);
 
             /* remove : */
-            int labellen = strlen(c8_lines[i]) - 1;
+            int labellen = strlen(lines[i]) - 1;
             labels->l[labels->len].identifier[labellen] = '\0';
 
             labels->len++;
         }
-        if (labels->len == labels->ceil) {
-            C8_EXCEPTION(TOO_MANY_LABELS_EXCEPTION, "Too many labels defined in source code.\nLine %d: %s", i + 1, c8_lines[i]);
-            return TOO_MANY_LABELS_EXCEPTION;
-        }
     }
-
     return 1;
 }
 
@@ -388,7 +434,7 @@ int substitute_labels(symbol_list_t* symbols, label_list_t* labels) {
     for (int i = 0; i < symbols->len; i++) {
         if (symbols->s[i].type == SYM_LABEL) {
             if (symbols->s[i].value >= labels->len) {
-                C8_EXCEPTION(INVALID_SYMBOL_EXCEPTION, "Label does not exist.\nLine %d: %s", symbols->s[i].ln, c8_lines_unformatted[symbols->s[i].ln]);
+                sprintf(c8_exception, "Line: %d\n", symbols->s[i].ln);
                 return INVALID_SYMBOL_EXCEPTION;
             }
             symbols->s[i].type = SYM_INT12;
@@ -396,57 +442,6 @@ int substitute_labels(symbol_list_t* symbols, label_list_t* labels) {
         }
     }
 
-    return 1;
-}
-
-/**
- * @brief Get instruction arguments from symbols
- *
- * @param ins instruction to populate
- * @param symbols symbol list
- * @param idx index of first argument in symbols
- *
- * @return 1 if success, exception code otherwise.
- */
-static int get_instruction_args(instruction_t* ins, symbol_list_t* symbols, int idx) {
-    int j = 0;
-    int max = 0;
-    for (int i = idx; i < symbols->len; i++) {
-        switch (symbols->s[i].type) {
-        case SYM_V:
-        case SYM_INT12:
-            max = 0xFFF;
-            // fall through
-        case SYM_INT8:
-            max = max == 0 ? 0xFF : max;
-            // fall through
-        case SYM_INT4:
-            max = max == 0 ? 0xF : max;
-            if (symbols->s[i].value > max) {
-                C8_EXCEPTION(INVALID_INSTRUCTION_EXCEPTION,
-                    "Line %d: Integer argument too big: %d", symbols->s[i].ln, symbols->s[i].value);
-                return INVALID_INSTRUCTION_EXCEPTION;
-            }
-            ins->p[j] = symbols->s[i].value;
-            // fall through
-        case SYM_B:
-        case SYM_DT:
-        case SYM_F:
-        case SYM_I:
-        case SYM_IP:
-        case SYM_K:
-        case SYM_ST:
-        case SYM_HF:
-        case SYM_R:
-            ins->ptype[j] = symbols->s[i].type;
-            ins->pcount++;
-            break;
-        default:
-            i = symbols->len;
-            break;
-        }
-        j++;
-    }
     return 1;
 }
 
@@ -518,7 +513,6 @@ static int validate_instruction(instruction_t* ins) {
         }
     }
 
-    C8_EXCEPTION(INVALID_INSTRUCTION_EXCEPTION, "Line %d: %s", ins->line, c8_lines_unformatted[ins->line - 1]);
     return INVALID_INSTRUCTION_EXCEPTION;
 }
 

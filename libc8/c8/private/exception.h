@@ -10,23 +10,21 @@
 
 #include <stdio.h>
 
-#define EXCEPTION_MESSAGE_SIZE BUFSIZ
-
-#define C8_EXCEPTION(code, ...) { \
-    snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, __VA_ARGS__); \
-    handle_exception(code); \
-}
+#define EXCEPTION_MESSAGE_SIZE 64
 
 #define NULLCHECK1(a) if (!(a)) { \
-    C8_EXCEPTION(NULL_ARGUMENT_EXCEPTION, "At %s", __func__); \
+	sprintf(c8_exception, "At %s", __func__); \
+	handle_exception(NULL_ARGUMENT_EXCEPTION); \
 }
 
 #define NULLCHECK2(a,b) if (!(a) || !(b)) { \
-    C8_EXCEPTION(NULL_ARGUMENT_EXCEPTION, "At %s", __func__); \
+	sprintf(c8_exception, "At %s", __func__);\
+	handle_exception(NULL_ARGUMENT_EXCEPTION); \
 }
 
 #define NULLCHECK3(a,b,c) if (!(a) || !(b) || !(c)) { \
-    C8_EXCEPTION(NULL_ARGUMENT_EXCEPTION, "At %s", __func__); \
+	sprintf(c8_exception, "At %s", __func__); \
+	handle_exception(NULL_ARGUMENT_EXCEPTION); \
 }
 
 #define NULL_ARGUMENT_EXCEPTION (-3)

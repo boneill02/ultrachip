@@ -15,10 +15,6 @@
 #define C8_ENCODE_MAX_WORDS 100
 #define C8_ENCODE_MAX_LINES 100
 
-extern char **c8_lines;
-extern char **c8_lines_unformatted;
-extern int c8_line_count;
-
 int c8_encode(const char*, uint8_t*, int);
 char* remove_comment(char*);
 
