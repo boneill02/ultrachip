@@ -71,11 +71,7 @@ int c8_encode(const char* s, uint8_t* out, int args) {
 
     VERBOSE_PRINT(args, "Getting tokens from input");
     c8_lines = (char**)malloc(c8_line_count * sizeof(char*));
-    if ((c8_line_count = tokenize(c8_lines, scpy, "\n", c8_line_count)) < 0) {
-        free(labels.l);
-        free(symbols.s);
-        return c8_line_count;
-    }
+    c8_line_count = tokenize(c8_lines, scpy, "\n", c8_line_count);
 
     /*Copy lines to c8_lines_copy */
     c8_lines_unformatted = (char**)malloc(c8_line_count * sizeof(char*));
@@ -90,27 +86,18 @@ int c8_encode(const char* s, uint8_t* out, int args) {
     }
 
     VERBOSE_PRINT(args, "Populating identifiers in label map");
-    if ((ret = populate_labels(&labels)) < 1) {
-        return ret;
-    }
+    populate_labels(&labels);
 
     VERBOSE_PRINT(args, "Building symbol table");
     for (int i = 0; i < c8_line_count; i++) {
-        ret = parse_line(c8_lines[i], i + 1, &symbols, &labels);
-        if (ret < 1) {
-            return ret;
-        }
+        parse_line(c8_lines[i], i + 1, &symbols, &labels);
     }
 
     VERBOSE_PRINT(args, "Resolving label addresses");
-    if ((ret = resolve_labels(&symbols, &labels)) < 1) {
-        return ret;
-    }
+    resolve_labels(&symbols, &labels);
 
     VERBOSE_PRINT(args, "Substituting label addresses in symbol table");
-    if ((ret = substitute_labels(&symbols, &labels)) < 1) {
-        return ret;
-    }
+    substitute_labels(&symbols, &labels);
 
     VERBOSE_PRINT(args, "Writing output");
     count = write(out, &symbols, args);
@@ -232,18 +219,10 @@ static int parse_line(char* s, int ln, symbol_list_t* symbols, label_list_t* lab
 
     for (int i = 0; i < wc; i++) {
         if (i == wc - 1) {
-            ret = parse_word(words[i], NULL, ln, sym, labels);
-            if (ret < 0) {
-                return ret;
-            }
-            i += ret;
+            i += parse_word(words[i], NULL, ln, sym, labels);
         }
         else {
-            ret = parse_word(words[i], words[i + 1], ln, sym, labels);
-            if (ret < 0) {
-                return ret;
-            }
-            i += ret;
+            i += parse_word(words[i], words[i + 1], ln, sym, labels);
         }
         sym = next_symbol(symbols);
     }
@@ -428,9 +407,6 @@ static int write(uint8_t* output, symbol_list_t* symbols, int args) {
         switch (symbols->s[i].type) {
         case SYM_INSTRUCTION:
             ret = build_instruction(&ins, symbols, i);
-            if (ret < 0) {
-                return ret;
-            }
             put16(output, ret, byte);
             i += ins.pcount;
             byte += 2;

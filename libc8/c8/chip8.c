@@ -64,11 +64,7 @@ c8_t* c8_init(const char* path, int flags) {
     c8->mode = C8_MODE_CHIP8;
 
 
-    if ((res = load_rom(c8, path)) < 0) {
-        free(c8);
-        return NULL;
-    }
-
+    load_rom(c8, path);
     c8_set_fonts(c8, 0, 0);
     c8_init_graphics();
     return c8;
@@ -181,7 +177,7 @@ void c8_simulate(c8_t* c8) {
     c8->running = 1;
 
     if (c8->cs <= 0) {
-        C8_EXCEPTION(INVALID_CLOCK_SPEED_EXCEPTION, "Invalid clock speed: %d", c8->cs);
+        C8_EXCEPTION(INVALID_CLOCK_SPEED_EXCEPTION, "Clock speed must be greater than 0 (got %d).", c8->cs);
         return;
     }
 
@@ -232,9 +228,6 @@ void c8_simulate(c8_t* c8) {
         if (!c8->waitingForKey) {
             /* Not waiting for key, parse next instruction */
             ret = parse_instruction(c8);
-            if (ret < 0) {
-                c8->running = 0;
-            }
 
             c8->pc += ret;
 

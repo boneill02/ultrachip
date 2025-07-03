@@ -139,24 +139,16 @@ static int validate_instruction(instruction_t*);
 int build_instruction(instruction_t* ins, symbol_list_t* symbols, int idx) {
     NULLCHECK2(ins, symbols);
     if (idx < 0) {
+        C8_EXCEPTION(INVALID_ARGUMENT_EXCEPTION_INTERNAL, "Invalid index for instruction: %d", idx);
         return INVALID_ARGUMENT_EXCEPTION_INTERNAL;
     }
 
-    int ret;
     ins->cmd = (Instruction)symbols->s[idx].value;
     ins->line = symbols->s[idx].ln;
     ins->pcount = 0;
 
-    ret = get_instruction_args(ins, symbols, idx + 1);
-    if (ret < 1) {
-        return INVALID_INSTRUCTION_EXCEPTION;
-    }
-
-    ret = validate_instruction(ins);
-    if (ret < 1) {
-        return ret;
-    }
-
+    get_instruction_args(ins, symbols, idx + 1);
+    validate_instruction(ins);
     return parse_instruction(ins);
 }
 
