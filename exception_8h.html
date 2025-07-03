@@ -103,8 +103,10 @@ $(document).ready(function(){initNavTree('exception_8h.html',''); initResizable(
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a1f8068b064071d772414a5d15a237509"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8h.html#a1f8068b064071d772414a5d15a237509">EXCEPTION_MESSAGE_SIZE</a>&#160;&#160;&#160;64</td></tr>
+<tr class="memitem:a1f8068b064071d772414a5d15a237509"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8h.html#a1f8068b064071d772414a5d15a237509">EXCEPTION_MESSAGE_SIZE</a>&#160;&#160;&#160;BUFSIZ</td></tr>
 <tr class="separator:a1f8068b064071d772414a5d15a237509"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3049a797967abc96f1861c63dbef01f3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8h.html#a3049a797967abc96f1861c63dbef01f3">C8_EXCEPTION</a>(code, ...)</td></tr>
+<tr class="separator:a3049a797967abc96f1861c63dbef01f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5402408e6883706b50f736e6c957f0ec"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8h.html#a5402408e6883706b50f736e6c957f0ec">NULLCHECK1</a>(a)</td></tr>
 <tr class="separator:a5402408e6883706b50f736e6c957f0ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea42d489bffb656daa6f4bf5adbb1780"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8h.html#aea42d489bffb656daa6f4bf5adbb1780">NULLCHECK2</a>(a,  b)</td></tr>
@@ -202,6 +204,40 @@ Variables</h2></td></tr>
 <div class="textblock"><dl class="section note"><dt>Note</dt><dd>NOT EXPORTED</dd></dl>
 <p>Stuff for handling exceptions. </p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a3049a797967abc96f1861c63dbef01f3" name="a3049a797967abc96f1861c63dbef01f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3049a797967abc96f1861c63dbef01f3">&#9670;&#160;</a></span>C8_EXCEPTION</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define C8_EXCEPTION</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">code, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">    { \</div>
+<div class="line">    snprintf(<a class="code hl_variable" href="exception_8h.html#a2b504db127ee3d58c7703aa9159c3b07">c8_exception</a>, <a class="code hl_define" href="exception_8h.html#a1f8068b064071d772414a5d15a237509">EXCEPTION_MESSAGE_SIZE</a>, __VA_ARGS__); \</div>
+<div class="line">    handle_exception(code); \</div>
+<div class="line">}</div>
+<div class="ttc" id="aexception_8h_html_a1f8068b064071d772414a5d15a237509"><div class="ttname"><a href="exception_8h.html#a1f8068b064071d772414a5d15a237509">EXCEPTION_MESSAGE_SIZE</a></div><div class="ttdeci">#define EXCEPTION_MESSAGE_SIZE</div><div class="ttdef"><b>Definition:</b> exception.h:13</div></div>
+<div class="ttc" id="aexception_8h_html_a2b504db127ee3d58c7703aa9159c3b07"><div class="ttname"><a href="exception_8h.html#a2b504db127ee3d58c7703aa9159c3b07">c8_exception</a></div><div class="ttdeci">char c8_exception[EXCEPTION_MESSAGE_SIZE]</div><div class="ttdef"><b>Definition:</b> exception.c:16</div></div>
+</div><!-- fragment -->
+</div>
+</div>
 <a id="a53f84590294f4c1f1488ba7df177d9ec" name="a53f84590294f4c1f1488ba7df177d9ec"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a53f84590294f4c1f1488ba7df177d9ec">&#9670;&#160;</a></span>DUPLICATE_LABEL_EXCEPTION</h2>
 
@@ -237,7 +273,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define EXCEPTION_MESSAGE_SIZE&#160;&#160;&#160;64</td>
+          <td class="memname">#define EXCEPTION_MESSAGE_SIZE&#160;&#160;&#160;BUFSIZ</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -624,11 +660,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">if</span> (!(a)) { \</div>
-<div class="line">    sprintf(<a class="code hl_variable" href="exception_8h.html#a2b504db127ee3d58c7703aa9159c3b07">c8_exception</a>, <span class="stringliteral">&quot;At %s&quot;</span>, __func__); \</div>
-<div class="line">    handle_exception(<a class="code hl_define" href="exception_8h.html#ad0f71d91b42caf9804b1878ae380599d">NULL_ARGUMENT_EXCEPTION</a>); \</div>
+<div class="line">    C8_EXCEPTION(<a class="code hl_define" href="exception_8h.html#ad0f71d91b42caf9804b1878ae380599d">NULL_ARGUMENT_EXCEPTION</a>, <span class="stringliteral">&quot;At %s&quot;</span>, __func__); \</div>
 <div class="line">}</div>
-<div class="ttc" id="aexception_8h_html_a2b504db127ee3d58c7703aa9159c3b07"><div class="ttname"><a href="exception_8h.html#a2b504db127ee3d58c7703aa9159c3b07">c8_exception</a></div><div class="ttdeci">char c8_exception[EXCEPTION_MESSAGE_SIZE]</div><div class="ttdef"><b>Definition:</b> exception.c:16</div></div>
-<div class="ttc" id="aexception_8h_html_ad0f71d91b42caf9804b1878ae380599d"><div class="ttname"><a href="exception_8h.html#ad0f71d91b42caf9804b1878ae380599d">NULL_ARGUMENT_EXCEPTION</a></div><div class="ttdeci">#define NULL_ARGUMENT_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:30</div></div>
+<div class="ttc" id="aexception_8h_html_ad0f71d91b42caf9804b1878ae380599d"><div class="ttname"><a href="exception_8h.html#ad0f71d91b42caf9804b1878ae380599d">NULL_ARGUMENT_EXCEPTION</a></div><div class="ttdeci">#define NULL_ARGUMENT_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:32</div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -658,8 +692,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">if</span> (!(a) || !(b)) { \</div>
-<div class="line">    sprintf(<a class="code hl_variable" href="exception_8h.html#a2b504db127ee3d58c7703aa9159c3b07">c8_exception</a>, <span class="stringliteral">&quot;At %s&quot;</span>, __func__);\</div>
-<div class="line">    handle_exception(<a class="code hl_define" href="exception_8h.html#ad0f71d91b42caf9804b1878ae380599d">NULL_ARGUMENT_EXCEPTION</a>); \</div>
+<div class="line">    C8_EXCEPTION(<a class="code hl_define" href="exception_8h.html#ad0f71d91b42caf9804b1878ae380599d">NULL_ARGUMENT_EXCEPTION</a>, <span class="stringliteral">&quot;At %s&quot;</span>, __func__); \</div>
 <div class="line">}</div>
 </div><!-- fragment -->
 </div>
@@ -696,8 +729,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">if</span> (!(a) || !(b) || !(c)) { \</div>
-<div class="line">    sprintf(<a class="code hl_variable" href="exception_8h.html#a2b504db127ee3d58c7703aa9159c3b07">c8_exception</a>, <span class="stringliteral">&quot;At %s&quot;</span>, __func__); \</div>
-<div class="line">    handle_exception(<a class="code hl_define" href="exception_8h.html#ad0f71d91b42caf9804b1878ae380599d">NULL_ARGUMENT_EXCEPTION</a>); \</div>
+<div class="line">    C8_EXCEPTION(<a class="code hl_define" href="exception_8h.html#ad0f71d91b42caf9804b1878ae380599d">NULL_ARGUMENT_EXCEPTION</a>, <span class="stringliteral">&quot;At %s&quot;</span>, __func__); \</div>
 <div class="line">}</div>
 </div><!-- fragment -->
 </div>

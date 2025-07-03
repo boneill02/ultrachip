@@ -10,7 +10,7 @@ var symbol_8c =
     [ "is_register", "symbol_8c.html#ae1e2375a8a6e48f04e6cffbefded071d", null ],
     [ "is_reserved_identifier", "symbol_8c.html#a36c2e21f342dcd14699575833b998fb0", null ],
     [ "next_symbol", "symbol_8c.html#a46f348ff09aef4b9e61af207737eedd8", null ],
-    [ "populate_labels", "symbol_8c.html#a7f2e810a2a40e4ab8a7833d09ee01efa", null ],
+    [ "populate_labels", "symbol_8c.html#adcea084f033f46034fb855eabe36458e", null ],
     [ "resolve_labels", "symbol_8c.html#a107aacf3ab0722cdfbc8d716e2812d84", null ],
     [ "substitute_labels", "symbol_8c.html#a59e8950057001a247f2803a596018a87", null ],
     [ "c8_identifierStrings", "symbol_8c.html#a7db6741810ae8ae021411544250757a1", null ],
