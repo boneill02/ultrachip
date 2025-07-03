@@ -19,6 +19,8 @@
 
 #define VERBOSE_PRINT(s) if (args & ARG_VERBOSE) { printf("%s\n", s); }
 
+static int initialize_labels(label_list_t*);
+static int initialize_symbols(symbol_list_t*);
 static int line_count(const char*);
 static int parse_line(char*, int, symbol_list_t*, label_list_t*);
 static int parse_word(char*, char*, int, symbol_t*, label_list_t*);
@@ -50,38 +52,30 @@ int c8_encode(const char* s, uint8_t* out, int args) {
     int lineCount = line_count(s);
     int ret;
     char** lines;
-
-    symbol_list_t symbols;
-    symbols.s = (symbol_t*)calloc(SYMBOL_CEILING, sizeof(symbol_t));
-    symbols.len = 0;
-    symbols.ceil = SYMBOL_CEILING;
-
     label_list_t labels;
-    labels.l = (label_t*)calloc(LABEL_CEILING, sizeof(label_t));
-    labels.len = 0;
-    labels.ceil = LABEL_CEILING;
+    symbol_list_t symbols;
+
+    initialize_labels(&labels);
+    initialize_symbols(&symbols);
 
     /* copy string and ensure newline at end */
     if (s[len - 1] == '\n') {
-        scpy = (char*)malloc(len + 1);
-        scpy[len] = '\0';
+        scpy = strndup(s, len);
     }
     else {
-        scpy = (char*)malloc(len + 2);
+        scpy = strndup(s, len + 1);
         scpy[len] = '\n';
         scpy[len + 1] = '\0';
     }
 
-    for (int i = 0; i < len; i++) {
-        scpy[i] = s[i];
-    }
-
+    VERBOSE_PRINT("Getting tokens from input");
     lines = (char**)malloc(lineCount * sizeof(char*));
     if ((lineCount = tokenize(lines, scpy, "\n", lineCount)) < 0) {
         handle_exception(lineCount);
+        free(labels.l);
+        free(symbols.s);
         return lineCount;
     }
-
 
     VERBOSE_PRINT("Populating identifiers in label map");
     if ((ret = populate_labels(lines, lineCount, &labels)) < 1) {
@@ -143,6 +137,48 @@ char* remove_comment(char* s) {
 }
 
 /**
+ * @brief Initialize label list
+ *
+ * @param labels label list to initialize
+ *
+ * @return 1 if success, exception code otherwise
+ */
+static int initialize_labels(label_list_t* labels) {
+    NULLCHECK1(labels);
+
+    labels->l = (label_t*)calloc(LABEL_CEILING, sizeof(label_t));
+    if (!labels->l) {
+        handle_exception(MEMORY_ALLOCATION_EXCEPTION);
+        return MEMORY_ALLOCATION_EXCEPTION;
+    }
+
+    labels->len = 0;
+    labels->ceil = LABEL_CEILING;
+    return 1;
+}
+
+/**
+ * @brief Initialize symbol list
+ *
+ * @param symbols symbol list to initialize
+ *
+ * @return 1 if success, exception code otherwise
+ */
+static int initialize_symbols(symbol_list_t* symbols) {
+    NULLCHECK1(symbols);
+
+    symbols->s = (symbol_t*)calloc(SYMBOL_CEILING, sizeof(symbol_t));
+    if (!symbols->s) {
+        handle_exception(MEMORY_ALLOCATION_EXCEPTION);
+        return MEMORY_ALLOCATION_EXCEPTION;
+    }
+
+    symbols->len = 0;
+    symbols->ceil = SYMBOL_CEILING;
+    return 1;
+}
+
+/**
  * @brief Get line count of s
  *
  * @param s string to count lines from
@@ -175,8 +211,8 @@ static int line_count(const char* s) {
 static int parse_line(char* s, int ln, symbol_list_t* symbols, label_list_t* labels) {
     NULLCHECK3(s, symbols, labels);
 
-    if (strlen(s) == 0 || strlen(remove_comment(s)) == 0 ||
-        strlen(trim(s)) == 0) {
+    if (strlen(s) == 0 || strlen(remove_comment(s)) == 0 || strlen((s = trim(s))) == 0) {
+        // empty line
         return 1;
     }
 
@@ -281,7 +317,7 @@ static int parse_word(char* s, char* next, int ln, symbol_t* sym, label_list_t* 
         return 0;
     }
 
-    sprintf(c8_exception, "(line %d): %s\n", ln, s);
+    snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "(line %d): %s\n", ln, s);
     return INVALID_SYMBOL_EXCEPTION;
 }
 
@@ -390,13 +426,13 @@ static int write(uint8_t* output, symbol_list_t* symbols, int args) {
                 byte += 2;
             }
             else {
-                sprintf(c8_exception, "(line %d)\n", ins.line);
+                snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "(line %d)\n", ins.line);
                 return ret;
             }
             break;
         case SYM_DB:
             if (symbols->s[i].value > UINT8_MAX) {
-                sprintf(c8_exception, "(line %d): DB value too big\n", symbols->s[i].ln);
+                snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "(line %d): DB value too big\n", symbols->s[i].ln);
                 return INVALID_ARGUMENT_EXCEPTION;
             }
             else {
