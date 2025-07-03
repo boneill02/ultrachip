@@ -304,10 +304,10 @@ static inline int i_scr(c8_t* c8) {
  */
 static inline int i_scl(c8_t* c8) {
     SCHIP_EXCLUSIVE(c8);
-    c8->display.x -= 4;
-    if (c8->display.x < 0) {
+    if (c8->display.x < 4) {
         c8->display.x += C8_HIGH_DISPLAY_WIDTH;
     }
+    c8->display.x -= 4;
     return 2;
 }
 
