@@ -95,7 +95,6 @@ static char* dynamic_load(FILE* f) {
         if (len >= capacity - 1) {
             capacity *= 2;
             newbuf = (char*)realloc(buf, capacity);
-            free(buf);
             buf = newbuf;
         }
 
