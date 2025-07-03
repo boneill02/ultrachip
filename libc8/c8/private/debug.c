@@ -22,7 +22,7 @@
   * @enum Command
   * @brief Represents command types
   *
-  * This enumeration defines all possible debug mode commands
+  * This enumeration defines all possible debug mode commands.
   */
 typedef enum {
     CMD_NONE = -1,
@@ -70,6 +70,10 @@ typedef enum {
  * @union ArgValue
  * @brief Stores an argument's value (string or int)
  *
+ * This union is used to store the value of an argument, which can either be a
+ * string (for file paths or names) or an integer (for register values, addresses,
+ * etc.).
+ *
  * @param s string value
  * @param i int value
  */
@@ -82,6 +86,10 @@ typedef union {
  * @struct arg_t
  * @brief Represents an argument for a command with a type and value.
  *
+ * This structure is used to encapsulate an argument's type and its value.
+ * It can represent different types of arguments such as registers, memory addresses,
+ * or file paths, depending on the command being executed.
+ *
  * @param type Argument type
  * @param value Argument value
  */
@@ -93,6 +101,9 @@ typedef struct {
 /**
  * @struct cmd_t
  * @brief Represents a command with an ID, argument ID, and associated argument.
+ *
+ * This structure is used to encapsulate a command's identifier, its argument,
+ * and a value to set the argument to specifically for `set` commands.
  *
  * @param id command identifier
  * @param arg `arg_t` argument
@@ -225,6 +236,11 @@ int debug_repl(c8_t* c8) {
 /**
  * @brief Check if breakpoint exists at address pc
  *
+ * This function checks if there is a breakpoint set at the
+ * specified program counter (pc) address in the `c8_t` structure.
+ * It returns 1 if a breakpoint exists at that address,
+ * and 0 if no breakpoint is set.
+ *
  * @param c8 `c8_t` to check breakpoints of
  * @param pc address to check for breakpoint at
  * @return 1 if yes, 0 if no
@@ -235,6 +251,10 @@ int has_breakpoint(c8_t* c8, uint16_t pc) {
 
 /**
  * @brief Parse command from string `s` and store in `cmd`.
+ *
+ * This function attempts to match the command string `s` against
+ * a predefined list of commands. If a match is found, it populates
+ * the `cmd` structure with the command ID and any associated arguments.
  *
  * @param cmd where to store the command attributes
  * @param s command string
