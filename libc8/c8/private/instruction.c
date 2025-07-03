@@ -13,7 +13,7 @@
 
 #define SCHIP_EXCLUSIVE(c) \
     if (c->mode == C8_MODE_CHIP8) { \
-        sprintf(c8_exception, "SCHIP instruction detected in CHIP-8 mode.\n"); \
+        snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "SCHIP instruction detected in CHIP-8 mode.\n"); \
         handle_exception(INVALID_INSTRUCTION_EXCEPTION); \
         return INVALID_INSTRUCTION_EXCEPTION; \
     }
@@ -21,7 +21,7 @@
 #define XOCHIP_EXCLUSIVE(c) \
     if (c->mode != C8_MODE_XOCHIP) { \
         const char *modeStr = (c->mode == C8_MODE_CHIP8) ? "CHIP-8" : "SCHIP"; \
-        sprintf(c8_exception, "XOCHIP instruction detected in %s mode.\n", modeStr); \
+        snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "XOCHIP instruction detected in %s mode.\n", modeStr); \
         handle_exception(INVALID_INSTRUCTION_EXCEPTION); \
         return INVALID_INSTRUCTION_EXCEPTION; \
     }
@@ -395,7 +395,7 @@ static inline int i_jp_nnn(c8_t* c8, uint16_t nnn) {
  */
 static inline int i_call_nnn(c8_t* c8, uint16_t nnn) {
     if (c8->sp >= 16) {
-        sprintf(c8_exception, "PC: %03x", c8->pc);
+        snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "PC: %03x", c8->pc);
         return STACK_OVERFLOW_EXCEPTION;
     }
     c8->stack[c8->sp] = c8->pc;

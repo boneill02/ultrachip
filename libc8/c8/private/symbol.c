@@ -162,7 +162,7 @@ int build_instruction(instruction_t* ins, symbol_list_t* symbols, int idx) {
         case SYM_INT4:
             max = max == 0 ? 0xF : max;
             if (symbols->s[i].value > max) {
-                sprintf(c8_exception, "Line %d: Integer argument too big", symbols->s[i].ln);
+                snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "Line %d: Integer argument too big", symbols->s[i].ln);
                 return INVALID_INSTRUCTION_EXCEPTION;
             }
             ins->p[j] = symbols->s[i].value;
@@ -193,7 +193,7 @@ int build_instruction(instruction_t* ins, symbol_list_t* symbols, int idx) {
 
     ret = parse_instruction(ins);
     if (ret < 1) {
-        sprintf(c8_exception, "Line: %d\n", ins->line);
+        snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "Line: %d\n", ins->line);
     }
 
     return ret;
@@ -355,7 +355,7 @@ int populate_labels(char** lines, int lineCount, label_list_t* labels) {
 
     for (int i = 0; i < lineCount; i++) {
         if (labels->len == labels->ceil) {
-            sprintf(c8_exception, "Line: %d\n", i + 1);
+            snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "Line: %d\n", i + 1);
             return TOO_MANY_LABELS_EXCEPTION;
         }
 
@@ -372,7 +372,7 @@ int populate_labels(char** lines, int lineCount, label_list_t* labels) {
         if (is_label_definition(lines[i])) {
             for (int j = 0; j < labels->len; j++) {
                 if (!strncmp(labels->l[j].identifier, lines[i], strlen(labels->l[j].identifier))) {
-                    sprintf(c8_exception, "Line: %d\n", i + 1);
+                    snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "Line: %d\n", i + 1);
                     return DUPLICATE_LABEL_EXCEPTION;
                 }
             }
@@ -437,7 +437,7 @@ int substitute_labels(symbol_list_t* symbols, label_list_t* labels) {
     for (int i = 0; i < symbols->len; i++) {
         if (symbols->s[i].type == SYM_LABEL) {
             if (symbols->s[i].value >= labels->len) {
-                sprintf(c8_exception, "Line: %d\n", symbols->s[i].ln);
+                snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "Line: %d\n", symbols->s[i].ln);
                 return INVALID_SYMBOL_EXCEPTION;
             }
             symbols->s[i].type = SYM_INT12;

@@ -13,17 +13,17 @@
 #define EXCEPTION_MESSAGE_SIZE 64
 
 #define NULLCHECK1(a) if (!(a)) { \
-	sprintf(c8_exception, "At %s", __func__); \
+	snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "At %s", __func__); \
 	handle_exception(NULL_ARGUMENT_EXCEPTION); \
 }
 
 #define NULLCHECK2(a,b) if (!(a) || !(b)) { \
-	sprintf(c8_exception, "At %s", __func__);\
+	snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "At %s", __func__);\
 	handle_exception(NULL_ARGUMENT_EXCEPTION); \
 }
 
 #define NULLCHECK3(a,b,c) if (!(a) || !(b) || !(c)) { \
-	sprintf(c8_exception, "At %s", __func__); \
+	snprintf(c8_exception, EXCEPTION_MESSAGE_SIZE, "At %s", __func__); \
 	handle_exception(NULL_ARGUMENT_EXCEPTION); \
 }
 
