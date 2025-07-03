@@ -156,7 +156,7 @@ int c8_load_palette_f(c8_t* c8, const char* path) {
 void c8_load_quirks(c8_t* c8, const char* s) {
     NULLCHECK2(c8, s);
 
-    for (int i = 0; i < strlen(s); i++) {
+    for (size_t i = 0; i < strlen(s); i++) {
         switch (s[i]) {
         case 'b': c8->flags ^= C8_FLAG_QUIRK_BITWISE; break;
         case 'd': c8->flags ^= C8_FLAG_QUIRK_DRAW; break;

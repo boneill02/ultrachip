@@ -339,7 +339,7 @@ static int parse_arg(cmd_t* cmd, char* s) {
 
     if (cmd->id == CMD_SET) {
         /* Split attribute to set and value to set it to */
-        for (int i = 0; i < strlen(s); i++) {
+        for (size_t i = 0; i < strlen(s); i++) {
             if (isspace(s[i])) {
                 s[i] = '\0';
                 value = trim(&s[i + 1]);

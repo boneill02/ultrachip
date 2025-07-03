@@ -133,7 +133,7 @@ char* remove_comment(char* s) {
         return s;
     }
 
-    for (int i = 1; i < strlen(s); i++) {
+    for (size_t i = 1; i < strlen(s); i++) {
         if (s[i] == ';' && isspace(s[i - 1])) {
             s[i - 1] = '\0';
         }
