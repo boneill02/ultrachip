@@ -157,6 +157,7 @@ int build_instruction(instruction_t* ins, symbol_list_t* symbols, int idx) {
             max = 0xFFF;
         case SYM_INT8:
             max = max == 0 ? 0xFF : max;
+            // fall through
         case SYM_INT4:
             max = max == 0 ? 0xF : max;
             if (symbols->s[i].value > max) {
@@ -164,6 +165,7 @@ int build_instruction(instruction_t* ins, symbol_list_t* symbols, int idx) {
                 return INVALID_INSTRUCTION_EXCEPTION;
             }
             ins->p[j] = symbols->s[i].value;
+            // fall through
         case SYM_B:
         case SYM_DT:
         case SYM_F:
