@@ -238,7 +238,7 @@ int is_db(const char*);
 int is_dw(const char*);
 int is_instruction(const char*);
 int is_label_definition(const char*);
-int is_label(const char*, label_list_t*);
+int is_label(const char*, const label_list_t*);
 int is_register(const char*);
 int is_reserved_identifier(const char*);
 symbol_t* next_symbol(symbol_list_t*);

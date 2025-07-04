@@ -220,7 +220,7 @@ int is_label_definition(const char* s) {
  * @param labels label list to check from
  * @return label index if true, -1 otherwise
  */
-int is_label(const char* s, label_list_t* labels) {
+int is_label(const char* s, const label_list_t* labels) {
     if (strlen(s) == 0) {
         return -1;
     }
