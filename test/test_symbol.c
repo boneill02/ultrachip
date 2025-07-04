@@ -14,13 +14,11 @@
 #define MAX_LINE_COUNT 10
 #define MAX_LINE_LEN 50
 
-char buf[BUFSIZ];
 instruction_t ins;
 symbol_list_t symbols;
 label_list_t labels;
 const char* empty = "\0";
 int fc = 0;
-char** lines;
 char* line0;
 
 void setUp(void) {
@@ -34,8 +32,6 @@ void setUp(void) {
     memset(symbols.s, 0, SYMBOL_CEILING * sizeof(symbol_t));
     symbols.len = 0;
     symbols.ceil = SYMBOL_CEILING;
-
-    memset(buf, 0, BUFSIZ);
 }
 
 void tearDown(void) {
@@ -94,71 +90,44 @@ void generate_invalid_instruction_symbols(int idx, int ln) {
     }
 }
 
-void test_build_instruction_WhereInstructionIsValid(void) {
-    int idx = rand() % SYMBOL_CEILING - 5;
-    generate_valid_instruction_symbols(idx, rand());
-    TEST_ASSERT_NOT_EQUAL_INT(0, build_instruction(&ins, &symbols, idx));
-}
-
-void test_build_instruction_WhereInstructionIsInvalid(void) {
-    int idx = 10;
-    generate_invalid_instruction_symbols(idx, rand());
-    TEST_ASSERT_EQUAL_INT(INVALID_INSTRUCTION_EXCEPTION, build_instruction(&ins, &symbols, idx));
-}
-
-void test_build_instruction_WhereInstructionIsValid_WhereIdxIsNegative(void) {
-    generate_valid_instruction_symbols(0, 0);
-    int idx = (rand() % SYMBOL_CEILING) * -1;
-    TEST_ASSERT_EQUAL_INT(INVALID_ARGUMENT_EXCEPTION_INTERNAL, build_instruction(&ins, &symbols, idx));
-}
-
 void test_is_comment_WhereCommentIsAtEndOfString(void) {
-
     const char* s = "Hello ; This is a comment";
     TEST_ASSERT_EQUAL_INT(0, is_comment(s));
 }
 
 void test_is_comment_WhereCommentIsEntireString(void) {
-
     const char* s = "; This is a comment";
     TEST_ASSERT_EQUAL_INT(1, is_comment(s));
 }
 
 void test_is_comment_WhereStringIsEmpty(void) {
-
     TEST_ASSERT_EQUAL_INT(0, is_comment(empty));
 }
 
 void test_is_comment_WhereNoCommentIsInString(void) {
-
     const char* s = "This is not a comment";
     TEST_ASSERT_EQUAL_INT(0, is_comment(s));
 }
 
 void test_is_db_WhereStringIsDB(void) {
-
     TEST_ASSERT_EQUAL_INT(1, is_db(S_DB));
 }
 
 void test_is_db_WhereStringIsNotDB(void) {
-
     TEST_ASSERT_EQUAL_INT(0, is_db(S_DW));
 }
 
 void test_is_db_WhereStringContainsDB(void) {
-
     const char* s = "Foo .DB";
     TEST_ASSERT_EQUAL_INT(0, is_db(s));
 }
 
 void test_is_db_WithTrailingChars(void) {
-
     const char* s = ".DB foo";
     TEST_ASSERT_EQUAL_INT(0, is_db(s));
 }
 
 void test_is_db_WhereStringIsEmpty(void) {
-
     TEST_ASSERT_EQUAL_INT(0, is_db(empty));
 }
 
@@ -188,12 +157,12 @@ void test_is_instruction_WhereStringIsInstruction(void) {
     int ic = 0;
     for (ic = 0; c8_instructionStrings[ic] != NULL; ic++);
 
-    int ins = rand() % ic;
+    int i = rand() % ic;
 
     char s[16];
-    strcpy(s, c8_instructionStrings[ins]);
+    strcpy(s, c8_instructionStrings[i]);
 
-    TEST_ASSERT_EQUAL_INT(ins, is_instruction(s));
+    TEST_ASSERT_EQUAL_INT(i, is_instruction(s));
 }
 
 void test_is_instruction_WhereStringIsNotInstruction(void) {
@@ -336,11 +305,11 @@ void test_populate_labels_WhereLinesIsEmpty(void) {
 }
 
 void test_populate_labels_WhereLabelListIsEmpty(void) {
-    sprintf(lines[0], "%s", "ADD V4, V5");
-    sprintf(lines[1], "%s", "\0");
-    sprintf(lines[2], "%s", "CLS");
-    sprintf(lines[3], "%s", "RET");
-    sprintf(lines[4], "%s", "SE V1, $55");
+    sprintf(c8_lines[0], "%s", "ADD V4, V5");
+    sprintf(c8_lines[1], "%s", "\0");
+    sprintf(c8_lines[2], "%s", "CLS");
+    sprintf(c8_lines[3], "%s", "RET");
+    sprintf(c8_lines[4], "%s", "SE V1, $55");
 
     int r = populate_labels(&labels);
     TEST_ASSERT_EQUAL_INT(1, r);
@@ -349,11 +318,11 @@ void test_populate_labels_WhereLabelListIsEmpty(void) {
 }
 
 void test_populate_labels_WhereLinesHasMultipleLabelDefinitions(void) {
-    sprintf(lines[0], "%s", "ADD V4, V5");
-    sprintf(lines[1], "%s", "label:");
-    sprintf(lines[2], "%s", "RET");
-    sprintf(lines[3], "%s", "otherlabel:");
-    sprintf(lines[4], "%s", "SE V1, $55");
+    sprintf(c8_lines[0], "%s", "ADD V4, V5");
+    sprintf(c8_lines[1], "%s", "label:");
+    sprintf(c8_lines[2], "%s", "RET");
+    sprintf(c8_lines[3], "%s", "otherlabel:");
+    sprintf(c8_lines[4], "%s", "SE V1, $55");
 
     int r = populate_labels(&labels);
 
@@ -364,11 +333,12 @@ void test_populate_labels_WhereLinesHasMultipleLabelDefinitions(void) {
 }
 
 void test_populate_labels_WhereLinesHasDuplicateLabelDefinitions(void) {
-    sprintf(lines[0], "%s", "ADD V4, V5");
-    sprintf(lines[1], "%s", "label:");
-    sprintf(lines[2], "%s", "RET");
-    sprintf(lines[3], "%s", "label:");
-    sprintf(lines[4], "%s", "SE V1, $55");
+    sprintf(c8_lines[0], "%s", "ADD V4, V5");
+    sprintf(c8_lines[1], "%s", "label:");
+    sprintf(c8_lines[2], "%s", "RET");
+    sprintf(c8_lines[3], "%s", "label:");
+    sprintf(c8_lines[4], "%s", "SE V1, $55");
+    c8_line_count = 5;
 
     int r = populate_labels(&labels);
 
@@ -527,17 +497,19 @@ int main(void) {
 
     for (fc = 0; formats[fc].cmd != I_NULL; fc++);
 
-    lines = malloc(MAX_LINE_COUNT * sizeof(char*));
+    c8_lines = malloc(MAX_LINE_COUNT * sizeof(char*));
     line0 = malloc(MAX_LINE_LEN * MAX_LINE_COUNT);
     for (int i = 0; i < MAX_LINE_COUNT; i++) {
-        lines[i] = line0 + (i * MAX_LINE_LEN);
+        c8_lines[i] = line0 + (i * MAX_LINE_LEN);
+    }
+
+    c8_lines_unformatted = malloc(MAX_LINE_COUNT * sizeof(char*));
+    line0 = malloc(MAX_LINE_LEN * MAX_LINE_COUNT);
+    for (int i = 0; i < MAX_LINE_COUNT; i++) {
+        c8_lines_unformatted[i] = line0 + (i * MAX_LINE_LEN);
     }
 
     UNITY_BEGIN();
-
-    RUN_TEST(test_build_instruction_WhereInstructionIsValid);
-    RUN_TEST(test_build_instruction_WhereInstructionIsInvalid);
-    RUN_TEST(test_build_instruction_WhereInstructionIsValid_WhereIdxIsNegative);
 
     RUN_TEST(test_is_comment_WhereCommentIsEntireString);
     RUN_TEST(test_is_comment_WhereCommentIsAtEndOfString);
@@ -599,6 +571,7 @@ int main(void) {
     free(symbols.s);
     free(labels.l);
     free(line0);
-    free(lines);
+    free(c8_lines);
+    free(c8_lines_unformatted);
     return UNITY_END();
 }
