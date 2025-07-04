@@ -228,8 +228,8 @@ typedef struct {
     int ceil;
 } symbol_list_t;
 
-extern const char* instructionStrings[];
-extern const char* identifierStrings[];
+extern const char* c8_instructionStrings[];
+extern const char* c8_identifierStrings[];
 extern instruction_format_t formats[];
 
 int build_instruction(instruction_t*, symbol_list_t*, int);
