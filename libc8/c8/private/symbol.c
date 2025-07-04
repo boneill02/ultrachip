@@ -337,7 +337,7 @@ int populate_labels(label_list_t* labels) {
                 }
             }
 
-            strncpy(labels->l[labels->len].identifier, c8_lines[i], LABEL_IDENTIFIER_SIZE - 1);
+            snprintf(labels->l[labels->len].identifier, LABEL_IDENTIFIER_SIZE - 1, "%s", c8_lines[i]);
 
             /* remove : */
             int labellen = strlen(c8_lines[i]) - 1;
