@@ -176,7 +176,8 @@ char* c8_decode_instruction(uint16_t in, uint8_t* label_map) {
         }
     }
 
-    return NULL;
+    snprintf(result, RESULT_SIZE, ".DW 0x%04X", in);
+    return result;
 }
 
 /**
