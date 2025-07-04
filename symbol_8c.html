@@ -124,9 +124,9 @@ Functions</h2></td></tr>
 <tr class="memitem:af297e1e49927e696f01cf0ad0aff9e1b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8c.html#af297e1e49927e696f01cf0ad0aff9e1b">is_label_definition</a> (const char *s)</td></tr>
 <tr class="memdesc:af297e1e49927e696f01cf0ad0aff9e1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the given string is a label definition.  <br /></td></tr>
 <tr class="separator:af297e1e49927e696f01cf0ad0aff9e1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed514f06df4a8e2c8459da4ccec15790"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8c.html#aed514f06df4a8e2c8459da4ccec15790">is_label</a> (const char *s, <a class="el" href="structlabel__list__t.html">label_list_t</a> *labels)</td></tr>
-<tr class="memdesc:aed514f06df4a8e2c8459da4ccec15790"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if given string is a label reference.  <br /></td></tr>
-<tr class="separator:aed514f06df4a8e2c8459da4ccec15790"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56e7aaf9e9dc128ee5815a64d1a2dd09"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8c.html#a56e7aaf9e9dc128ee5815a64d1a2dd09">is_label</a> (const char *s, const <a class="el" href="structlabel__list__t.html">label_list_t</a> *labels)</td></tr>
+<tr class="memdesc:a56e7aaf9e9dc128ee5815a64d1a2dd09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if given string is a label reference.  <br /></td></tr>
+<tr class="separator:a56e7aaf9e9dc128ee5815a64d1a2dd09"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae1e2375a8a6e48f04e6cffbefded071d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8c.html#ae1e2375a8a6e48f04e6cffbefded071d">is_register</a> (const char *s)</td></tr>
 <tr class="memdesc:ae1e2375a8a6e48f04e6cffbefded071d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the given string represents a V register.  <br /></td></tr>
 <tr class="separator:ae1e2375a8a6e48f04e6cffbefded071d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -145,6 +145,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a59e8950057001a247f2803a596018a87"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8c.html#a59e8950057001a247f2803a596018a87">substitute_labels</a> (<a class="el" href="structsymbol__list__t.html">symbol_list_t</a> *symbols, <a class="el" href="structlabel__list__t.html">label_list_t</a> *labels)</td></tr>
 <tr class="memdesc:a59e8950057001a247f2803a596018a87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Substitute label symbols with their corresponding int value.  <br /></td></tr>
 <tr class="separator:a59e8950057001a247f2803a596018a87"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae26429d2a6d6e7c4cca9f7ec8a7c3298"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8c.html#ae26429d2a6d6e7c4cca9f7ec8a7c3298">shift</a> (uint16_t fmt)</td></tr>
+<tr class="memdesc:ae26429d2a6d6e7c4cca9f7ec8a7c3298"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the bits needed to shift to OR a parameter into an instruction.  <br /></td></tr>
+<tr class="separator:ae26429d2a6d6e7c4cca9f7ec8a7c3298"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -301,8 +304,8 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="aed514f06df4a8e2c8459da4ccec15790" name="aed514f06df4a8e2c8459da4ccec15790"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aed514f06df4a8e2c8459da4ccec15790">&#9670;&#160;</a></span>is_label()</h2>
+<a id="a56e7aaf9e9dc128ee5815a64d1a2dd09" name="a56e7aaf9e9dc128ee5815a64d1a2dd09"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56e7aaf9e9dc128ee5815a64d1a2dd09">&#9670;&#160;</a></span>is_label()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -316,7 +319,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structlabel__list__t.html">label_list_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="structlabel__list__t.html">label_list_t</a> *&#160;</td>
           <td class="paramname"><em>labels</em>&#160;</td>
         </tr>
         <tr>
@@ -524,6 +527,35 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>1 if success, 0 if failure </dd></dl>
+
+</div>
+</div>
+<a id="ae26429d2a6d6e7c4cca9f7ec8a7c3298" name="ae26429d2a6d6e7c4cca9f7ec8a7c3298"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae26429d2a6d6e7c4cca9f7ec8a7c3298">&#9670;&#160;</a></span>shift()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int shift </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>fmt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Find the bits needed to shift to OR a parameter into an instruction. </p>
+<p>This function finds the bits needed to shift to OR a parameter into an instruction. It is used to determine the position of parameters in the instruction bytecode.</p>
+<p>This is a workaround for the fact that the instruction formats are not defined in a way that allows for easy bit manipulation.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fmt</td><td><code><a class="el" href="structinstruction__format__t.html" title="Represents a valid instruction format.">instruction_format_t</a></code> pformat to check</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>number of bits to shift </dd></dl>
 
 </div>
 </div>
