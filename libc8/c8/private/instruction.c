@@ -48,10 +48,10 @@
 #define CARRIES(x, y) ((((int) x) + y) > UINT8_MAX)
 
 /* instruction groups */
-static int base_instruction(c8_t*, uint16_t);
-static int bitwise_instruction(c8_t*, uint16_t);
-static int key_instruction(c8_t*, uint16_t);
-static int misc_instruction(c8_t*, uint16_t);
+static int base_instruction(c8_t*, uint16_t, uint8_t);
+static int bitwise_instruction(c8_t*, uint16_t, uint8_t, uint8_t, uint8_t);
+static int key_instruction(c8_t*, uint16_t, uint8_t, uint8_t);
+static int misc_instruction(c8_t*, uint16_t, uint8_t, uint8_t);
 
 static inline int i_scd_b(c8_t*, uint8_t);
 
@@ -129,7 +129,7 @@ int parse_instruction(c8_t* c8) {
     }
 
     switch (a) {
-    case 0x0: return y == 0xC ? i_scd_b(c8, b) : base_instruction(c8, kk);
+    case 0x0: return y == 0xC ? i_scd_b(c8, b) : base_instruction(c8, in, kk);
     case 0x1: return i_jp_nnn(c8, nnn);
     case 0x2: return i_call_nnn(c8, nnn);
     case 0x3: return i_se_vx_kk(c8, x, kk);
@@ -137,22 +137,22 @@ int parse_instruction(c8_t* c8) {
     case 0x5: return i_se_vx_vy(c8, x, y);
     case 0x6: return i_ld_vx_kk(c8, x, kk);
     case 0x7: return i_add_vx_kk(c8, x, kk);
-    case 0x8: return bitwise_instruction(c8, in);
+    case 0x8: return bitwise_instruction(c8, in, x, y, b);
     case 0x9: return i_sne_vx_vy(c8, x, y);
     case 0xA: return i_ld_i_nnn(c8, nnn);
     case 0xB: return i_jp_v0_nnn(c8, nnn);
     case 0xC: return i_rnd_vx_kk(c8, x, kk);
     case 0xD: return i_drw_vx_vy_b(c8, x, y, b);
-    case 0xE: return key_instruction(c8, in);
-    case 0xF: return misc_instruction(c8, in);
+    case 0xE: return key_instruction(c8, in, x, kk);
+    case 0xF: return misc_instruction(c8, in, x, kk);
     default: // unreachable
-        C8_EXCEPTION(INVALID_INSTRUCTION_EXCEPTION, "Invalid instruction: %04x", in);
+        C8_EXCEPTION(INVALID_INSTRUCTION_EXCEPTION, "Unreachable Invalid instruction: %04x", in);
         return INVALID_INSTRUCTION_EXCEPTION;
     }
 }
 
-static int base_instruction(c8_t* c8, uint16_t in) {
-    switch (C8_KK(in)) {
+static int base_instruction(c8_t* c8, uint16_t in, uint8_t kk) {
+    switch (kk) {
     case 0xE0: return i_cls(c8);
     case 0xEE: return i_ret(c8);
     case 0xFB: return i_scr(c8);
@@ -166,47 +166,47 @@ static int base_instruction(c8_t* c8, uint16_t in) {
     }
 }
 
-static int bitwise_instruction(c8_t* c8, uint16_t in) {
-    switch (C8_B(in)) {
-    case 0x0: return i_ld_vx_vy(c8, C8_X(in), C8_Y(in));
-    case 0x1: return i_or_vx_vy(c8, C8_X(in), C8_Y(in));
-    case 0x2: return i_and_vx_vy(c8, C8_X(in), C8_Y(in));
-    case 0x3: return i_xor_vx_vy(c8, C8_X(in), C8_Y(in));
-    case 0x4: return i_add_vx_vy(c8, C8_X(in), C8_Y(in));
-    case 0x5: return i_sub_vx_vy(c8, C8_X(in), C8_Y(in));
-    case 0x6: return i_shr_vx_vy(c8, C8_X(in), C8_Y(in));
-    case 0x7: return i_subn_vx_vy(c8, C8_X(in), C8_Y(in));
-    case 0xE: return i_shl_vx_vy(c8, C8_X(in), C8_Y(in));
+static int bitwise_instruction(c8_t* c8, uint16_t in, uint8_t x, uint8_t y, uint8_t b) {
+    switch (b) {
+    case 0x0: return i_ld_vx_vy(c8, x, y);
+    case 0x1: return i_or_vx_vy(c8, x, y);
+    case 0x2: return i_and_vx_vy(c8, x, y);
+    case 0x3: return i_xor_vx_vy(c8, x, y);
+    case 0x4: return i_add_vx_vy(c8, x, y);
+    case 0x5: return i_sub_vx_vy(c8, x, y);
+    case 0x6: return i_shr_vx_vy(c8, x, y);
+    case 0x7: return i_subn_vx_vy(c8, x, y);
+    case 0xE: return i_shl_vx_vy(c8, x, y);
     default:
         C8_EXCEPTION(INVALID_INSTRUCTION_EXCEPTION, "Invalid instruction: %04x", in);
         return INVALID_INSTRUCTION_EXCEPTION;
     }
 }
 
-static int key_instruction(c8_t* c8, uint16_t in) {
-    switch (C8_KK(in)) {
-    case 0x9E: return i_skp_vx(c8, C8_X(in));
-    case 0xA1: return i_sknp_vx(c8, C8_X(in));
+static int key_instruction(c8_t* c8, uint16_t in, uint8_t x, uint8_t kk) {
+    switch (kk) {
+    case 0x9E: return i_skp_vx(c8, x);
+    case 0xA1: return i_sknp_vx(c8, x);
     default:
         C8_EXCEPTION(INVALID_INSTRUCTION_EXCEPTION, "Invalid instruction: %04x", in);
         return INVALID_INSTRUCTION_EXCEPTION;
     }
 }
 
-static int misc_instruction(c8_t* c8, uint16_t in) {
-    switch (C8_KK(in)) {
-    case 0x07: return i_ld_vx_dt(c8, C8_X(in));
-    case 0x0A: return i_ld_vx_k(c8, C8_X(in));
-    case 0x15: return i_ld_dt_vx(c8, C8_X(in));
-    case 0x18: return i_ld_st_vx(c8, C8_X(in));
-    case 0x1E: return i_add_i_vx(c8, C8_X(in));
-    case 0x29: return i_ld_f_vx(c8, C8_X(in));
-    case 0x30: return i_ld_hf_vx(c8, C8_X(in));
-    case 0x33: return i_ld_b_vx(c8, C8_X(in));
-    case 0x55: return i_ld_ip_vx(c8, C8_X(in));
-    case 0x65: return i_ld_vx_ip(c8, C8_X(in));
-    case 0x75: return i_ld_r_vx(c8, C8_X(in));
-    case 0x85: return i_ld_vx_r(c8, C8_X(in));
+static int misc_instruction(c8_t* c8, uint16_t in, uint8_t x, uint8_t kk) {
+    switch (kk) {
+    case 0x07: return i_ld_vx_dt(c8, x);
+    case 0x0A: return i_ld_vx_k(c8, x);
+    case 0x15: return i_ld_dt_vx(c8, x);
+    case 0x18: return i_ld_st_vx(c8, x);
+    case 0x1E: return i_add_i_vx(c8, x);
+    case 0x29: return i_ld_f_vx(c8, x);
+    case 0x30: return i_ld_hf_vx(c8, x);
+    case 0x33: return i_ld_b_vx(c8, x);
+    case 0x55: return i_ld_ip_vx(c8, x);
+    case 0x65: return i_ld_vx_ip(c8, x);
+    case 0x75: return i_ld_r_vx(c8, x);
+    case 0x85: return i_ld_vx_r(c8, x);
     default:
         C8_EXCEPTION(INVALID_INSTRUCTION_EXCEPTION, "Invalid instruction: %04x", in);
         return INVALID_INSTRUCTION_EXCEPTION;

@@ -13,7 +13,7 @@
 
 #define C8_ENCODE_MAX_LINE_LENGTH 100
 #define C8_ENCODE_MAX_WORDS 100
-#define C8_ENCODE_MAX_LINES 100
+#define C8_ENCODE_MAX_LINES 500
 
 extern char **c8_lines;
 extern char **c8_lines_unformatted;
