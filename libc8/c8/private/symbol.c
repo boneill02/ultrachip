@@ -137,11 +137,6 @@ static int validate_instruction(instruction_t*);
  * @return instruction bytecode
  */
 int build_instruction(instruction_t* ins, symbol_list_t* symbols, int idx) {
-    if (idx < 0) {
-        C8_EXCEPTION(INVALID_ARGUMENT_EXCEPTION_INTERNAL, "Invalid index for instruction: %d", idx);
-        return INVALID_ARGUMENT_EXCEPTION_INTERNAL;
-    }
-
     ins->cmd = (Instruction)symbols->s[idx].value;
     ins->line = symbols->s[idx].ln;
     ins->pcount = 0;
