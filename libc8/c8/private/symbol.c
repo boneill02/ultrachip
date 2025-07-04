@@ -122,7 +122,6 @@ instruction_format_t formats[] = {
 static int get_instruction_args(instruction_t* ins, symbol_list_t* symbols, int idx);
 static int parse_instruction(instruction_t*);
 static int reallocate_symbols(symbol_list_t* symbols);
-static int shift(uint16_t fmt);
 static int validate_instruction(instruction_t*);
 
 /**
@@ -606,7 +605,7 @@ static int reallocate_symbols(symbol_list_t* symbols) {
  *
  * @return number of bits to shift
  */
-static int shift(uint16_t fmt) {
+int shift(uint16_t fmt) {
     static const int table[6][2] = {
         {0xF000, 12}, // a
         {0x000F, 0}, // b

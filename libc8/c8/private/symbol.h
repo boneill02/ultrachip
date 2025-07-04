@@ -244,6 +244,7 @@ int is_reserved_identifier(const char*);
 symbol_t* next_symbol(symbol_list_t*);
 int populate_labels(label_list_t*);
 int resolve_labels(symbol_list_t*, label_list_t*);
+int shift(uint16_t);
 int substitute_labels(symbol_list_t*, label_list_t*);
 
 #endif
