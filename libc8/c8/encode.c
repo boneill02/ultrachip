@@ -71,7 +71,7 @@ int c8_encode(const char* s, uint8_t* out, int args) {
     c8_lines = (char**)malloc(c8_line_count * sizeof(char*));
     c8_line_count = tokenize(c8_lines, scpy, "\n", c8_line_count);
 
-    /*Copy lines to c8_lines_copy */
+    /*Copy lines to c8_lines_unformatted */
     c8_lines_unformatted = (char**)malloc(c8_line_count * sizeof(char*));
     for (int i = 0; i < c8_line_count; i++) {
         c8_lines_unformatted[i] = strdup(c8_lines[i]);
@@ -86,7 +86,7 @@ int c8_encode(const char* s, uint8_t* out, int args) {
     VERBOSE_PRINT(args, "Populating identifiers in label map\n");
     populate_labels(&labels);
 
-    VERBOSE_PRINT(args, "Building symbol table\n");
+    VERBOSE_PRINT(args, "Populating symbol list\n");
     for (int i = 0; i < c8_line_count; i++) {
         parse_line(c8_lines[i], i + 1, &symbols, &labels);
     }
@@ -104,6 +104,7 @@ int c8_encode(const char* s, uint8_t* out, int args) {
     free(symbols.s);
     free(labels.l);
     free(c8_lines);
+    free(c8_lines_unformatted);
     return count;
 }
 
@@ -317,11 +318,6 @@ static inline void put16(uint8_t* output, uint16_t n, int idx) {
  * @return number of tokens
  */
 static int tokenize(char** tok, char* s, const char* delim, int maxTokens) {
-    if (maxTokens <= 0) {
-        C8_EXCEPTION(INVALID_ARGUMENT_EXCEPTION_INTERNAL, "At function: %s", __func__);
-        return INVALID_ARGUMENT_EXCEPTION_INTERNAL;
-    }
-
     int tokenCount = 0;
     char* token = strtok(s, delim);
     while (token && tokenCount < maxTokens) {
