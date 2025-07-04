@@ -91,6 +91,8 @@ $(document).ready(function(){initNavTree('exception_8c.html',''); initResizable(
 
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Data Structures</a> &#124;
+<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">exception.c File Reference</div></div>
@@ -102,6 +104,48 @@ $(document).ready(function(){initNavTree('exception_8c.html',''); initResizable(
 <code>#include &lt;stdlib.h&gt;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
 </div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structexception__t.html">exception_t</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:ac35112fdcda6162f4c4d7dbbd0eacd9e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#ac35112fdcda6162f4c4d7dbbd0eacd9e">INVALID_INSTRUCTION_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;An invalid instruction exists in the input file.&quot;</td></tr>
+<tr class="separator:ac35112fdcda6162f4c4d7dbbd0eacd9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a949a0c9034584d8b0e289ede019d6ef5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#a949a0c9034584d8b0e289ede019d6ef5">TOO_MANY_LABELS_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;Too many labels are defined in the input file.&quot;</td></tr>
+<tr class="separator:a949a0c9034584d8b0e289ede019d6ef5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74b1d988cab3caa46e49a0ff2684d857"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#a74b1d988cab3caa46e49a0ff2684d857">STACK_OVERFLOW_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;A stack overflow occurred during execution.&quot;</td></tr>
+<tr class="separator:a74b1d988cab3caa46e49a0ff2684d857"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad10eaf5bfd1e6ef44a9568551ed849ee"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#ad10eaf5bfd1e6ef44a9568551ed849ee">INVALID_ARGUMENT_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;An invalid instruction argument was given.&quot;</td></tr>
+<tr class="separator:ad10eaf5bfd1e6ef44a9568551ed849ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a324da6f8ce367afdc1d3c32efcabd489"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#a324da6f8ce367afdc1d3c32efcabd489">DUPLICATE_LABEL_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;A label was defined multiple times.&quot;</td></tr>
+<tr class="separator:a324da6f8ce367afdc1d3c32efcabd489"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e093e960ca74a084ea48394fca36fd1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#a6e093e960ca74a084ea48394fca36fd1">INVALID_SYMBOL_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;An invalid symbol exists in the input file.&quot;</td></tr>
+<tr class="separator:a6e093e960ca74a084ea48394fca36fd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6206eb59c6788af28c65c11932e61522"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#a6206eb59c6788af28c65c11932e61522">MEMORY_ALLOCATION_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;Failed to allocate memory.&quot;</td></tr>
+<tr class="separator:a6206eb59c6788af28c65c11932e61522"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9599d0e7e81b26fa8fbbf9e700c9df5c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#a9599d0e7e81b26fa8fbbf9e700c9df5c">UNKNOWN_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;An unknown error has occurred.&quot;</td></tr>
+<tr class="separator:a9599d0e7e81b26fa8fbbf9e700c9df5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af62de7d8fb5f520eacfb91d2aaa06912"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#af62de7d8fb5f520eacfb91d2aaa06912">TOO_MANY_SYMBOLS_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;Too many symbols exist in the input file.&quot;</td></tr>
+<tr class="separator:af62de7d8fb5f520eacfb91d2aaa06912"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adeb9c7a505f592f531f436c458ae6042"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#adeb9c7a505f592f531f436c458ae6042">LOAD_FILE_FAILURE_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;Failed to load file.&quot;</td></tr>
+<tr class="separator:adeb9c7a505f592f531f436c458ae6042"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97f7f4d011db8503ccb2b726d499fe69"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#a97f7f4d011db8503ccb2b726d499fe69">FILE_TOO_BIG_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;The given file is too big.&quot;</td></tr>
+<tr class="separator:a97f7f4d011db8503ccb2b726d499fe69"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14d4b092e0beb391db6ba51f5e7f746e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#a14d4b092e0beb391db6ba51f5e7f746e">INVALID_COLOR_PALETTE_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;Invalid color palette.&quot;</td></tr>
+<tr class="separator:a14d4b092e0beb391db6ba51f5e7f746e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70f705bc964e7af2120d7e499adc73f6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#a70f705bc964e7af2120d7e499adc73f6">INVALID_QUIRK_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;Invalid quirk.&quot;</td></tr>
+<tr class="separator:a70f705bc964e7af2120d7e499adc73f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ae1a85b84b01c1f499de59e9a2de0b6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#a5ae1a85b84b01c1f499de59e9a2de0b6">FAILED_GRAPHICS_INITIALIZATION_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;Failed to initialize graphics.&quot;</td></tr>
+<tr class="separator:a5ae1a85b84b01c1f499de59e9a2de0b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb83ec1dd7e8419f7492b435a86c2e86"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#acb83ec1dd7e8419f7492b435a86c2e86">INVALID_FONT_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;Invalid font.&quot;</td></tr>
+<tr class="separator:acb83ec1dd7e8419f7492b435a86c2e86"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac400428156a04267b67f0052fb6ad8d1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#ac400428156a04267b67f0052fb6ad8d1">INVALID_CLOCK_SPEED_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;Clock speed cannot be less than 1.&quot;</td></tr>
+<tr class="separator:ac400428156a04267b67f0052fb6ad8d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae78bb3d6d735c9c09c22af1b2041e15c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#ae78bb3d6d735c9c09c22af1b2041e15c">STACK_UNDERFLOW_EXCEPTION_MESSAGE</a>&#160;&#160;&#160;&quot;Stack underflow occurred during execution.&quot;</td></tr>
+<tr class="separator:ae78bb3d6d735c9c09c22af1b2041e15c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ac37cd7017ba52954f487d180bb35e327"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#ac37cd7017ba52954f487d180bb35e327">handle_exception</a> (int code)</td></tr>
@@ -109,15 +153,254 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
+<tr class="memitem:ad085a791176c79b7eee1d049ddf788dd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structexception__t.html">exception_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#ad085a791176c79b7eee1d049ddf788dd">exceptions</a> []</td></tr>
+<tr class="separator:ad085a791176c79b7eee1d049ddf788dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2b504db127ee3d58c7703aa9159c3b07"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#a2b504db127ee3d58c7703aa9159c3b07">c8_exception</a> [<a class="el" href="exception_8h.html#a1f8068b064071d772414a5d15a237509">EXCEPTION_MESSAGE_SIZE</a>]</td></tr>
 <tr class="separator:a2b504db127ee3d58c7703aa9159c3b07"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff2e10c67c0c4f61db95bac633b1d46e"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="exception_8c.html#aff2e10c67c0c4f61db95bac633b1d46e">exception_messages</a> [21][<a class="el" href="exception_8h.html#a1f8068b064071d772414a5d15a237509">EXCEPTION_MESSAGE_SIZE</a>]</td></tr>
-<tr class="separator:aff2e10c67c0c4f61db95bac633b1d46e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="section note"><dt>Note</dt><dd>NOT EXPORTED</dd></dl>
 <p>Stuff for handling exceptions. </p>
-</div><h2 class="groupheader">Function Documentation</h2>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a324da6f8ce367afdc1d3c32efcabd489" name="a324da6f8ce367afdc1d3c32efcabd489"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a324da6f8ce367afdc1d3c32efcabd489">&#9670;&#160;</a></span>DUPLICATE_LABEL_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define DUPLICATE_LABEL_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;A label was defined multiple times.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a5ae1a85b84b01c1f499de59e9a2de0b6" name="a5ae1a85b84b01c1f499de59e9a2de0b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ae1a85b84b01c1f499de59e9a2de0b6">&#9670;&#160;</a></span>FAILED_GRAPHICS_INITIALIZATION_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define FAILED_GRAPHICS_INITIALIZATION_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;Failed to initialize graphics.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a97f7f4d011db8503ccb2b726d499fe69" name="a97f7f4d011db8503ccb2b726d499fe69"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97f7f4d011db8503ccb2b726d499fe69">&#9670;&#160;</a></span>FILE_TOO_BIG_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define FILE_TOO_BIG_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;The given file is too big.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad10eaf5bfd1e6ef44a9568551ed849ee" name="ad10eaf5bfd1e6ef44a9568551ed849ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad10eaf5bfd1e6ef44a9568551ed849ee">&#9670;&#160;</a></span>INVALID_ARGUMENT_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define INVALID_ARGUMENT_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;An invalid instruction argument was given.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac400428156a04267b67f0052fb6ad8d1" name="ac400428156a04267b67f0052fb6ad8d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac400428156a04267b67f0052fb6ad8d1">&#9670;&#160;</a></span>INVALID_CLOCK_SPEED_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define INVALID_CLOCK_SPEED_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;Clock speed cannot be less than 1.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a14d4b092e0beb391db6ba51f5e7f746e" name="a14d4b092e0beb391db6ba51f5e7f746e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a14d4b092e0beb391db6ba51f5e7f746e">&#9670;&#160;</a></span>INVALID_COLOR_PALETTE_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define INVALID_COLOR_PALETTE_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;Invalid color palette.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="acb83ec1dd7e8419f7492b435a86c2e86" name="acb83ec1dd7e8419f7492b435a86c2e86"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb83ec1dd7e8419f7492b435a86c2e86">&#9670;&#160;</a></span>INVALID_FONT_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define INVALID_FONT_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;Invalid font.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac35112fdcda6162f4c4d7dbbd0eacd9e" name="ac35112fdcda6162f4c4d7dbbd0eacd9e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac35112fdcda6162f4c4d7dbbd0eacd9e">&#9670;&#160;</a></span>INVALID_INSTRUCTION_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define INVALID_INSTRUCTION_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;An invalid instruction exists in the input file.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a70f705bc964e7af2120d7e499adc73f6" name="a70f705bc964e7af2120d7e499adc73f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a70f705bc964e7af2120d7e499adc73f6">&#9670;&#160;</a></span>INVALID_QUIRK_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define INVALID_QUIRK_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;Invalid quirk.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6e093e960ca74a084ea48394fca36fd1" name="a6e093e960ca74a084ea48394fca36fd1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e093e960ca74a084ea48394fca36fd1">&#9670;&#160;</a></span>INVALID_SYMBOL_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define INVALID_SYMBOL_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;An invalid symbol exists in the input file.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="adeb9c7a505f592f531f436c458ae6042" name="adeb9c7a505f592f531f436c458ae6042"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adeb9c7a505f592f531f436c458ae6042">&#9670;&#160;</a></span>LOAD_FILE_FAILURE_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LOAD_FILE_FAILURE_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;Failed to load file.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6206eb59c6788af28c65c11932e61522" name="a6206eb59c6788af28c65c11932e61522"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6206eb59c6788af28c65c11932e61522">&#9670;&#160;</a></span>MEMORY_ALLOCATION_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MEMORY_ALLOCATION_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;Failed to allocate memory.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a74b1d988cab3caa46e49a0ff2684d857" name="a74b1d988cab3caa46e49a0ff2684d857"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a74b1d988cab3caa46e49a0ff2684d857">&#9670;&#160;</a></span>STACK_OVERFLOW_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STACK_OVERFLOW_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;A stack overflow occurred during execution.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae78bb3d6d735c9c09c22af1b2041e15c" name="ae78bb3d6d735c9c09c22af1b2041e15c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae78bb3d6d735c9c09c22af1b2041e15c">&#9670;&#160;</a></span>STACK_UNDERFLOW_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STACK_UNDERFLOW_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;Stack underflow occurred during execution.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a949a0c9034584d8b0e289ede019d6ef5" name="a949a0c9034584d8b0e289ede019d6ef5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a949a0c9034584d8b0e289ede019d6ef5">&#9670;&#160;</a></span>TOO_MANY_LABELS_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TOO_MANY_LABELS_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;Too many labels are defined in the input file.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af62de7d8fb5f520eacfb91d2aaa06912" name="af62de7d8fb5f520eacfb91d2aaa06912"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af62de7d8fb5f520eacfb91d2aaa06912">&#9670;&#160;</a></span>TOO_MANY_SYMBOLS_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TOO_MANY_SYMBOLS_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;Too many symbols exist in the input file.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a9599d0e7e81b26fa8fbbf9e700c9df5c" name="a9599d0e7e81b26fa8fbbf9e700c9df5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9599d0e7e81b26fa8fbbf9e700c9df5c">&#9670;&#160;</a></span>UNKNOWN_EXCEPTION_MESSAGE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNKNOWN_EXCEPTION_MESSAGE&#160;&#160;&#160;&quot;An unknown error has occurred.&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
 <a id="ac37cd7017ba52954f487d180bb35e327" name="ac37cd7017ba52954f487d180bb35e327"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac37cd7017ba52954f487d180bb35e327">&#9670;&#160;</a></span>handle_exception()</h2>
 
@@ -152,58 +435,70 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="aff2e10c67c0c4f61db95bac633b1d46e" name="aff2e10c67c0c4f61db95bac633b1d46e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aff2e10c67c0c4f61db95bac633b1d46e">&#9670;&#160;</a></span>exception_messages</h2>
+<a id="ad085a791176c79b7eee1d049ddf788dd" name="ad085a791176c79b7eee1d049ddf788dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad085a791176c79b7eee1d049ddf788dd">&#9670;&#160;</a></span>exceptions</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">char exception_messages[21][<a class="el" href="exception_8h.html#a1f8068b064071d772414a5d15a237509">EXCEPTION_MESSAGE_SIZE</a>]</td>
+          <td class="memname"><a class="el" href="structexception__t.html">exception_t</a> exceptions[]</td>
         </tr>
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">= {</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#a9599d0e7e81b26fa8fbbf9e700c9df5c">UNKNOWN_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#a681e8a0c408219a68efecf81b522feca">NULL_ARGUMENT_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#ac35112fdcda6162f4c4d7dbbd0eacd9e">INVALID_INSTRUCTION_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#a949a0c9034584d8b0e289ede019d6ef5">TOO_MANY_LABELS_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#a74b1d988cab3caa46e49a0ff2684d857">STACK_OVERFLOW_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#ad10eaf5bfd1e6ef44a9568551ed849ee">INVALID_ARGUMENT_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#a94d2c4b97e31b7a6bbe8d64401b8a2ea">INVALID_ARGUMENT_EXCEPTION_INTERNAL_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#a324da6f8ce367afdc1d3c32efcabd489">DUPLICATE_LABEL_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#a6e093e960ca74a084ea48394fca36fd1">INVALID_SYMBOL_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#a6206eb59c6788af28c65c11932e61522">MEMORY_ALLOCATION_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#a9599d0e7e81b26fa8fbbf9e700c9df5c">UNKNOWN_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#af62de7d8fb5f520eacfb91d2aaa06912">TOO_MANY_SYMBOLS_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#adeb9c7a505f592f531f436c458ae6042">LOAD_FILE_FAILURE_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#a97f7f4d011db8503ccb2b726d499fe69">FILE_TOO_BIG_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#a14d4b092e0beb391db6ba51f5e7f746e">INVALID_COLOR_PALETTE_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#a70f705bc964e7af2120d7e499adc73f6">INVALID_QUIRK_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#a5ae1a85b84b01c1f499de59e9a2de0b6">FAILED_GRAPHICS_INITIALIZATION_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#acb83ec1dd7e8419f7492b435a86c2e86">INVALID_FONT_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#ac400428156a04267b67f0052fb6ad8d1">INVALID_CLOCK_SPEED_EXCEPTION_MESSAGE</a>,</div>
-<div class="line">    <a class="code hl_define" href="exception_8h.html#ae78bb3d6d735c9c09c22af1b2041e15c">STACK_UNDERFLOW_EXCEPTION_MESSAGE</a>,</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a89fe9d8586d84549f73c7696c7fc01d5">INVALID_INSTRUCTION_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#ac35112fdcda6162f4c4d7dbbd0eacd9e">INVALID_INSTRUCTION_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a796941d857979fde0a0345c4fc1b7103">TOO_MANY_LABELS_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#a949a0c9034584d8b0e289ede019d6ef5">TOO_MANY_LABELS_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3ad6fe2e2faa40a4c0dd0325997881aec0">STACK_OVERFLOW_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#a74b1d988cab3caa46e49a0ff2684d857">STACK_OVERFLOW_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3abea88c7480a592f9cfc48d5ff634a54a">INVALID_ARGUMENT_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#ad10eaf5bfd1e6ef44a9568551ed849ee">INVALID_ARGUMENT_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3af25105f8195e1faa2143a21942e4ade1">DUPLICATE_LABEL_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#a324da6f8ce367afdc1d3c32efcabd489">DUPLICATE_LABEL_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a370b0451ded7089ffb4ce1b8b53faf10">INVALID_SYMBOL_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#a6e093e960ca74a084ea48394fca36fd1">INVALID_SYMBOL_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a1036439e8ed0580814539af9f3ad3c37">MEMORY_ALLOCATION_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#a6206eb59c6788af28c65c11932e61522">MEMORY_ALLOCATION_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a1918b005c3a338a2b213077aeb2ffa03">UNKNOWN_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#a9599d0e7e81b26fa8fbbf9e700c9df5c">UNKNOWN_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a04d468fe83f3c93d1fb81b6f3532d13b">TOO_MANY_SYMBOLS_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#af62de7d8fb5f520eacfb91d2aaa06912">TOO_MANY_SYMBOLS_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3af630833c17ebef4c030a95cfed6b218b">LOAD_FILE_FAILURE_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#adeb9c7a505f592f531f436c458ae6042">LOAD_FILE_FAILURE_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a52a248732dadf1de7254d4f283bf2f88">FILE_TOO_BIG_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#a97f7f4d011db8503ccb2b726d499fe69">FILE_TOO_BIG_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3aecd95338fa080426f7431ad389e50c79">INVALID_COLOR_PALETTE_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#a14d4b092e0beb391db6ba51f5e7f746e">INVALID_COLOR_PALETTE_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a81acb4921da74ab211bb24a7364a8073">INVALID_QUIRK_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#a70f705bc964e7af2120d7e499adc73f6">INVALID_QUIRK_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3ae2f1b32e97a36abd0238cf6cea302d4d">FAILED_GRAPHICS_INITIALIZATION_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#a5ae1a85b84b01c1f499de59e9a2de0b6">FAILED_GRAPHICS_INITIALIZATION_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3ab3fa90ab9bfc5e55ae151b1f09d5b1a0">INVALID_FONT_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#acb83ec1dd7e8419f7492b435a86c2e86">INVALID_FONT_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3ab5b33615c956f298585103c8fb59dceb">INVALID_CLOCK_SPEED_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#ac400428156a04267b67f0052fb6ad8d1">INVALID_CLOCK_SPEED_EXCEPTION_MESSAGE</a> },</div>
+<div class="line">    { <a class="code hl_enumvalue" href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3abcd4b9587b726a485b36533272f90ce3">STACK_UNDERFLOW_EXCEPTION</a>, <a class="code hl_define" href="exception_8c.html#ae78bb3d6d735c9c09c22af1b2041e15c">STACK_UNDERFLOW_EXCEPTION_MESSAGE</a> },</div>
 <div class="line">}</div>
-<div class="ttc" id="aexception_8h_html_a14d4b092e0beb391db6ba51f5e7f746e"><div class="ttname"><a href="exception_8h.html#a14d4b092e0beb391db6ba51f5e7f746e">INVALID_COLOR_PALETTE_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define INVALID_COLOR_PALETTE_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:63</div></div>
-<div class="ttc" id="aexception_8h_html_a324da6f8ce367afdc1d3c32efcabd489"><div class="ttname"><a href="exception_8h.html#a324da6f8ce367afdc1d3c32efcabd489">DUPLICATE_LABEL_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define DUPLICATE_LABEL_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:56</div></div>
-<div class="ttc" id="aexception_8h_html_a5ae1a85b84b01c1f499de59e9a2de0b6"><div class="ttname"><a href="exception_8h.html#a5ae1a85b84b01c1f499de59e9a2de0b6">FAILED_GRAPHICS_INITIALIZATION_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define FAILED_GRAPHICS_INITIALIZATION_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:65</div></div>
-<div class="ttc" id="aexception_8h_html_a6206eb59c6788af28c65c11932e61522"><div class="ttname"><a href="exception_8h.html#a6206eb59c6788af28c65c11932e61522">MEMORY_ALLOCATION_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define MEMORY_ALLOCATION_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:58</div></div>
-<div class="ttc" id="aexception_8h_html_a681e8a0c408219a68efecf81b522feca"><div class="ttname"><a href="exception_8h.html#a681e8a0c408219a68efecf81b522feca">NULL_ARGUMENT_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define NULL_ARGUMENT_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:50</div></div>
-<div class="ttc" id="aexception_8h_html_a6e093e960ca74a084ea48394fca36fd1"><div class="ttname"><a href="exception_8h.html#a6e093e960ca74a084ea48394fca36fd1">INVALID_SYMBOL_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define INVALID_SYMBOL_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:57</div></div>
-<div class="ttc" id="aexception_8h_html_a70f705bc964e7af2120d7e499adc73f6"><div class="ttname"><a href="exception_8h.html#a70f705bc964e7af2120d7e499adc73f6">INVALID_QUIRK_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define INVALID_QUIRK_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:64</div></div>
-<div class="ttc" id="aexception_8h_html_a74b1d988cab3caa46e49a0ff2684d857"><div class="ttname"><a href="exception_8h.html#a74b1d988cab3caa46e49a0ff2684d857">STACK_OVERFLOW_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define STACK_OVERFLOW_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:53</div></div>
-<div class="ttc" id="aexception_8h_html_a949a0c9034584d8b0e289ede019d6ef5"><div class="ttname"><a href="exception_8h.html#a949a0c9034584d8b0e289ede019d6ef5">TOO_MANY_LABELS_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define TOO_MANY_LABELS_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:52</div></div>
-<div class="ttc" id="aexception_8h_html_a94d2c4b97e31b7a6bbe8d64401b8a2ea"><div class="ttname"><a href="exception_8h.html#a94d2c4b97e31b7a6bbe8d64401b8a2ea">INVALID_ARGUMENT_EXCEPTION_INTERNAL_MESSAGE</a></div><div class="ttdeci">#define INVALID_ARGUMENT_EXCEPTION_INTERNAL_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:55</div></div>
-<div class="ttc" id="aexception_8h_html_a9599d0e7e81b26fa8fbbf9e700c9df5c"><div class="ttname"><a href="exception_8h.html#a9599d0e7e81b26fa8fbbf9e700c9df5c">UNKNOWN_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define UNKNOWN_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:59</div></div>
-<div class="ttc" id="aexception_8h_html_a97f7f4d011db8503ccb2b726d499fe69"><div class="ttname"><a href="exception_8h.html#a97f7f4d011db8503ccb2b726d499fe69">FILE_TOO_BIG_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define FILE_TOO_BIG_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:62</div></div>
-<div class="ttc" id="aexception_8h_html_ac35112fdcda6162f4c4d7dbbd0eacd9e"><div class="ttname"><a href="exception_8h.html#ac35112fdcda6162f4c4d7dbbd0eacd9e">INVALID_INSTRUCTION_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define INVALID_INSTRUCTION_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:51</div></div>
-<div class="ttc" id="aexception_8h_html_ac400428156a04267b67f0052fb6ad8d1"><div class="ttname"><a href="exception_8h.html#ac400428156a04267b67f0052fb6ad8d1">INVALID_CLOCK_SPEED_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define INVALID_CLOCK_SPEED_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:67</div></div>
-<div class="ttc" id="aexception_8h_html_acb83ec1dd7e8419f7492b435a86c2e86"><div class="ttname"><a href="exception_8h.html#acb83ec1dd7e8419f7492b435a86c2e86">INVALID_FONT_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define INVALID_FONT_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:66</div></div>
-<div class="ttc" id="aexception_8h_html_ad10eaf5bfd1e6ef44a9568551ed849ee"><div class="ttname"><a href="exception_8h.html#ad10eaf5bfd1e6ef44a9568551ed849ee">INVALID_ARGUMENT_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define INVALID_ARGUMENT_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:54</div></div>
-<div class="ttc" id="aexception_8h_html_adeb9c7a505f592f531f436c458ae6042"><div class="ttname"><a href="exception_8h.html#adeb9c7a505f592f531f436c458ae6042">LOAD_FILE_FAILURE_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define LOAD_FILE_FAILURE_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:61</div></div>
-<div class="ttc" id="aexception_8h_html_ae78bb3d6d735c9c09c22af1b2041e15c"><div class="ttname"><a href="exception_8h.html#ae78bb3d6d735c9c09c22af1b2041e15c">STACK_UNDERFLOW_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define STACK_UNDERFLOW_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:68</div></div>
-<div class="ttc" id="aexception_8h_html_af62de7d8fb5f520eacfb91d2aaa06912"><div class="ttname"><a href="exception_8h.html#af62de7d8fb5f520eacfb91d2aaa06912">TOO_MANY_SYMBOLS_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define TOO_MANY_SYMBOLS_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.h:60</div></div>
+<div class="ttc" id="aexception_8c_html_a14d4b092e0beb391db6ba51f5e7f746e"><div class="ttname"><a href="exception_8c.html#a14d4b092e0beb391db6ba51f5e7f746e">INVALID_COLOR_PALETTE_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define INVALID_COLOR_PALETTE_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:27</div></div>
+<div class="ttc" id="aexception_8c_html_a324da6f8ce367afdc1d3c32efcabd489"><div class="ttname"><a href="exception_8c.html#a324da6f8ce367afdc1d3c32efcabd489">DUPLICATE_LABEL_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define DUPLICATE_LABEL_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:20</div></div>
+<div class="ttc" id="aexception_8c_html_a5ae1a85b84b01c1f499de59e9a2de0b6"><div class="ttname"><a href="exception_8c.html#a5ae1a85b84b01c1f499de59e9a2de0b6">FAILED_GRAPHICS_INITIALIZATION_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define FAILED_GRAPHICS_INITIALIZATION_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:29</div></div>
+<div class="ttc" id="aexception_8c_html_a6206eb59c6788af28c65c11932e61522"><div class="ttname"><a href="exception_8c.html#a6206eb59c6788af28c65c11932e61522">MEMORY_ALLOCATION_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define MEMORY_ALLOCATION_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:22</div></div>
+<div class="ttc" id="aexception_8c_html_a6e093e960ca74a084ea48394fca36fd1"><div class="ttname"><a href="exception_8c.html#a6e093e960ca74a084ea48394fca36fd1">INVALID_SYMBOL_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define INVALID_SYMBOL_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:21</div></div>
+<div class="ttc" id="aexception_8c_html_a70f705bc964e7af2120d7e499adc73f6"><div class="ttname"><a href="exception_8c.html#a70f705bc964e7af2120d7e499adc73f6">INVALID_QUIRK_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define INVALID_QUIRK_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:28</div></div>
+<div class="ttc" id="aexception_8c_html_a74b1d988cab3caa46e49a0ff2684d857"><div class="ttname"><a href="exception_8c.html#a74b1d988cab3caa46e49a0ff2684d857">STACK_OVERFLOW_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define STACK_OVERFLOW_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:18</div></div>
+<div class="ttc" id="aexception_8c_html_a949a0c9034584d8b0e289ede019d6ef5"><div class="ttname"><a href="exception_8c.html#a949a0c9034584d8b0e289ede019d6ef5">TOO_MANY_LABELS_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define TOO_MANY_LABELS_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:17</div></div>
+<div class="ttc" id="aexception_8c_html_a9599d0e7e81b26fa8fbbf9e700c9df5c"><div class="ttname"><a href="exception_8c.html#a9599d0e7e81b26fa8fbbf9e700c9df5c">UNKNOWN_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define UNKNOWN_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:23</div></div>
+<div class="ttc" id="aexception_8c_html_a97f7f4d011db8503ccb2b726d499fe69"><div class="ttname"><a href="exception_8c.html#a97f7f4d011db8503ccb2b726d499fe69">FILE_TOO_BIG_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define FILE_TOO_BIG_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:26</div></div>
+<div class="ttc" id="aexception_8c_html_ac35112fdcda6162f4c4d7dbbd0eacd9e"><div class="ttname"><a href="exception_8c.html#ac35112fdcda6162f4c4d7dbbd0eacd9e">INVALID_INSTRUCTION_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define INVALID_INSTRUCTION_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:16</div></div>
+<div class="ttc" id="aexception_8c_html_ac400428156a04267b67f0052fb6ad8d1"><div class="ttname"><a href="exception_8c.html#ac400428156a04267b67f0052fb6ad8d1">INVALID_CLOCK_SPEED_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define INVALID_CLOCK_SPEED_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:31</div></div>
+<div class="ttc" id="aexception_8c_html_acb83ec1dd7e8419f7492b435a86c2e86"><div class="ttname"><a href="exception_8c.html#acb83ec1dd7e8419f7492b435a86c2e86">INVALID_FONT_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define INVALID_FONT_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:30</div></div>
+<div class="ttc" id="aexception_8c_html_ad10eaf5bfd1e6ef44a9568551ed849ee"><div class="ttname"><a href="exception_8c.html#ad10eaf5bfd1e6ef44a9568551ed849ee">INVALID_ARGUMENT_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define INVALID_ARGUMENT_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:19</div></div>
+<div class="ttc" id="aexception_8c_html_adeb9c7a505f592f531f436c458ae6042"><div class="ttname"><a href="exception_8c.html#adeb9c7a505f592f531f436c458ae6042">LOAD_FILE_FAILURE_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define LOAD_FILE_FAILURE_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:25</div></div>
+<div class="ttc" id="aexception_8c_html_ae78bb3d6d735c9c09c22af1b2041e15c"><div class="ttname"><a href="exception_8c.html#ae78bb3d6d735c9c09c22af1b2041e15c">STACK_UNDERFLOW_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define STACK_UNDERFLOW_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:32</div></div>
+<div class="ttc" id="aexception_8c_html_af62de7d8fb5f520eacfb91d2aaa06912"><div class="ttname"><a href="exception_8c.html#af62de7d8fb5f520eacfb91d2aaa06912">TOO_MANY_SYMBOLS_EXCEPTION_MESSAGE</a></div><div class="ttdeci">#define TOO_MANY_SYMBOLS_EXCEPTION_MESSAGE</div><div class="ttdef"><b>Definition:</b> exception.c:24</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3a04d468fe83f3c93d1fb81b6f3532d13b"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a04d468fe83f3c93d1fb81b6f3532d13b">TOO_MANY_SYMBOLS_EXCEPTION</a></div><div class="ttdeci">@ TOO_MANY_SYMBOLS_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:29</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3a1036439e8ed0580814539af9f3ad3c37"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a1036439e8ed0580814539af9f3ad3c37">MEMORY_ALLOCATION_EXCEPTION</a></div><div class="ttdeci">@ MEMORY_ALLOCATION_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:27</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3a1918b005c3a338a2b213077aeb2ffa03"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a1918b005c3a338a2b213077aeb2ffa03">UNKNOWN_EXCEPTION</a></div><div class="ttdeci">@ UNKNOWN_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:28</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3a370b0451ded7089ffb4ce1b8b53faf10"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a370b0451ded7089ffb4ce1b8b53faf10">INVALID_SYMBOL_EXCEPTION</a></div><div class="ttdeci">@ INVALID_SYMBOL_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:26</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3a52a248732dadf1de7254d4f283bf2f88"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a52a248732dadf1de7254d4f283bf2f88">FILE_TOO_BIG_EXCEPTION</a></div><div class="ttdeci">@ FILE_TOO_BIG_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:31</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3a796941d857979fde0a0345c4fc1b7103"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a796941d857979fde0a0345c4fc1b7103">TOO_MANY_LABELS_EXCEPTION</a></div><div class="ttdeci">@ TOO_MANY_LABELS_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:22</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3a81acb4921da74ab211bb24a7364a8073"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a81acb4921da74ab211bb24a7364a8073">INVALID_QUIRK_EXCEPTION</a></div><div class="ttdeci">@ INVALID_QUIRK_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:33</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3a89fe9d8586d84549f73c7696c7fc01d5"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3a89fe9d8586d84549f73c7696c7fc01d5">INVALID_INSTRUCTION_EXCEPTION</a></div><div class="ttdeci">@ INVALID_INSTRUCTION_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:21</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3ab3fa90ab9bfc5e55ae151b1f09d5b1a0"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3ab3fa90ab9bfc5e55ae151b1f09d5b1a0">INVALID_FONT_EXCEPTION</a></div><div class="ttdeci">@ INVALID_FONT_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:35</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3ab5b33615c956f298585103c8fb59dceb"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3ab5b33615c956f298585103c8fb59dceb">INVALID_CLOCK_SPEED_EXCEPTION</a></div><div class="ttdeci">@ INVALID_CLOCK_SPEED_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:36</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3abcd4b9587b726a485b36533272f90ce3"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3abcd4b9587b726a485b36533272f90ce3">STACK_UNDERFLOW_EXCEPTION</a></div><div class="ttdeci">@ STACK_UNDERFLOW_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:37</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3abea88c7480a592f9cfc48d5ff634a54a"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3abea88c7480a592f9cfc48d5ff634a54a">INVALID_ARGUMENT_EXCEPTION</a></div><div class="ttdeci">@ INVALID_ARGUMENT_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:24</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3ad6fe2e2faa40a4c0dd0325997881aec0"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3ad6fe2e2faa40a4c0dd0325997881aec0">STACK_OVERFLOW_EXCEPTION</a></div><div class="ttdeci">@ STACK_OVERFLOW_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:23</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3ae2f1b32e97a36abd0238cf6cea302d4d"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3ae2f1b32e97a36abd0238cf6cea302d4d">FAILED_GRAPHICS_INITIALIZATION_EXCEPTION</a></div><div class="ttdeci">@ FAILED_GRAPHICS_INITIALIZATION_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:34</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3aecd95338fa080426f7431ad389e50c79"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3aecd95338fa080426f7431ad389e50c79">INVALID_COLOR_PALETTE_EXCEPTION</a></div><div class="ttdeci">@ INVALID_COLOR_PALETTE_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:32</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3af25105f8195e1faa2143a21942e4ade1"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3af25105f8195e1faa2143a21942e4ade1">DUPLICATE_LABEL_EXCEPTION</a></div><div class="ttdeci">@ DUPLICATE_LABEL_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:25</div></div>
+<div class="ttc" id="aexception_8h_html_a402ebff4d96f276dd02c0159707849a3af630833c17ebef4c030a95cfed6b218b"><div class="ttname"><a href="exception_8h.html#a402ebff4d96f276dd02c0159707849a3af630833c17ebef4c030a95cfed6b218b">LOAD_FILE_FAILURE_EXCEPTION</a></div><div class="ttdeci">@ LOAD_FILE_FAILURE_EXCEPTION</div><div class="ttdef"><b>Definition:</b> exception.h:30</div></div>
 </div><!-- fragment -->
 </div>
 </div>

@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['quirk_5fbitwise_0',['QUIRK_BITWISE',['../instruction_8c.html#af76fdbfa99670d79ba7db413c154bcd9',1,'instruction.c']]],
-  ['quirk_5fdraw_1',['QUIRK_DRAW',['../instruction_8c.html#a6719559c31cece2eef6a46d363af3cd7',1,'instruction.c']]],
-  ['quirk_5floadstore_2',['QUIRK_LOADSTORE',['../instruction_8c.html#ad5d8437d6f2b13693540d12748b8e03f',1,'instruction.c']]],
-  ['quirk_5fshift_3',['QUIRK_SHIFT',['../instruction_8c.html#a48cfa5b68f79e47811a2e47608021f8a',1,'instruction.c']]]
+  ['result_5fsize_0',['RESULT_SIZE',['../decode_8c.html#a7c5e3db06e3b3ee37636d8348dc2c505',1,'decode.c']]],
+  ['rgb_5fb_1',['RGB_B',['../graphics__sdl2_8c.html#ab5fd95b5bc7f9c53e1bf7c8ab74bafa6',1,'graphics_sdl2.c']]],
+  ['rgb_5fg_2',['RGB_G',['../graphics__sdl2_8c.html#abf9de2ff816a5773ffa5bef76fb73202',1,'graphics_sdl2.c']]],
+  ['rgb_5fr_3',['RGB_R',['../graphics__sdl2_8c.html#aad1f5a1b583759496cd1f679aa647121',1,'graphics_sdl2.c']]]
 ];

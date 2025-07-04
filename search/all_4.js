@@ -17,6 +17,6 @@ var searchData=
   ['draw_14',['draw',['../structc8__t.html#a0dc5e0006521905cc3fd70a61e860572',1,'c8_t']]],
   ['dream6800_5fs_15',['DREAM6800_S',['../font_8c.html#a3abb0d2af4524e168ef964f359306bbc',1,'font.c']]],
   ['dt_16',['dt',['../structc8__t.html#ada3845993bce1df4701253692c93a98b',1,'c8_t']]],
-  ['duplicate_5flabel_5fexception_17',['DUPLICATE_LABEL_EXCEPTION',['../exception_8h.html#a53f84590294f4c1f1488ba7df177d9ec',1,'exception.h']]],
-  ['duplicate_5flabel_5fexception_5fmessage_18',['DUPLICATE_LABEL_EXCEPTION_MESSAGE',['../exception_8h.html#a324da6f8ce367afdc1d3c32efcabd489',1,'exception.h']]]
+  ['duplicate_5flabel_5fexception_17',['DUPLICATE_LABEL_EXCEPTION',['../exception_8h.html#a402ebff4d96f276dd02c0159707849a3af25105f8195e1faa2143a21942e4ade1',1,'exception.h']]],
+  ['duplicate_5flabel_5fexception_5fmessage_18',['DUPLICATE_LABEL_EXCEPTION_MESSAGE',['../exception_8c.html#a324da6f8ce367afdc1d3c32efcabd489',1,'exception.c']]]
 ];

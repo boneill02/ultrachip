@@ -6,6 +6,7 @@ var annotated_dup =
     [ "c8_t", "structc8__t.html", "structc8__t" ],
     [ "cmd_t", "structcmd__t.html", "structcmd__t" ],
     [ "display_t", "structdisplay__t.html", null ],
+    [ "exception_t", "structexception__t.html", "structexception__t" ],
     [ "instruction_format_t", "structinstruction__format__t.html", "structinstruction__format__t" ],
     [ "instruction_t", "structinstruction__t.html", "structinstruction__t" ],
     [ "label_list_t", "structlabel__list__t.html", "structlabel__list__t" ],

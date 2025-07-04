@@ -136,9 +136,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a46f348ff09aef4b9e61af207737eedd8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structsymbol__t.html">symbol_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8c.html#a46f348ff09aef4b9e61af207737eedd8">next_symbol</a> (<a class="el" href="structsymbol__list__t.html">symbol_list_t</a> *symbols)</td></tr>
 <tr class="memdesc:a46f348ff09aef4b9e61af207737eedd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the next symbol.  <br /></td></tr>
 <tr class="separator:a46f348ff09aef4b9e61af207737eedd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7f2e810a2a40e4ab8a7833d09ee01efa"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8c.html#a7f2e810a2a40e4ab8a7833d09ee01efa">populate_labels</a> (char **lines, int lineCount, <a class="el" href="structlabel__list__t.html">label_list_t</a> *labels)</td></tr>
-<tr class="memdesc:a7f2e810a2a40e4ab8a7833d09ee01efa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Populate label list from lines.  <br /></td></tr>
-<tr class="separator:a7f2e810a2a40e4ab8a7833d09ee01efa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcea084f033f46034fb855eabe36458e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8c.html#adcea084f033f46034fb855eabe36458e">populate_labels</a> (<a class="el" href="structlabel__list__t.html">label_list_t</a> *labels)</td></tr>
+<tr class="memdesc:adcea084f033f46034fb855eabe36458e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Populate label list from lines.  <br /></td></tr>
+<tr class="separator:adcea084f033f46034fb855eabe36458e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a107aacf3ab0722cdfbc8d716e2812d84"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8c.html#a107aacf3ab0722cdfbc8d716e2812d84">resolve_labels</a> (<a class="el" href="structsymbol__list__t.html">symbol_list_t</a> *symbols, <a class="el" href="structlabel__list__t.html">label_list_t</a> *labels)</td></tr>
 <tr class="memdesc:a107aacf3ab0722cdfbc8d716e2812d84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get byte indexes of label definitions from completed symbol table.  <br /></td></tr>
 <tr class="separator:a107aacf3ab0722cdfbc8d716e2812d84"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -328,6 +328,8 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Check if given string is a label reference. </p>
+<p>This function checks if the given string is a label reference by comparing it against the label list. It returns the index of the label in the label list if it is found, or -1 if it is not.</p>
+<p>This function assumes that the label list has been populated (e.g. <code><a class="el" href="symbol_8c.html#adcea084f033f46034fb855eabe36458e" title="Populate label list from lines.">populate_labels()</a></code> has been called).</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">s</td><td>string to check </td></tr>
@@ -383,6 +385,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Check if the given string represents a V register. </p>
+<p>This function checks if the given string starts with 'V' or 'v' and is followed by a valid hexadecimal digit (0-9, A-F, a-f). It returns the register number if it is a valid V register, or -1 if it is not.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">s</td><td>string to check </td></tr>
@@ -410,6 +413,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Check if given string is a reserved identifier. </p>
+<p>This function checks if the given string is one of the reserved identifiers defined in <code>c8_identifierStrings</code>. It returns the index of the identifier if it is found, or -1 if it is not.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">s</td><td>string to check </td></tr>
@@ -437,12 +441,20 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Get the next symbol. </p>
+<p>This function retrieves the next available symbol in the symbol list. If the symbol list is empty, it initializes the first symbol. If the symbol list is full, it reallocates the symbol list to accommodate more symbols.</p>
+<p>If symbols is <code>NULL</code> or the symbol list is <code>NULL</code>, it returns <code>NULL</code>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">symbols</td><td>symbol list to get next symbol from</td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="section return"><dt>Returns</dt><dd>first empty symbol in symbol table </dd></dl>
 
 </div>
 </div>
-<a id="a7f2e810a2a40e4ab8a7833d09ee01efa" name="a7f2e810a2a40e4ab8a7833d09ee01efa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7f2e810a2a40e4ab8a7833d09ee01efa">&#9670;&#160;</a></span>populate_labels()</h2>
+<a id="adcea084f033f46034fb855eabe36458e" name="adcea084f033f46034fb855eabe36458e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adcea084f033f46034fb855eabe36458e">&#9670;&#160;</a></span>populate_labels()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -450,30 +462,17 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">int populate_labels </td>
           <td>(</td>
-          <td class="paramtype">char **&#160;</td>
-          <td class="paramname"><em>lines</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>lineCount</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype"><a class="el" href="structlabel__list__t.html">label_list_t</a> *&#160;</td>
-          <td class="paramname"><em>labels</em>&#160;</td>
-        </tr>
-        <tr>
+          <td class="paramname"><em>labels</em></td><td>)</td>
           <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Populate label list from lines. </p>
+<p>This function scans through the lines of code and identifies label definitions. It checks each line for a label definition (ending with a colon) and adds it to the label list.</p>
+<p>If a duplicate label definition is found, it throws a <code>DUPLICATE_LABEL_EXCEPTION</code>.</p>
+<p>If too many labels are defined, it throws a <code>TOO_MANY_LABELS_EXCEPTION</code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">lines</td><td>lines to search </td></tr>
@@ -513,6 +512,10 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Get byte indexes of label definitions from completed symbol table. </p>
+<p>This function resolves label definitions in the symbol list and populates the label list with the byte index of each label definition. It iterates through the symbols, keeping track of the current byte position in the program. When it encounters a label definition, it records the current byte position in the label list. It also increments the byte position based on the type of symbol encountered (e.g., <code>SYM_DB</code> increments by 1, <code>SYM_INSTRUCTION</code> and <code>SYM_DW</code> increment by 2).</p>
+<p>This function assumes that the symbol list has been populated and that the symbols have been parsed correctly. It also assumes that the label list has been initialized.</p>
+<p>This function will return 1 if all labels were resolved successfully, or 0 if there was a failure (e.g., if the label list is not fully populated).</p>
+<p>This function will throw a NULL_ARGUMENT_EXCEPTION if either <code>symbols</code> or <code>labels</code> is NULL.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">symbols</td><td>list of symbols </td></tr>
@@ -551,6 +554,8 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Substitute label symbols with their corresponding int value. </p>
+<p>This function replaces all symbols of type <code>SYM_LABEL</code> in the symbol list with their corresponding byte value from the label list. It checks if the label exists and throws an <code>INVALID_SYMBOL_EXCEPTION</code> if it does not.</p>
+<p>This function assumes that the label list has been populated and that their byte values have been set correctly.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">symbols</td><td>symbols to search </td></tr>

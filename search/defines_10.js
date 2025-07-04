@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['unknown_5fexception_0',['UNKNOWN_EXCEPTION',['../exception_8h.html#a9df729422f16089fb0146656c1264e6f',1,'exception.h']]],
-  ['unknown_5fexception_5fmessage_1',['UNKNOWN_EXCEPTION_MESSAGE',['../exception_8h.html#a9599d0e7e81b26fa8fbbf9e700c9df5c',1,'exception.h']]]
+  ['verbose_0',['VERBOSE',['../instruction_8c.html#a4aaf30eb16fc172dc344ab5f397e6c97',1,'instruction.c']]],
+  ['verbose_5fprint_1',['VERBOSE_PRINT',['../util_8h.html#a16e027ed946c00a879920dabaf8e8058',1,'util.h']]],
+  ['vip_5fs_2',['VIP_S',['../font_8c.html#a71e77f0df1f95d5dd9afe6623a5cef94',1,'font.c']]]
 ];

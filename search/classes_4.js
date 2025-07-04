@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['label_5flist_5ft_0',['label_list_t',['../structlabel__list__t.html',1,'']]],
-  ['label_5ft_1',['label_t',['../structlabel__t.html',1,'']]]
+  ['instruction_5fformat_5ft_0',['instruction_format_t',['../structinstruction__format__t.html',1,'']]],
+  ['instruction_5ft_1',['instruction_t',['../structinstruction__t.html',1,'']]]
 ];

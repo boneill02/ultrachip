@@ -240,7 +240,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Represents command types. </p>
-<p>This enumeration defines all possible debug mode commands </p>
+<p>This enumeration defines all possible debug mode commands. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a2afce0a47a93eee73a314d53e4890153a93c1ce1fac89139d9f4df4b6db21b1cc" name="a2afce0a47a93eee73a314d53e4890153a93c1ce1fac89139d9f4df4b6db21b1cc"></a>CMD_NONE&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a2afce0a47a93eee73a314d53e4890153a391556d21ca99948778cb9cd40809e6d" name="a2afce0a47a93eee73a314d53e4890153a391556d21ca99948778cb9cd40809e6d"></a>CMD_ADD_BREAKPOINT&#160;</td><td class="fielddoc"></td></tr>
@@ -320,6 +320,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Check if breakpoint exists at address pc. </p>
+<p>This function checks if there is a breakpoint set at the specified program counter (pc) address in the <code><a class="el" href="structc8__t.html" title="Represents current state of the CHIP-8 interpreter.">c8_t</a></code> structure. It returns 1 if a breakpoint exists at that address, and 0 if no breakpoint is set.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">c8</td><td><code><a class="el" href="structc8__t.html" title="Represents current state of the CHIP-8 interpreter.">c8_t</a></code> to check breakpoints of </td></tr>

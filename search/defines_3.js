@@ -7,6 +7,5 @@ var searchData=
   ['debug_5fstep_4',['DEBUG_STEP',['../debug_8h.html#a9313e0837a51cfb3a8b3bf799095caac',1,'debug.h']]],
   ['define_5flabels_5',['DEFINE_LABELS',['../decode_8c.html#abf88a709ca68bf6b5d7399fe513cf50b',1,'decode.c']]],
   ['dream6800_5fs_6',['DREAM6800_S',['../font_8c.html#a3abb0d2af4524e168ef964f359306bbc',1,'font.c']]],
-  ['duplicate_5flabel_5fexception_7',['DUPLICATE_LABEL_EXCEPTION',['../exception_8h.html#a53f84590294f4c1f1488ba7df177d9ec',1,'exception.h']]],
-  ['duplicate_5flabel_5fexception_5fmessage_8',['DUPLICATE_LABEL_EXCEPTION_MESSAGE',['../exception_8h.html#a324da6f8ce367afdc1d3c32efcabd489',1,'exception.h']]]
+  ['duplicate_5flabel_5fexception_5fmessage_7',['DUPLICATE_LABEL_EXCEPTION_MESSAGE',['../exception_8c.html#a324da6f8ce367afdc1d3c32efcabd489',1,'exception.c']]]
 ];

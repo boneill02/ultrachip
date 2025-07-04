@@ -109,10 +109,10 @@ var symbol_8h =
     [ "is_register", "symbol_8h.html#a9b4a33469061dfc194e036b99d1b61d2", null ],
     [ "is_reserved_identifier", "symbol_8h.html#ae5c8bb2f7399e744ee6f84eff86fab32", null ],
     [ "next_symbol", "symbol_8h.html#acbfebf1e35e8adfcf4c7c485a848e3c3", null ],
-    [ "populate_labels", "symbol_8h.html#a3ea29badb542a3f279bcc8bfa758b403", null ],
+    [ "populate_labels", "symbol_8h.html#ae58b789dd43d305ddbd8bc8d73427cfa", null ],
     [ "resolve_labels", "symbol_8h.html#a717e654f615e573a199d922764e5945e", null ],
     [ "substitute_labels", "symbol_8h.html#abfbba5228c1d10a3a51e29e663fd2b26", null ],
-    [ "formats", "symbol_8h.html#a953bb9d08e9d93d18cd0f314935f4595", null ],
-    [ "identifierStrings", "symbol_8h.html#a0d8b433cf7a889c4bba5d8f4122a545d", null ],
-    [ "instructionStrings", "symbol_8h.html#ac68069510e6d55ed2623b6d24409be74", null ]
+    [ "c8_identifierStrings", "symbol_8h.html#a7db6741810ae8ae021411544250757a1", null ],
+    [ "c8_instructionStrings", "symbol_8h.html#aad872539439157dacd82ef1ab739520d", null ],
+    [ "formats", "symbol_8h.html#a953bb9d08e9d93d18cd0f314935f4595", null ]
 ];

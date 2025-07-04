@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['instruction_0',['Instruction',['../symbol_8h.html#acbd603b5f7c788a74eade8d4837ba684',1,'symbol.h']]]
+  ['exception_5fcode_5ft_0',['exception_code_t',['../exception_8h.html#a402ebff4d96f276dd02c0159707849a3',1,'exception.h']]]
 ];

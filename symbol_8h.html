@@ -314,9 +314,9 @@ Functions</h2></td></tr>
 <tr class="memitem:acbfebf1e35e8adfcf4c7c485a848e3c3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structsymbol__t.html">symbol_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8h.html#acbfebf1e35e8adfcf4c7c485a848e3c3">next_symbol</a> (<a class="el" href="structsymbol__list__t.html">symbol_list_t</a> *)</td></tr>
 <tr class="memdesc:acbfebf1e35e8adfcf4c7c485a848e3c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the next symbol.  <br /></td></tr>
 <tr class="separator:acbfebf1e35e8adfcf4c7c485a848e3c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ea29badb542a3f279bcc8bfa758b403"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8h.html#a3ea29badb542a3f279bcc8bfa758b403">populate_labels</a> (char **, int, <a class="el" href="structlabel__list__t.html">label_list_t</a> *)</td></tr>
-<tr class="memdesc:a3ea29badb542a3f279bcc8bfa758b403"><td class="mdescLeft">&#160;</td><td class="mdescRight">Populate label list from lines.  <br /></td></tr>
-<tr class="separator:a3ea29badb542a3f279bcc8bfa758b403"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae58b789dd43d305ddbd8bc8d73427cfa"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8h.html#ae58b789dd43d305ddbd8bc8d73427cfa">populate_labels</a> (<a class="el" href="structlabel__list__t.html">label_list_t</a> *)</td></tr>
+<tr class="memdesc:ae58b789dd43d305ddbd8bc8d73427cfa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Populate label list from lines.  <br /></td></tr>
+<tr class="separator:ae58b789dd43d305ddbd8bc8d73427cfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a717e654f615e573a199d922764e5945e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8h.html#a717e654f615e573a199d922764e5945e">resolve_labels</a> (<a class="el" href="structsymbol__list__t.html">symbol_list_t</a> *, <a class="el" href="structlabel__list__t.html">label_list_t</a> *)</td></tr>
 <tr class="memdesc:a717e654f615e573a199d922764e5945e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get byte indexes of label definitions from completed symbol table.  <br /></td></tr>
 <tr class="separator:a717e654f615e573a199d922764e5945e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -326,10 +326,10 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:ac68069510e6d55ed2623b6d24409be74"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8h.html#ac68069510e6d55ed2623b6d24409be74">instructionStrings</a> []</td></tr>
-<tr class="separator:ac68069510e6d55ed2623b6d24409be74"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0d8b433cf7a889c4bba5d8f4122a545d"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8h.html#a0d8b433cf7a889c4bba5d8f4122a545d">identifierStrings</a> []</td></tr>
-<tr class="separator:a0d8b433cf7a889c4bba5d8f4122a545d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad872539439157dacd82ef1ab739520d"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8h.html#aad872539439157dacd82ef1ab739520d">c8_instructionStrings</a> []</td></tr>
+<tr class="separator:aad872539439157dacd82ef1ab739520d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7db6741810ae8ae021411544250757a1"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8h.html#a7db6741810ae8ae021411544250757a1">c8_identifierStrings</a> []</td></tr>
+<tr class="separator:a7db6741810ae8ae021411544250757a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a953bb9d08e9d93d18cd0f314935f4595"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structinstruction__format__t.html">instruction_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="symbol_8h.html#a953bb9d08e9d93d18cd0f314935f4595">formats</a> []</td></tr>
 <tr class="separator:a953bb9d08e9d93d18cd0f314935f4595"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -1170,6 +1170,8 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Check if given string is a label reference. </p>
+<p>This function checks if the given string is a label reference by comparing it against the label list. It returns the index of the label in the label list if it is found, or -1 if it is not.</p>
+<p>This function assumes that the label list has been populated (e.g. <code><a class="el" href="symbol_8c.html#adcea084f033f46034fb855eabe36458e" title="Populate label list from lines.">populate_labels()</a></code> has been called).</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">s</td><td>string to check </td></tr>
@@ -1225,6 +1227,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Check if the given string represents a V register. </p>
+<p>This function checks if the given string starts with 'V' or 'v' and is followed by a valid hexadecimal digit (0-9, A-F, a-f). It returns the register number if it is a valid V register, or -1 if it is not.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">s</td><td>string to check </td></tr>
@@ -1252,6 +1255,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Check if given string is a reserved identifier. </p>
+<p>This function checks if the given string is one of the reserved identifiers defined in <code>c8_identifierStrings</code>. It returns the index of the identifier if it is found, or -1 if it is not.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">s</td><td>string to check </td></tr>
@@ -1279,12 +1283,20 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Get the next symbol. </p>
+<p>This function retrieves the next available symbol in the symbol list. If the symbol list is empty, it initializes the first symbol. If the symbol list is full, it reallocates the symbol list to accommodate more symbols.</p>
+<p>If symbols is <code>NULL</code> or the symbol list is <code>NULL</code>, it returns <code>NULL</code>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">symbols</td><td>symbol list to get next symbol from</td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="section return"><dt>Returns</dt><dd>first empty symbol in symbol table </dd></dl>
 
 </div>
 </div>
-<a id="a3ea29badb542a3f279bcc8bfa758b403" name="a3ea29badb542a3f279bcc8bfa758b403"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3ea29badb542a3f279bcc8bfa758b403">&#9670;&#160;</a></span>populate_labels()</h2>
+<a id="ae58b789dd43d305ddbd8bc8d73427cfa" name="ae58b789dd43d305ddbd8bc8d73427cfa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae58b789dd43d305ddbd8bc8d73427cfa">&#9670;&#160;</a></span>populate_labels()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1292,30 +1304,17 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">int populate_labels </td>
           <td>(</td>
-          <td class="paramtype">char **&#160;</td>
-          <td class="paramname"><em>lines</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>lineCount</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype"><a class="el" href="structlabel__list__t.html">label_list_t</a> *&#160;</td>
-          <td class="paramname"><em>labels</em>&#160;</td>
-        </tr>
-        <tr>
+          <td class="paramname"><em>labels</em></td><td>)</td>
           <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Populate label list from lines. </p>
+<p>This function scans through the lines of code and identifies label definitions. It checks each line for a label definition (ending with a colon) and adds it to the label list.</p>
+<p>If a duplicate label definition is found, it throws a <code>DUPLICATE_LABEL_EXCEPTION</code>.</p>
+<p>If too many labels are defined, it throws a <code>TOO_MANY_LABELS_EXCEPTION</code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">lines</td><td>lines to search </td></tr>
@@ -1355,6 +1354,10 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Get byte indexes of label definitions from completed symbol table. </p>
+<p>This function resolves label definitions in the symbol list and populates the label list with the byte index of each label definition. It iterates through the symbols, keeping track of the current byte position in the program. When it encounters a label definition, it records the current byte position in the label list. It also increments the byte position based on the type of symbol encountered (e.g., <code>SYM_DB</code> increments by 1, <code>SYM_INSTRUCTION</code> and <code>SYM_DW</code> increment by 2).</p>
+<p>This function assumes that the symbol list has been populated and that the symbols have been parsed correctly. It also assumes that the label list has been initialized.</p>
+<p>This function will return 1 if all labels were resolved successfully, or 0 if there was a failure (e.g., if the label list is not fully populated).</p>
+<p>This function will throw a NULL_ARGUMENT_EXCEPTION if either <code>symbols</code> or <code>labels</code> is NULL.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">symbols</td><td>list of symbols </td></tr>
@@ -1393,6 +1396,8 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Substitute label symbols with their corresponding int value. </p>
+<p>This function replaces all symbols of type <code>SYM_LABEL</code> in the symbol list with their corresponding byte value from the label list. It checks if the label exists and throws an <code>INVALID_SYMBOL_EXCEPTION</code> if it does not.</p>
+<p>This function assumes that the label list has been populated and that their byte values have been set correctly.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">symbols</td><td>symbols to search </td></tr>
@@ -1404,6 +1409,52 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a id="a7db6741810ae8ae021411544250757a1" name="a7db6741810ae8ae021411544250757a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7db6741810ae8ae021411544250757a1">&#9670;&#160;</a></span>c8_identifierStrings</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* c8_identifierStrings[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Reserved identifier strings. Has to match <code>Symbol</code>. </p>
+
+</div>
+</div>
+<a id="aad872539439157dacd82ef1ab739520d" name="aad872539439157dacd82ef1ab739520d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad872539439157dacd82ef1ab739520d">&#9670;&#160;</a></span>c8_instructionStrings</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* c8_instructionStrings[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Instruction strings. Has to match <code>Instruction</code>. </p>
+
+</div>
+</div>
 <a id="a953bb9d08e9d93d18cd0f314935f4595" name="a953bb9d08e9d93d18cd0f314935f4595"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a953bb9d08e9d93d18cd0f314935f4595">&#9670;&#160;</a></span>formats</h2>
 
@@ -1424,50 +1475,6 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <p>All valid instruction formats </p>
-
-</div>
-</div>
-<a id="a0d8b433cf7a889c4bba5d8f4122a545d" name="a0d8b433cf7a889c4bba5d8f4122a545d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0d8b433cf7a889c4bba5d8f4122a545d">&#9670;&#160;</a></span>identifierStrings</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char* identifierStrings[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ac68069510e6d55ed2623b6d24409be74" name="ac68069510e6d55ed2623b6d24409be74"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac68069510e6d55ed2623b6d24409be74">&#9670;&#160;</a></span>instructionStrings</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char* instructionStrings[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
 
 </div>
 </div>
