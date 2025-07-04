@@ -43,11 +43,9 @@ available on the GitHub pages site.
 
 Testing is done using
 [ctest](https://cmake.org/cmake/help/latest/manual/ctest.1.html) and
-[Unity](https://github.com/ThrowTheSwitch/Unity) (See
-[here](https://honeytreelabs.com/posts/cmake-unity-integration) for an
-overview).
+[Unity](https://github.com/ThrowTheSwitch/Unity).
 
-```
+```shell
 cmake -DTARGET_GROUP=test -DSDL2=OFF
 make && ctest --verbose
 ```
