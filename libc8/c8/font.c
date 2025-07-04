@@ -246,8 +246,8 @@ int c8_set_fonts_s(c8_t* c8, char* s) {
 
     const char* s2 = NULL;
 
-    for (int i = 0; i < len; i++) {
-        if (s[i] == ',' && i < len - 1) {
+    for (int i = 0; i < len - 1; i++) {
+        if (s[i] == ',') {
             s2 = &s[i + 1];
             s[i] = '\0';
         }
