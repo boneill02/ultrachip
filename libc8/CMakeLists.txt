@@ -70,6 +70,10 @@ set_target_properties(
 
 # Compiler definitions
 ADD_DEFINITIONS("-g")
+if(TEST)
+  message(STATUS "Got here")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTEST")
+endif()
 
 # Library installation directives
 INSTALL (
