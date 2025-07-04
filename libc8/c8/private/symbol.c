@@ -333,6 +333,7 @@ int populate_labels(label_list_t* labels) {
             for (int j = 0; j < labels->len; j++) {
                 if (!strncmp(labels->l[j].identifier, c8_lines[i], strlen(labels->l[j].identifier))) {
                     C8_EXCEPTION(DUPLICATE_LABEL_EXCEPTION, "Duplicate label definition.\nLine %d: %s", i + 1, c8_lines_unformatted[i + 1]);
+                    return DUPLICATE_LABEL_EXCEPTION;
                 }
             }
 
