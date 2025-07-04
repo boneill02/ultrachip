@@ -13,16 +13,14 @@
 
 #define SCHIP_EXCLUSIVE(c) \
     if (c->mode == C8_MODE_CHIP8) { \
-        sprintf(c8_exception, "SCHIP instruction detected in CHIP-8 mode.\n"); \
-        handle_exception(INVALID_INSTRUCTION_EXCEPTION); \
+        C8_EXCEPTION(INVALID_INSTRUCTION_EXCEPTION, "SCHIP instruction detected in CHIP-8 mode.\n"); \
         return INVALID_INSTRUCTION_EXCEPTION; \
     }
 
 #define XOCHIP_EXCLUSIVE(c) \
     if (c->mode != C8_MODE_XOCHIP) { \
         const char *modeStr = (c->mode == C8_MODE_CHIP8) ? "CHIP-8" : "SCHIP"; \
-        sprintf(c8_exception, "XOCHIP instruction detected in %s mode.\n", modeStr); \
-        handle_exception(INVALID_INSTRUCTION_EXCEPTION); \
+        C8_EXCEPTION(INVALID_INSTRUCTION_EXCEPTION, "XOCHIP instruction detected in %s mode.\n", modeStr); \
         return INVALID_INSTRUCTION_EXCEPTION; \
     }
 
@@ -49,10 +47,11 @@
 #define BORROWS(x, y) ((((int) x) - y) < 0)
 #define CARRIES(x, y) ((((int) x) + y) > UINT8_MAX)
 
-static int base_instruction(c8_t*, uint8_t);
-static int bitwise_instruction(c8_t*, uint8_t, uint8_t, uint8_t);
-static int key_instruction(c8_t*, uint8_t, uint8_t);
-static int misc_instruction(c8_t*, uint8_t, uint8_t);
+/* instruction groups */
+static int base_instruction(c8_t*, uint16_t);
+static int bitwise_instruction(c8_t*, uint16_t);
+static int key_instruction(c8_t*, uint16_t);
+static int misc_instruction(c8_t*, uint16_t);
 
 static inline int i_scd_b(c8_t*, uint8_t);
 
@@ -138,20 +137,22 @@ int parse_instruction(c8_t* c8) {
     case 0x5: return i_se_vx_vy(c8, x, y);
     case 0x6: return i_ld_vx_kk(c8, x, kk);
     case 0x7: return i_add_vx_kk(c8, x, kk);
-    case 0x8: return bitwise_instruction(c8, x, y, b);
+    case 0x8: return bitwise_instruction(c8, in);
     case 0x9: return i_sne_vx_vy(c8, x, y);
     case 0xA: return i_ld_i_nnn(c8, nnn);
     case 0xB: return i_jp_v0_nnn(c8, nnn);
     case 0xC: return i_rnd_vx_kk(c8, x, kk);
     case 0xD: return i_drw_vx_vy_b(c8, x, y, b);
-    case 0xE: return key_instruction(c8, x, kk);
-    case 0xF: return misc_instruction(c8, x, kk);
-    default: return INVALID_INSTRUCTION_EXCEPTION; // unreachable
+    case 0xE: return key_instruction(c8, in);
+    case 0xF: return misc_instruction(c8, in);
+    default: // unreachable
+        C8_EXCEPTION(INVALID_INSTRUCTION_EXCEPTION, "Invalid instruction: %04x", in);
+        return INVALID_INSTRUCTION_EXCEPTION;
     }
 }
 
-static int base_instruction(c8_t* c8, uint8_t kk) {
-    switch (kk) {
+static int base_instruction(c8_t* c8, uint16_t in) {
+    switch (C8_KK(in)) {
     case 0xE0: return i_cls(c8);
     case 0xEE: return i_ret(c8);
     case 0xFB: return i_scr(c8);
@@ -159,48 +160,56 @@ static int base_instruction(c8_t* c8, uint8_t kk) {
     case 0xFD: return i_exit(c8);
     case 0xFE: return i_low(c8);
     case 0xFF: return i_high(c8);
-    default: return INVALID_INSTRUCTION_EXCEPTION;
+    default:
+        C8_EXCEPTION(INVALID_INSTRUCTION_EXCEPTION, "Invalid instruction: %04x", in);
+        return INVALID_INSTRUCTION_EXCEPTION;
     }
 }
 
-static int bitwise_instruction(c8_t* c8, uint8_t x, uint8_t y, uint8_t b) {
-    switch (b) {
-    case 0x0: return i_ld_vx_vy(c8, x, y);
-    case 0x1: return i_or_vx_vy(c8, x, y);
-    case 0x2: return i_and_vx_vy(c8, x, y);
-    case 0x3: return i_xor_vx_vy(c8, x, y);
-    case 0x4: return i_add_vx_vy(c8, x, y);
-    case 0x5: return i_sub_vx_vy(c8, x, y);
-    case 0x6: return i_shr_vx_vy(c8, x, y);
-    case 0x7: return i_subn_vx_vy(c8, x, y);
-    case 0xE: return i_shl_vx_vy(c8, x, y);
-    default: return INVALID_INSTRUCTION_EXCEPTION;
+static int bitwise_instruction(c8_t* c8, uint16_t in) {
+    switch (C8_B(in)) {
+    case 0x0: return i_ld_vx_vy(c8, C8_X(in), C8_Y(in));
+    case 0x1: return i_or_vx_vy(c8, C8_X(in), C8_Y(in));
+    case 0x2: return i_and_vx_vy(c8, C8_X(in), C8_Y(in));
+    case 0x3: return i_xor_vx_vy(c8, C8_X(in), C8_Y(in));
+    case 0x4: return i_add_vx_vy(c8, C8_X(in), C8_Y(in));
+    case 0x5: return i_sub_vx_vy(c8, C8_X(in), C8_Y(in));
+    case 0x6: return i_shr_vx_vy(c8, C8_X(in), C8_Y(in));
+    case 0x7: return i_subn_vx_vy(c8, C8_X(in), C8_Y(in));
+    case 0xE: return i_shl_vx_vy(c8, C8_X(in), C8_Y(in));
+    default:
+        C8_EXCEPTION(INVALID_INSTRUCTION_EXCEPTION, "Invalid instruction: %04x", in);
+        return INVALID_INSTRUCTION_EXCEPTION;
     }
 }
 
-static int key_instruction(c8_t* c8, uint8_t x, uint8_t kk) {
-    switch (kk) {
-    case 0x9E: return i_skp_vx(c8, x);
-    case 0xA1: return i_sknp_vx(c8, x);
-    default: return INVALID_INSTRUCTION_EXCEPTION;
+static int key_instruction(c8_t* c8, uint16_t in) {
+    switch (C8_KK(in)) {
+    case 0x9E: return i_skp_vx(c8, C8_X(in));
+    case 0xA1: return i_sknp_vx(c8, C8_X(in));
+    default:
+        C8_EXCEPTION(INVALID_INSTRUCTION_EXCEPTION, "Invalid instruction: %04x", in);
+        return INVALID_INSTRUCTION_EXCEPTION;
     }
 }
 
-static int misc_instruction(c8_t* c8, uint8_t x, uint8_t kk) {
-    switch (kk) {
-    case 0x07: return i_ld_vx_dt(c8, x);
-    case 0x0A: return i_ld_vx_k(c8, x);
-    case 0x15: return i_ld_dt_vx(c8, x);
-    case 0x18: return i_ld_st_vx(c8, x);
-    case 0x1E: return i_add_i_vx(c8, x);
-    case 0x29: return i_ld_f_vx(c8, x);
-    case 0x30: return i_ld_hf_vx(c8, x);
-    case 0x33: return i_ld_b_vx(c8, x);
-    case 0x55: return i_ld_ip_vx(c8, x);
-    case 0x65: return i_ld_vx_ip(c8, x);
-    case 0x75: return i_ld_r_vx(c8, x);
-    case 0x85: return i_ld_vx_r(c8, x);
-    default: return INVALID_INSTRUCTION_EXCEPTION;
+static int misc_instruction(c8_t* c8, uint16_t in) {
+    switch (C8_KK(in)) {
+    case 0x07: return i_ld_vx_dt(c8, C8_X(in));
+    case 0x0A: return i_ld_vx_k(c8, C8_X(in));
+    case 0x15: return i_ld_dt_vx(c8, C8_X(in));
+    case 0x18: return i_ld_st_vx(c8, C8_X(in));
+    case 0x1E: return i_add_i_vx(c8, C8_X(in));
+    case 0x29: return i_ld_f_vx(c8, C8_X(in));
+    case 0x30: return i_ld_hf_vx(c8, C8_X(in));
+    case 0x33: return i_ld_b_vx(c8, C8_X(in));
+    case 0x55: return i_ld_ip_vx(c8, C8_X(in));
+    case 0x65: return i_ld_vx_ip(c8, C8_X(in));
+    case 0x75: return i_ld_r_vx(c8, C8_X(in));
+    case 0x85: return i_ld_vx_r(c8, C8_X(in));
+    default:
+        C8_EXCEPTION(INVALID_INSTRUCTION_EXCEPTION, "Invalid instruction: %04x", in);
+        return INVALID_INSTRUCTION_EXCEPTION;
     }
 }
 
@@ -256,11 +265,11 @@ static inline int i_cls(c8_t* c8) {
  * or STACK_UNDERFLOW_EXCEPTION if the stack is empty.
  */
 static inline int i_ret(c8_t* c8) {
-    c8->sp--;
-    if (c8->sp < 0) {
-        sprintf(c8_exception, "Stack underflow at %03x", c8->pc);
+    if (c8->sp == 0) {
+        C8_EXCEPTION(STACK_UNDERFLOW_EXCEPTION, "Stack underflow at %03x", c8->pc);
         return STACK_UNDERFLOW_EXCEPTION;
     }
+    c8->sp--;
     c8->pc = c8->stack[c8->sp];
     return 2;
 }
@@ -304,10 +313,10 @@ static inline int i_scr(c8_t* c8) {
  */
 static inline int i_scl(c8_t* c8) {
     SCHIP_EXCLUSIVE(c8);
-    c8->display.x -= 4;
-    if (c8->display.x < 0) {
+    if (c8->display.x < 4) {
         c8->display.x += C8_HIGH_DISPLAY_WIDTH;
     }
+    c8->display.x -= 4;
     return 2;
 }
 
@@ -395,7 +404,7 @@ static inline int i_jp_nnn(c8_t* c8, uint16_t nnn) {
  */
 static inline int i_call_nnn(c8_t* c8, uint16_t nnn) {
     if (c8->sp >= 16) {
-        sprintf(c8_exception, "PC: %03x", c8->pc);
+        C8_EXCEPTION(STACK_OVERFLOW_EXCEPTION, "Stack overflow at %03x", c8->pc);
         return STACK_OVERFLOW_EXCEPTION;
     }
     c8->stack[c8->sp] = c8->pc;
