@@ -21,7 +21,7 @@ static int initialize_labels(label_list_t*);
 static int initialize_symbols(symbol_list_t*);
 static int line_count(const char*);
 static int parse_line(char*, int, symbol_list_t*, label_list_t*);
-static int parse_word(char*, char*, int, symbol_t*, label_list_t*);
+static int parse_word(char*, const char*, int, symbol_t*, const label_list_t*);
 static inline void put16(uint8_t*, uint16_t, int);
 static int tokenize(char**, char*, const char*, int);
 static int to_upper(char*);
@@ -50,7 +50,6 @@ int c8_encode(const char* s, uint8_t* out, int args) {
     int len = strlen(s);
     int count = 0;
     c8_line_count = line_count(s);
-    int ret;
     label_list_t labels;
     symbol_list_t symbols;
 
@@ -230,7 +229,7 @@ static int parse_line(char* s, int ln, symbol_list_t* symbols, label_list_t* lab
  *
  * @return number of words to skip
  */
-static int parse_word(char* s, char* next, int ln, symbol_t* sym, label_list_t* labels) {
+static int parse_word(char* s, const char* next, int ln, symbol_t* sym, const label_list_t* labels) {
     int value;
     sym->ln = ln;
     s = remove_comma(s);
