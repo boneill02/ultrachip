@@ -115,7 +115,6 @@ int c8_load_palette_s(c8_t* c8, char* s) {
 int c8_load_palette_f(c8_t* c8, const char* path) {
     char buf[64];
     buf[0] = '$';
-    int c;
     FILE* f = fopen(path, "r");
     if (!f) {
         C8_EXCEPTION(LOAD_FILE_FAILURE_EXCEPTION,
@@ -123,6 +122,7 @@ int c8_load_palette_f(c8_t* c8, const char* path) {
         return 0;
     }
     for (int i = 0; i < 2; i++) {
+        int c;
         fgets(buf + 1, 64 - 1, f);
         if ((c = parse_int(buf)) == -1) {
             C8_EXCEPTION(INVALID_COLOR_PALETTE_EXCEPTION,
