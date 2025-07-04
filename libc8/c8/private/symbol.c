@@ -608,7 +608,7 @@ static int reallocate_symbols(symbol_list_t* symbols) {
  */
 static int shift(uint16_t fmt) {
     static const int table[6][2] = {
-        {0xF000, 0}, // a
+        {0xF000, 12}, // a
         {0x000F, 0}, // b
         {0x00FF, 0}, // kk
         {0x0FFF, 0}, // nnn
