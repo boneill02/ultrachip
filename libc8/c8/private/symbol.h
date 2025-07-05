@@ -42,6 +42,7 @@
 #define S_EXIT "EXIT"
 #define S_LOW "LOW"
 #define S_HIGH "HIGH"
+#define S_JP_V0 "JP V0,"
 
 /* Reserved identifier strings */
 #define S_K "K"
@@ -92,6 +93,7 @@ typedef enum {
     I_EXIT,
     I_LOW,
     I_HIGH,
+    I_JP_V0,
 } Instruction;
 
 /**

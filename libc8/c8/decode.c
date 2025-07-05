@@ -99,33 +99,6 @@ char* c8_decode_instruction(uint16_t in, uint8_t* label_map) {
         snprintf(result, RESULT_SIZE, "SCD 0x%01X", b);
         return result;
     }
-    else if (a == 0xB) {
-        // Special case for JP V0, NNN
-        // V0 here is not masked, it's part of the instruction.
-        if (label_map[nnn]) {
-            snprintf(result, RESULT_SIZE, "JP V0, label%d", label_map[nnn]);
-        }
-        else {
-            snprintf(result, RESULT_SIZE, "JP V0, $%03X", nnn);
-        }
-        return result;
-    }
-    else if (a == 8 && b == 0x6) {
-        // Special case for SHR Vx, Vy
-        // This instruction can take multiple forms depending on quirks, so we
-        // default to 2 parameters when decoding
-        snprintf(result, RESULT_SIZE, "SHR V%01X, V%01X", x, y);
-        return result;
-    }
-    else if (a == 8 && b == 0xE) {
-        // Special case for SHL Vx, Vy
-        // This instruction can take multiple forms depending on quirks, so we
-        // default to 2 parameters when decoding
-        snprintf(result, RESULT_SIZE, "SHL V%01X, V%01X", x, y);
-        return result;
-    }
-
-
     for (int i = 0; formats[i].cmd != I_NULL; i++) {
         if ((C8_A(formats[i].base) & a) == C8_A(in)) {
             int match = 1;
