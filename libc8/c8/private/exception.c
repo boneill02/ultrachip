@@ -69,7 +69,6 @@ void handle_exception(int code) {
     fprintf(stderr, "%s\n", c8_exception);
 
     #ifndef TEST
-    printf("Exiting with code %d\n", code);
     exit(code);
     #endif
 }
