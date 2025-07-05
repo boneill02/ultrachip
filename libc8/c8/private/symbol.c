@@ -100,7 +100,8 @@ instruction_format_t formats[] = {
     { I_SHL,   0x800E, 1, {SYM_V},                  {0x0F00} },
     { I_SNE,   0x9000, 2, {SYM_V, SYM_V},           {0x0F00, 0x00F0} },
     { I_LD,    0xA000, 2, {SYM_I, SYM_INT12},       {0x0000, 0x0FFF} },
-    { I_JP_V0, 0xB000, 1, {SYM_INT12},              {0x0FFF} },
+    { I_JP_V0, 0xB000, 1, {SYM_INT12},              {0x0FFF} }, // For decoding
+    { I_JP,    0xB000, 1, {SYM_V, SYM_INT12},       {0x0000, 0x0FFF} }, // For encoding
     { I_RND,   0xC000, 2, {SYM_V, SYM_INT8},        {0x0F00, 0x00FF} },
     { I_DRW,   0xD000, 3, {SYM_V, SYM_V, SYM_INT4}, {0x0F00, 0x00F0, 0x000F} },
     { I_SKP,   0xE09E, 1, {SYM_V},                  {0x0F00} },
