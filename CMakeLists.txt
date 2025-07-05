@@ -2,6 +2,7 @@
 
 cmake_minimum_required(VERSION 3.31.6)
 project("libc8" C)
+include(CTest)
 
 # defaults
 set(SDL2 OFF)
@@ -23,7 +24,6 @@ endfunction()
 function(Enable_Tests)
   SDL2_Required()
   set(TEST ON CACHE INTERNAL "")
-  include(CTest)
 endfunction()
 
 function(Build_Library)
