@@ -1,8 +1,6 @@
 #include "unity.h"
 
 #include "c8/encode.c"
-#include "c8/private/exception.c"
-#include "c8/private/symbol.c"
 
 #include "c8/private/util.h"
 #include "c8/defs.h"
