@@ -119,6 +119,10 @@ char* remove_comment(char* s) {
         return s;
     }
 
+    if (strlen(s) < 2) {
+        return s;
+    }
+
     for (size_t i = 1; i < strlen(s); i++) {
         if (s[i] == ';' && isspace(s[i - 1])) {
             s[i - 1] = '\0';
