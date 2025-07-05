@@ -504,7 +504,6 @@ int main(void) {
     }
 
     c8_lines_unformatted = malloc(MAX_LINE_COUNT * sizeof(char*));
-    line0 = malloc(MAX_LINE_LEN * MAX_LINE_COUNT);
     for (int i = 0; i < MAX_LINE_COUNT; i++) {
         c8_lines_unformatted[i] = line0 + (i * MAX_LINE_LEN);
     }
