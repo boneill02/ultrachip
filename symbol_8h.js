@@ -26,6 +26,7 @@ var symbol_8h =
     [ "S_I", "symbol_8h.html#a069c8e9eb23a5c0b3037bc1cc1be5355", null ],
     [ "S_IP", "symbol_8h.html#a56b4923a4121ddf4c42b267f089eeb26", null ],
     [ "S_JP", "symbol_8h.html#a147198d865f2bb871836c1019862a0bc", null ],
+    [ "S_JP_V0", "symbol_8h.html#a8f846b2a1b38ba761ba7f3ffe72924cd", null ],
     [ "S_K", "symbol_8h.html#a70803a83ac19e484064206a6f0ba7009", null ],
     [ "S_LD", "symbol_8h.html#ac62ef9e5b6f6f1cca6ad75a93acef202", null ],
     [ "S_LOW", "symbol_8h.html#a02ca9f9631f1730c696a49e6016112b6", null ],
@@ -73,7 +74,8 @@ var symbol_8h =
       [ "I_SCL", "symbol_8h.html#acbd603b5f7c788a74eade8d4837ba684a10dbe94106f442c9ae1591207bf2e766", null ],
       [ "I_EXIT", "symbol_8h.html#acbd603b5f7c788a74eade8d4837ba684ae32ececb04056d4aeedd58a7a952f068", null ],
       [ "I_LOW", "symbol_8h.html#acbd603b5f7c788a74eade8d4837ba684af792cf3d15f67dee5a289de6780a9518", null ],
-      [ "I_HIGH", "symbol_8h.html#acbd603b5f7c788a74eade8d4837ba684a2ffcc08435ee888bd43508cdf7e9bac2", null ]
+      [ "I_HIGH", "symbol_8h.html#acbd603b5f7c788a74eade8d4837ba684a2ffcc08435ee888bd43508cdf7e9bac2", null ],
+      [ "I_JP_V0", "symbol_8h.html#acbd603b5f7c788a74eade8d4837ba684a2920b377d188801b0d22d4f54c2e08cf", null ]
     ] ],
     [ "Symbol", "symbol_8h.html#a7feef761cd73fac6e25b8bb80d2c4e54", [
       [ "SYM_NULL", "symbol_8h.html#a7feef761cd73fac6e25b8bb80d2c4e54a9972aad5f0574325cbf5991b7ddec5f3", null ],
