@@ -1,3 +1,10 @@
+/**
+ * @file c8/private/instruction.c
+ * @note NOT EXPORTED
+ *
+ * This file contains the implementation of the instruction parsing and
+ * execution for the CHIP-8 interpreter.
+ */
 #include "c8/private/instruction.h"
 
 #include "c8/decode.h"
