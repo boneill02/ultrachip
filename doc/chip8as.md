@@ -34,4 +34,4 @@ DRW V0, V1, 1
 * Data bytes may be defined using the `.DB` symbol.
 * 16-bit data words may be defined using the `.DW` symbol.
 * Commas are optional for instruction parameters.
-* This assembler is case insensitive.
+* This assembler is not case sensitive.
